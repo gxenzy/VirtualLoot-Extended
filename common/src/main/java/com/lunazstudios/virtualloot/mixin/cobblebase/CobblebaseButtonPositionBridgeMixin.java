@@ -31,7 +31,8 @@ public abstract class CobblebaseButtonPositionBridgeMixin extends Screen {
             return;
         }
         try {
-            notlown.cobblebase.core.CobblebaseConfig.INSTANCE.setMainButtonCorner(notlown.cobblebase.core.MainButtonCorner.TOP_RIGHT);
+            me.shedaniel.autoconfig.AutoConfig.getConfigHolder(notlown.cobblebase.core.CobblebaseClothConfig.class)
+                .getConfig().getGeneral().setMainButtonCorner(notlown.cobblebase.core.MainButtonCorner.TOP_RIGHT);
         } catch (Throwable ignored) {
         }
     }
