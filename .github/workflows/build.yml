@@ -50,6 +50,14 @@ jobs:
       - name: Build Mod with Gradle
         run: ./gradlew build --no-daemon
 
+      - name: Extract Clean Production JARs
+        run: |
+          mkdir -p release_jars
+          find fabric/build/libs/ -maxdepth 1 -type f -name "*.jar" ! -name "*-sources.jar" ! -name "*-dev*.jar" -exec cp {} release_jars/ \;
+          find neoforge/build/libs/ -maxdepth 1 -type f -name "*.jar" ! -name "*-sources.jar" ! -name "*-dev*.jar" -exec cp {} release_jars/ \;
+          echo "Cleaned production jars:"
+          ls -la release_jars/
+
       - name: Extract Metadata & Changelog
         id: meta
         run: |
@@ -73,10 +81,16 @@ jobs:
             SUBTITLE="Cobblebase & Universal Integration"
           fi
           
+          TAG="v${MOD_VER}"
+          if [ "$GITHUB_REF_TYPE" = "tag" ]; then
+            TAG="${GITHUB_REF_NAME}"
+          fi
+          
           echo "MOD_VERSION=$MOD_VER" >> $GITHUB_ENV
           echo "MC_VERSION=$MC_VER" >> $GITHUB_ENV
           echo "VERSION_TYPE=$VER_TYPE" >> $GITHUB_ENV
           echo "VERSION_SUBTITLE=$SUBTITLE" >> $GITHUB_ENV
+          echo "RELEASE_TAG=$TAG" >> $GITHUB_ENV
           
           # Extract commit changelog
           echo "CHANGELOG<<EOF" >> $GITHUB_ENV
@@ -154,41 +168,20 @@ jobs:
           *Licensed under the [MIT License](LICENSE.txt).*
           EOF
 
-      - name: Upload Fabric Mod Artifact
+      - name: Upload Mod Artifacts to GitHub Run
         uses: actions/upload-artifact@v4
         with:
-          name: VirtualLoot-Extended-Fabric
-          path: fabric/build/libs/*-fabric-*.jar
+          name: VirtualLoot-Extended-Jars
+          path: release_jars/*.jar
 
-      - name: Upload NeoForge Mod Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: VirtualLoot-Extended-NeoForge
-          path: neoforge/build/libs/*-neoforge-*.jar
-
-      - name: Publish Release (Tagged Releases)
-        if: startsWith(github.ref, 'refs/tags/')
+      - name: Publish Versioned GitHub Release
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v2
         with:
-          name: "Virtual Loot: Extended [${{ env.MC_VERSION }}] ${{ github.ref_name }} - ${{ env.VERSION_SUBTITLE }}"
+          tag_name: ${{ env.RELEASE_TAG }}
+          name: "Virtual Loot: Extended [${{ env.MC_VERSION }}] ${{ env.RELEASE_TAG }} - ${{ env.VERSION_SUBTITLE }}"
           body_path: release_body.md
           prerelease: ${{ env.VERSION_TYPE != 'Release' }}
-          files: |
-            fabric/build/libs/*-fabric-*.jar
-            neoforge/build/libs/*-neoforge-*.jar
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Publish Rolling Release (Main Branch)
-        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: latest
-          name: "Virtual Loot: Extended [${{ env.MC_VERSION }}] v${{ env.MOD_VERSION }} - ${{ env.VERSION_SUBTITLE }}"
-          body_path: release_body.md
-          prerelease: false
-          files: |
-            fabric/build/libs/*-fabric-*.jar
-            neoforge/build/libs/*-neoforge-*.jar
+          files: release_jars/*.jar
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
