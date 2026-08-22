@@ -3,6 +3,7 @@ package com.lunazstudios.virtualloot.mixin.cobblebase;
 import com.cobblemon.mod.common.client.gui.pasture.PasturePCGUIConfiguration;
 import com.cobblemon.mod.common.client.gui.pc.PCGUI;
 import com.cobblemon.mod.common.client.gui.pc.PCGUIConfiguration;
+import com.lunazstudios.virtualloot.integration.cobblebase.CobblebaseCompat;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
@@ -23,6 +24,20 @@ public abstract class CobblebaseButtonPositionBridgeMixin extends Screen {
 
     protected CobblebaseButtonPositionBridgeMixin(Component title) {
         super(title);
+    }
+
+    @Inject(method = "init", at = @At("HEAD"))
+    private void virtualloot$onInitCobblebaseCorner(CallbackInfo ci) {
+        if (configuration instanceof PasturePCGUIConfiguration) {
+            CobblebaseCompat.configureCobblebaseButtonCorner();
+        }
+    }
+
+    @Inject(method = "render", at = @At("HEAD"))
+    private void virtualloot$onRenderCobblebaseCorner(GuiGraphics context, int mouseX, int mouseY, float delta, CallbackInfo ci) {
+        if (configuration instanceof PasturePCGUIConfiguration) {
+            CobblebaseCompat.configureCobblebaseButtonCorner();
+        }
     }
 
     @Inject(method = "render", at = @At("TAIL"))

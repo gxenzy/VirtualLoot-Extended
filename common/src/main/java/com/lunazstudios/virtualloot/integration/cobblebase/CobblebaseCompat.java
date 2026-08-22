@@ -42,6 +42,43 @@ public final class CobblebaseCompat {
     }
 
     /**
+     * Dynamically sets Cobblebase's button corner config to TOP_RIGHT so its own
+     * reposition logic places the button in the top header away from CloudTweak.
+     */
+    public static void configureCobblebaseButtonCorner() {
+        try {
+            Class<?> autoConfigClass = Class.forName("me.shedaniel.autoconfig.AutoConfig", false, Thread.currentThread().getContextClassLoader());
+            Class<?> configClass = Class.forName("notlown.cobblebase.core.CobblebaseClothConfig", false, Thread.currentThread().getContextClassLoader());
+            Class<?> cornerEnumClass = Class.forName("notlown.cobblebase.core.MainButtonCorner", false, Thread.currentThread().getContextClassLoader());
+
+            java.lang.reflect.Method getConfigHolderMethod = autoConfigClass.getMethod("getConfigHolder", Class.class);
+            Object holder = getConfigHolderMethod.invoke(null, configClass);
+            if (holder != null) {
+                java.lang.reflect.Method getConfigMethod = holder.getClass().getMethod("getConfig");
+                Object configObj = getConfigMethod.invoke(holder);
+                if (configObj != null) {
+                    java.lang.reflect.Method getGeneralMethod = configObj.getClass().getMethod("getGeneral");
+                    Object generalObj = getGeneralMethod.invoke(configObj);
+                    if (generalObj != null) {
+                        Object topRightEnum = null;
+                        for (Object enumConst : cornerEnumClass.getEnumConstants()) {
+                            if ("TOP_RIGHT".equals(enumConst.toString())) {
+                                topRightEnum = enumConst;
+                                break;
+                            }
+                        }
+                        if (topRightEnum != null) {
+                            java.lang.reflect.Method setCornerMethod = generalObj.getClass().getMethod("setMainButtonCorner", cornerEnumClass);
+                            setCornerMethod.invoke(generalObj, topRightEnum);
+                        }
+                    }
+                }
+            }
+        } catch (Throwable ignored) {
+        }
+    }
+
+    /**
      * Executes Cobblebase job logic for all Pokemon in a Virtual Pasture.
      * Returns true if at least one Pokemon had an active or auto-assigned Cobblebase job handled.
      */
