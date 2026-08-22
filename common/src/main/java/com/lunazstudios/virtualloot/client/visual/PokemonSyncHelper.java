@@ -1,10 +1,8 @@
 package com.lunazstudios.virtualloot.client.visual;
 
-import com.cobblemon.mod.common.Cobblemon;
+import com.cobblemon.mod.common.client.CobblemonClient;
 import com.cobblemon.mod.common.pokemon.Pokemon;
 import net.minecraft.client.Minecraft;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.core.RegistryAccess;
 import net.minecraft.nbt.CompoundTag;
 
 import java.lang.reflect.Method;
@@ -87,14 +85,11 @@ public final class PokemonSyncHelper {
     public static Pokemon getPokemonFromPC(java.util.UUID pokemonId) {
         if (pokemonId == null) return null;
         try {
-            Minecraft mc = Minecraft.getInstance();
-            if (mc.player != null) {
-                for (Pokemon p : Cobblemon.INSTANCE.getStorage().getParty(mc.player).toGappyList()) {
-                    if (p != null && pokemonId.equals(p.getUuid())) return p;
-                }
-                for (Pokemon p : Cobblemon.INSTANCE.getStorage().getPC(mc.player).toGappyList()) {
-                    if (p != null && pokemonId.equals(p.getUuid())) return p;
-                }
+            for (Pokemon p : CobblemonClient.INSTANCE.getStorage().getMyParty().toGappyList()) {
+                if (p != null && pokemonId.equals(p.getUuid())) return p;
+            }
+            for (Pokemon p : CobblemonClient.INSTANCE.getStorage().getPC().toGappyList()) {
+                if (p != null && pokemonId.equals(p.getUuid())) return p;
             }
         } catch (Throwable ignored) {}
         return null;
