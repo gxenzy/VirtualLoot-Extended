@@ -85,11 +85,43 @@ public final class PokemonSyncHelper {
     public static Pokemon getPokemonFromPC(java.util.UUID pokemonId) {
         if (pokemonId == null) return null;
         try {
-            for (Pokemon p : CobblemonClient.INSTANCE.getStorage().getMyParty().toGappyList()) {
-                if (p != null && pokemonId.equals(p.getUuid())) return p;
+            Object storage = CobblemonClient.INSTANCE.getStorage();
+            if (storage == null) return null;
+
+            for (Method m : storage.getClass().getMethods()) {
+                if (m.getParameterCount() == 1 && m.getParameterTypes()[0] == java.util.UUID.class) {
+                    try {
+                        Object res = m.invoke(storage, pokemonId);
+                        if (res instanceof Pokemon p) return p;
+                    } catch (Throwable ignored) {}
+                }
             }
-            for (Pokemon p : CobblemonClient.INSTANCE.getStorage().getPC().toGappyList()) {
-                if (p != null && pokemonId.equals(p.getUuid())) return p;
+
+            for (Method m : storage.getClass().getMethods()) {
+                if (m.getParameterCount() == 0) {
+                    try {
+                        Object val = m.invoke(storage);
+                        if (val instanceof Iterable<?> iter) {
+                            for (Object obj : iter) {
+                                if (obj instanceof Pokemon p && pokemonId.equals(p.getUuid())) return p;
+                            }
+                        }
+                        if (val != null) {
+                            for (Method storeMethod : val.getClass().getMethods()) {
+                                if (storeMethod.getParameterCount() == 0) {
+                                    try {
+                                        Object inner = storeMethod.invoke(val);
+                                        if (inner instanceof Iterable<?> innerIter) {
+                                            for (Object obj : innerIter) {
+                                                if (obj instanceof Pokemon p && pokemonId.equals(p.getUuid())) return p;
+                                            }
+                                        }
+                                    } catch (Throwable ignored) {}
+                                }
+                            }
+                        }
+                    } catch (Throwable ignored) {}
+                }
             }
         } catch (Throwable ignored) {}
         return null;
