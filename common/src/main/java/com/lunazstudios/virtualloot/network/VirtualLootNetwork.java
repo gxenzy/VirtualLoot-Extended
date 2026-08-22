@@ -22,7 +22,7 @@ public final class VirtualLootNetwork {
 
     public static final Function1<RegistryFriendlyByteBuf, SyncVirtualPastureVisualPacket> SYNC_DECODER = SyncVirtualPastureVisualPacket::new;
 
-    public static final PacketRegisterInfo<SyncVirtualPastureVisualPacket> SYNC_VISUAL_MODE = new PacketRegisterInfo<>(
+    public static final PacketRegisterInfo<SyncVirtualPastureVisualPacket> SYNC_VISUAL_MODE = new PacketRegisterInfo<SyncVirtualPastureVisualPacket>(
         SyncVirtualPastureVisualPacket.ID,
         SYNC_DECODER,
         (ServerNetworkPacketHandler<SyncVirtualPastureVisualPacket>) null,
