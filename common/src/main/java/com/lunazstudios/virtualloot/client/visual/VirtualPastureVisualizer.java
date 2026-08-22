@@ -131,7 +131,7 @@ public class VirtualPastureVisualizer {
         if (entity.isRemoved()) return;
 
         int mode = holder.mode;
-        Random rand = world.random;
+        net.minecraft.util.RandomSource rand = world.random;
 
         // 1. Particle and floating effect per mode
         double ex = entity.getX();
