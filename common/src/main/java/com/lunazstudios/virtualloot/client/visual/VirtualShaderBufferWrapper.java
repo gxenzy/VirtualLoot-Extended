@@ -44,7 +44,7 @@ public class VirtualShaderBufferWrapper implements MultiBufferSource {
         @Override
         public VertexConsumer setColor(int red, int green, int blue, int alpha) {
             if (mode == 1) {
-                // Cyber Wireframe: Neon Matrix Green/Cyan
+                // Cyber Wireframe: Neon Matrix Green
                 parent.setColor(25, 255, 150, 255);
             } else if (mode == 2) {
                 // Hologram: Cyan matrix glow with animated scanlines
@@ -60,6 +60,15 @@ public class VirtualShaderBufferWrapper implements MultiBufferSource {
                 parent.setColor(red, green, blue, alpha);
             }
             return this;
+        }
+
+        @Override
+        public VertexConsumer setColor(int color) {
+            int a = (color >> 24) & 255;
+            int r = (color >> 16) & 255;
+            int g = (color >> 8) & 255;
+            int b = color & 255;
+            return setColor(r, g, b, a);
         }
 
         @Override
@@ -88,6 +97,22 @@ public class VirtualShaderBufferWrapper implements MultiBufferSource {
         @Override
         public VertexConsumer setNormal(float x, float y, float z) {
             parent.setNormal(x, y, z);
+            return this;
+        }
+
+        @Override
+        public VertexConsumer setOverlay(int overlay) {
+            parent.setOverlay(overlay);
+            return this;
+        }
+
+        @Override
+        public VertexConsumer setLight(int light) {
+            if (mode == 1 || mode == 2) {
+                parent.setLight(0x00F000F0);
+            } else {
+                parent.setLight(light);
+            }
             return this;
         }
     }
