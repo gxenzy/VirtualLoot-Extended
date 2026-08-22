@@ -26,6 +26,7 @@ public class VirtualPastureVisualizer {
     }
 
     private static final Map<BlockPos, List<VisualPokemonHolder>> ACTIVE_PASTURE_VISUALS = new HashMap<>();
+    private static final java.util.concurrent.atomic.AtomicInteger ENTITY_COUNTER = new java.util.concurrent.atomic.AtomicInteger(500000);
 
     public static void handleServerSync(BlockPos pos, int mode, List<CompoundTag> pokemonTags) {
         Minecraft mc = Minecraft.getInstance();
@@ -59,7 +60,7 @@ public class VirtualPastureVisualizer {
 
             if (existing == null) {
                 PokemonEntity visualEntity = new PokemonEntity(world, pkmn, CobblemonEntities.POKEMON);
-                visualEntity.setId(net.minecraft.world.entity.Entity.nextEntityId());
+                visualEntity.setId(ENTITY_COUNTER.incrementAndGet());
                 visualEntity.setNoAi(false);
                 visualEntity.setInvulnerable(true);
                 visualEntity.setSilent(true);

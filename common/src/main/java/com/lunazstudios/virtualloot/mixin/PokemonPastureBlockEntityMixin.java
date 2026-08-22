@@ -230,7 +230,7 @@ public abstract class PokemonPastureBlockEntityMixin implements VirtualPastureIn
     }
 
     @Inject(method = "getUpdatePacket", at = @At("HEAD"), cancellable = true)
-    private void virtualloot$getUpdatePacket(CallbackInfoReturnable<net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket> cir) {
+    private void virtualloot$getUpdatePacket(CallbackInfoReturnable<net.minecraft.network.protocol.Packet<net.minecraft.network.protocol.game.ClientGamePacketListener>> cir) {
         if (virtualloot$isVirtualPasture()) {
             PokemonPastureBlockEntity be = (PokemonPastureBlockEntity) (Object) this;
             cir.setReturnValue(net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket.create(be));
