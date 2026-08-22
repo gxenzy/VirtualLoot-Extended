@@ -77,13 +77,13 @@ public final class VirtualPastureVisualToggleButton extends AbstractWidget {
         String desc;
         if (currentMode == 1) {
             title = "§a§lVisuals: WIREFRAME";
-            desc = "§7Cybernetic wireframe mesh.\n§70 Server Lag • Client Visuals Only.";
+            desc = "§7Cybernetic wireframe mesh with green matrix sparks.\n§70 Server Lag • Client Visuals Only.";
         } else if (currentMode == 2) {
             title = "§b§lVisuals: HOLOGRAM";
-            desc = "§7Glowing cyan holographic projection.\n§70 Server Lag • Client Visuals Only.";
+            desc = "§7Glowing cyan holographic projection with electric aura.\n§70 Server Lag • Client Visuals Only.";
         } else if (currentMode == 3) {
             title = "§d§lVisuals: GHOST";
-            desc = "§7Ethereal translucent spirit models.\n§70 Server Lag • Client Visuals Only.";
+            desc = "§7Floating ethereal spirit models with mystical smoke.\n§70 Server Lag • Client Visuals Only.";
         } else {
             title = "§c§lVisuals: OFF";
             desc = "§7Zero visual entities spawned.\n§aMaximum Performance Mode.";
@@ -121,13 +121,6 @@ public final class VirtualPastureVisualToggleButton extends AbstractWidget {
                                 CompoundTag tag = PokemonSyncHelper.serializePokemon(pkmn);
                                 if (!tag.isEmpty()) clientTags.add(tag);
                             }
-                        }
-                    }
-                    if (clientTags.isEmpty() && mc.screen != null) {
-                        List<Pokemon> screenPkmn = PokemonSyncHelper.getAllPokemonFromScreen(mc.screen);
-                        for (Pokemon p : screenPkmn) {
-                            CompoundTag tag = PokemonSyncHelper.serializePokemon(p);
-                            if (!tag.isEmpty()) clientTags.add(tag);
                         }
                     }
                 }

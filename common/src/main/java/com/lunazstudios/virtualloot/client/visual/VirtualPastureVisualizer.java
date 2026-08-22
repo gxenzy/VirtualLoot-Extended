@@ -6,6 +6,7 @@ import com.cobblemon.mod.common.pokemon.Pokemon;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 
 import java.util.*;
@@ -18,10 +19,12 @@ public class VirtualPastureVisualizer {
         public double targetX;
         public double targetZ;
         public int roamCooldown = 0;
+        public int mode;
 
-        public VisualPokemonHolder(UUID pokemonId, PokemonEntity entity) {
+        public VisualPokemonHolder(UUID pokemonId, PokemonEntity entity, int mode) {
             this.pokemonId = pokemonId;
             this.entity = entity;
+            this.mode = mode;
         }
     }
 
@@ -64,17 +67,16 @@ public class VirtualPastureVisualizer {
                 visualEntity.setNoAi(false);
                 visualEntity.setInvulnerable(true);
                 visualEntity.setSilent(true);
-                visualEntity.noPhysics = false;
-                visualEntity.setOnGround(true);
+                visualEntity.noPhysics = (mode == 3); // No clip / fly through for ghosts
+                visualEntity.setOnGround(mode != 3);
 
-                if (mode == 1 || mode == 2) {
-                    visualEntity.setGlowingTag(true);
-                }
+                visualEntity.setGlowingTag(mode == 1 || mode == 2);
 
                 Random rand = new Random(id.hashCode());
                 double ox = (rand.nextDouble() - 0.5) * 4.0;
                 double oz = (rand.nextDouble() - 0.5) * 4.0;
-                visualEntity.setPos(pos.getX() + 0.5 + ox, pos.getY() + 1.0, pos.getZ() + 0.5 + oz);
+                double initialY = pos.getY() + 1.0 + (mode == 3 ? 0.5 : 0.0);
+                visualEntity.setPos(pos.getX() + 0.5 + ox, initialY, pos.getZ() + 0.5 + oz);
                 float yaw = rand.nextFloat() * 360f;
                 visualEntity.setYRot(yaw);
                 visualEntity.yHeadRot = yaw;
@@ -83,20 +85,18 @@ public class VirtualPastureVisualizer {
                 visualEntity.addTag("virtualloot_visual_mode_" + mode);
                 world.addEntity(visualEntity);
 
-                VisualPokemonHolder newHolder = new VisualPokemonHolder(id, visualEntity);
+                VisualPokemonHolder newHolder = new VisualPokemonHolder(id, visualEntity, mode);
                 newHolder.targetX = visualEntity.getX();
                 newHolder.targetZ = visualEntity.getZ();
                 currentHolders.add(newHolder);
             } else {
+                existing.mode = mode;
                 existing.entity.removeTag("virtualloot_visual_mode_1");
                 existing.entity.removeTag("virtualloot_visual_mode_2");
                 existing.entity.removeTag("virtualloot_visual_mode_3");
                 existing.entity.addTag("virtualloot_visual_mode_" + mode);
-                if (mode == 1 || mode == 2) {
-                    existing.entity.setGlowingTag(true);
-                } else {
-                    existing.entity.setGlowingTag(false);
-                }
+                existing.entity.setGlowingTag(mode == 1 || mode == 2);
+                existing.entity.noPhysics = (mode == 3);
             }
         }
 
@@ -121,17 +121,48 @@ public class VirtualPastureVisualizer {
         for (Map.Entry<BlockPos, List<VisualPokemonHolder>> entry : ACTIVE_PASTURE_VISUALS.entrySet()) {
             BlockPos pasturePos = entry.getKey();
             for (VisualPokemonHolder holder : entry.getValue()) {
-                tickVisualEntityRoaming(holder, pasturePos);
+                tickVisualEntity(holder, pasturePos, world);
             }
         }
     }
 
-    private static void tickVisualEntityRoaming(VisualPokemonHolder holder, BlockPos pasturePos) {
+    private static void tickVisualEntity(VisualPokemonHolder holder, BlockPos pasturePos, ClientLevel world) {
         PokemonEntity entity = holder.entity;
         if (entity.isRemoved()) return;
 
+        int mode = holder.mode;
+        Random rand = world.random;
+
+        // 1. Particle and floating effect per mode
+        double ex = entity.getX();
+        double ey = entity.getY() + entity.getBbHeight() * 0.5;
+        double ez = entity.getZ();
+
+        if (mode == 1) {
+            // Mode 1: WIREFRAME / CYBER (Green matrix code particles)
+            if (rand.nextFloat() < 0.4f) {
+                world.addParticle(ParticleTypes.HAPPY_VILLAGER, ex + (rand.nextDouble() - 0.5) * 0.8, ey + (rand.nextDouble() - 0.5) * 0.8, ez + (rand.nextDouble() - 0.5) * 0.8, 0, 0.05, 0);
+            }
+        } else if (mode == 2) {
+            // Mode 2: HOLOGRAM (Cyan electric / end rod digital aura)
+            if (rand.nextFloat() < 0.5f) {
+                world.addParticle(ParticleTypes.ELECTRIC_SPARK, ex + (rand.nextDouble() - 0.5) * 0.8, ey + (rand.nextDouble() - 0.5) * 0.8, ez + (rand.nextDouble() - 0.5) * 0.8, (rand.nextDouble() - 0.5) * 0.05, 0.05, (rand.nextDouble() - 0.5) * 0.05);
+            }
+            if (rand.nextFloat() < 0.2f) {
+                world.addParticle(ParticleTypes.END_ROD, ex + (rand.nextDouble() - 0.5) * 0.6, ey + (rand.nextDouble() - 0.5) * 0.6, ez + (rand.nextDouble() - 0.5) * 0.6, 0, 0.02, 0);
+            }
+        } else if (mode == 3) {
+            // Mode 3: GHOST (Floating spirit with witch magic & soul fire flames)
+            if (rand.nextFloat() < 0.6f) {
+                world.addParticle(ParticleTypes.WITCH, ex + (rand.nextDouble() - 0.5) * 0.8, ey + (rand.nextDouble() - 0.5) * 0.8, ez + (rand.nextDouble() - 0.5) * 0.8, (rand.nextDouble() - 0.5) * 0.02, 0.03, (rand.nextDouble() - 0.5) * 0.02);
+            }
+            if (rand.nextFloat() < 0.3f) {
+                world.addParticle(ParticleTypes.SOUL_FIRE_FLAME, ex + (rand.nextDouble() - 0.5) * 0.5, ey + (rand.nextDouble() - 0.5) * 0.5, ez + (rand.nextDouble() - 0.5) * 0.5, 0, 0.02, 0);
+            }
+        }
+
+        // 2. Roaming behavior
         if (holder.roamCooldown-- <= 0) {
-            Random rand = new Random();
             holder.roamCooldown = 80 + rand.nextInt(100);
 
             double ox = (rand.nextDouble() - 0.5) * 5.0;
@@ -151,10 +182,12 @@ public class VirtualPastureVisualizer {
             entity.yHeadRot = targetYaw;
             entity.yBodyRot = targetYaw;
 
-            double speed = 0.035;
-            entity.setDeltaMovement(Math.cos(angle) * speed, entity.getDeltaMovement().y, Math.sin(angle) * speed);
+            double speed = (mode == 3) ? 0.025 : 0.035;
+            double vy = (mode == 3) ? Math.sin(entity.tickCount * 0.1) * 0.015 : entity.getDeltaMovement().y;
+            entity.setDeltaMovement(Math.cos(angle) * speed, vy, Math.sin(angle) * speed);
         } else {
-            entity.setDeltaMovement(0, entity.getDeltaMovement().y, 0);
+            double vy = (mode == 3) ? Math.sin(entity.tickCount * 0.1) * 0.015 : entity.getDeltaMovement().y;
+            entity.setDeltaMovement(0, vy, 0);
         }
     }
 
