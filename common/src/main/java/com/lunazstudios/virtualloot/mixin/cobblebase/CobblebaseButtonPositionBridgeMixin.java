@@ -25,18 +25,6 @@ public abstract class CobblebaseButtonPositionBridgeMixin extends Screen {
         super(title);
     }
 
-    @Inject(method = "init", at = @At("TAIL"))
-    private void virtualloot$onInitCobblebaseButton(CallbackInfo ci) {
-        if (!(configuration instanceof PasturePCGUIConfiguration)) {
-            return;
-        }
-        try {
-            me.shedaniel.autoconfig.AutoConfig.getConfigHolder(notlown.cobblebase.core.CobblebaseClothConfig.class)
-                .getConfig().getGeneral().setMainButtonCorner(notlown.cobblebase.core.MainButtonCorner.TOP_RIGHT);
-        } catch (Throwable ignored) {
-        }
-    }
-
     @Inject(method = "render", at = @At("TAIL"))
     private void virtualloot$adjustCobblebaseButtonPosition(GuiGraphics context, int mouseX, int mouseY, float delta, CallbackInfo ci) {
         if (!(configuration instanceof PasturePCGUIConfiguration)) {
