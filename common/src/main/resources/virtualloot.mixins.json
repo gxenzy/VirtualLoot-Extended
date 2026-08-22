@@ -6,7 +6,8 @@
   "minVersion": "0.8",
   "client": [
     "PasturePokemonScrollListMixin",
-    "cobbreeding.PastureGuiVirtualLootButtonMixin"
+    "cobbreeding.PastureGuiVirtualLootButtonMixin",
+    "cobblebase.CobblebaseButtonPositionBridgeMixin"
   ],
   "mixins": [
     "BlockEntityTypeMixin",

@@ -10,6 +10,7 @@ import java.util.Set;
 
 public final class VirtualLootMixinPlugin implements IMixinConfigPlugin {
     private static final String COBBREEDING_PACKAGE = "com.lunazstudios.virtualloot.mixin.cobbreeding.";
+    private static final String COBBLEBASE_PACKAGE = "com.lunazstudios.virtualloot.mixin.cobblebase.";
 
     @Override
     public void onLoad(String mixinPackage) {
@@ -22,7 +23,13 @@ public final class VirtualLootMixinPlugin implements IMixinConfigPlugin {
 
     @Override
     public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
-        return !mixinClassName.startsWith(COBBREEDING_PACKAGE) || VirtualLootCompat.isCobbreedingClassAvailable();
+        if (mixinClassName.startsWith(COBBREEDING_PACKAGE)) {
+            return VirtualLootCompat.isCobbreedingClassAvailable();
+        }
+        if (mixinClassName.startsWith(COBBLEBASE_PACKAGE)) {
+            return VirtualLootCompat.isCobblebaseClassAvailable();
+        }
+        return true;
     }
 
     @Override
