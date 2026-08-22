@@ -1,10 +1,6 @@
 <p align="center">
-    <img src="common/src/main/resources/icon.png" alt="Virtual Loot Extended Logo" width="128" height="128">
+    <img src="logo.png" alt="Virtual Loot Extended" width="100%">
 </p>
-
-<h1 align="center">🌌 Virtual Loot: Extended Edition</h1>
-
-<p align="center"><b>Lag-Free Virtual Pasture Base Management for Cobblemon — Featuring Deep Native Integration with Cobblebase, Cobbreeding, Cobbleworkers & More.</b></p>
 
 <p align="center">
     <img src="https://img.shields.io/badge/Minecraft-1.21.1-62B47A?style=for-the-badge&logo=minecraft" alt="Minecraft 1.21.1">
@@ -80,26 +76,39 @@ All produce, mined minerals, harvested crops, rare treasures, and eggs are neatl
 
 ---
 
-## 🌾 Comprehensive Cobblebase Job Mechanics
+## 🌾 Verified Cobblebase Job Mechanics & Drop Tables
 
-Cobblebase includes **42 hand-crafted jobs** across 7 distinct categories for **1,367 Pokémon species**. In Virtual Loot: Extended, these jobs operate seamlessly inside the Virtual Pasture without entity lag:
+Cobblebase defines exact, hand-crafted produce and drop data for **1,367 Pokémon species**. In Virtual Loot: Extended, these jobs operate seamlessly inside the Virtual Pasture without entity lag:
 
-### 1. 🍯 Gathering & Production Jobs
-| Job | Role & Virtual Pasture Drops | Example Pokémon |
+### 1. 🍯 Verified Producer Output Map
+| Produce Category | Verified Pokémon Species | Item Output |
 | :--- | :--- | :--- |
-| 🍯 **Producer** | Generates lore items (Wool, Moomoo Milk, Honey, Gold Nuggets, Diamonds, Slime Balls, Silk, Pearls, etc.) directly into inventory on proficiency cooldowns. | Wooloo, Mareep, Miltank, Combee, Carbink, Meowth, Shuckle |
-| 🌾 **Harvester** | Gathers crops, apricorns, berries, and mints into the block inventory. | Venusaur, Scizor, Celebi, Meganium, Torterra |
-| ⛏️ **Mining** | Digs for ores (Coal, Raw Iron, Raw Copper, Gold, Redstone, Amethyst, Fossils) scaled by proficiency. | Steelix, Excadrill, Roggenrola, Ting-Lu, Aggron |
-| 🎣 **Fishing** | Catches fish, treasures, and aquatic loot directly into inventory. | Gyarados, Blastoise, Kyogre, Kingdra, Wishiwashi |
-| 🏺 **Archeologist** | Excavates ancient relics, fossils, pottery sherds, and artifacts. | Nidoking, Nidoqueen, Steelix, Claydol |
+| **Wool & Textiles** | Wooloo, Dubwool, Mareep, Flaaffy | `minecraft:white_wool` (x1–x2) |
+| **String & Silk** | Cottonee, Whimsicott, Spinarak, Ariados, Joltik, Galvantula, Sewaddle, Leavanny, Snom, Frosmoth | `minecraft:string` (x1–x3) |
+| **Dairy & Eggs** | Miltank, Gogoat, Skiddo | `cobblemon:moomoo_milk` (x1–x2) |
+| **Poultry Eggs** | Chansey, Blissey, Happiny, Exeggcute, Torchic, Blaziken | `minecraft:egg` (x1–x2) |
+| **Honey & Nectar** | Combee, Vespiquen | `minecraft:honeycomb` (x1–x2) |
+| **Bottled Honey** | Ribombee, Cutiefly | `minecraft:honey_bottle` (x1) |
+| **Gold Nuggets** | Meowth, Persian, Gholdengo, Gimmighoul, Perrserker | `minecraft:gold_nugget` (x1–x3) |
+| **Iron Nuggets** | Galarian Meowth | `minecraft:iron_nugget` (x1) |
+| **Diamonds** | Carbink, Diancie | `minecraft:diamond` (x1) |
+| **Amethyst & Gems** | Sableye | `minecraft:amethyst_shard` (x1) |
+| **Ocean Shards** | Clamperl | `minecraft:prismarine_shard` (x2) |
+| **Apples** | Tropius, Applin, Flapple, Appletun | `minecraft:apple` (x1–x2) |
+| **Sweet Berries** | Bounsweet, Steenee, Tsareena, Cherubi, Cherrim | `minecraft:sweet_berries` (x1–x3) |
+| **Cookies** | Delibird | `minecraft:cookie` (x2) |
+| **Slime Balls** | Goomy, Sliggoo, Goodra | `minecraft:slime_ball` (x1–x3) |
+| **Magma Cream** | Slugma, Magcargo | `minecraft:magma_cream` (x1–x2) |
+| **Charcoal & Fuel** | Torkoal, Coalossal | `minecraft:charcoal` (x2–x3) |
+| **Pearls** | Shellder, Cloyster | `minecraft:pearl` (x1) |
 
 ### 2. 🔍 12 Specialized Finder Subtypes
 | Subtype | Focus Loot Table | Example Generated Items |
 | :--- | :--- | :--- |
-| 🧪 **Alchemist** | Evolution Items | Fire/Thunder/Water Stones, Linking Cords, Ability Patches |
-| 💊 **Pharmacist** | Healing Items | Max Potions, Revives, Full Restores, Sacred Ash |
+| 🧪 **Alchemist** | Evolution Items | Fire/Thunder/Water/Leaf Stones, Linking Cords, Ability Patches |
+| 💊 **Pharmacist** | Healing Items | Max Potions, Full Heals, Revives, Full Restores, Sacred Ash |
 | 🏗️ **Architect** | Rare Building Blocks | Prismarine, Sea Lanterns, Crying Obsidian, Quartz |
-| ⛏️ **Excavator** | Deep Ores & Minerals | Raw Iron/Gold, Diamonds, Emeralds, Ancient Debris |
+| ⛏️ **Excavator** | Deep Ores & Minerals | Raw Iron/Gold/Copper, Diamonds, Emeralds, Ancient Debris |
 | 🌱 **Botanist** | Agricultural Supplies | Apricorn Seeds, Mint Seeds, Fertilizers, Mulch |
 | 📦 **Collector** | Poké Balls | Ultra Balls, Apricorn Balls, Cherish Balls, Master Balls |
 | 📚 **Scholar** | XP Candies | Exp Candy XS–XL, Rare Candies |
@@ -109,7 +118,15 @@ Cobblebase includes **42 hand-crafted jobs** across 7 distinct categories for **
 | 💰 **Prospector** | Valuables & Relics | Relic Coins, Gold Ingots, Netherite Scrap, Emeralds |
 | 🔨 **Smith** | Smithing & Armor Trims | Armor Trims, Netherite Upgrade Templates, Tool Upgrades |
 
-### 3. 💚 Support, Combat & Passive Team Buffs
+### 3. ⛏️ Gathering, Harvester & Mining
+| Job | Role & Virtual Pasture Drops | Example Pokémon |
+| :--- | :--- | :--- |
+| 🌾 **Harvester** | Gathers crops (Wheat, Carrots, Potatoes, Beetroot, Sugar Cane), apricorns, berries, and mints. | Venusaur, Scizor, Celebi, Meganium, Torterra |
+| ⛏️ **Mining** | Digs for regional ores (Coal, Raw Iron, Raw Copper, Gold, Redstone, Amethyst) scaled by proficiency. | Steelix, Excadrill, Roggenrola, Ting-Lu, Aggron |
+| 🎣 **Fishing** | Catches fish, treasures, and aquatic loot directly into inventory. | Gyarados, Blastoise, Kyogre, Kingdra, Wishiwashi |
+| 🏺 **Archeologist** | Excavates ancient relics, fossils, pottery sherds, and artifacts. | Nidoking, Nidoqueen, Steelix, Claydol |
+
+### 4. 💚 Support, Combat & Passive Team Buffs
 | Category | Job / Buff | Effect | Example Pokémon |
 | :--- | :--- | :--- | :--- |
 | 💚 **Support** | **Healer** | Passively heals injured party Pokémon and revives fainted team members. | Blissey, Chansey, Audino, Xerneas |
@@ -135,7 +152,7 @@ Every Pokémon species possesses individual proficiency ratings (1 to 5 Stars) f
 
 ## 🛠️ How To Use & Setup Automation
 
-1. **Craft & Place the Virtual Pasture:** Place the block down in your base.
+1. **Craft & Place the Virtual Pasture:** Place the block down anywhere in your base.
 2. **Assign Pokémon:** Right-click the block to open the Pasture PC interface and tether your Pokémon.
 3. **Assign Cobblebase Jobs:** Click the **Cobblebase** button in the top corner of the pasture interface to select a job (or let them auto-produce).
 4. **Automate with Hoppers:** Place a vanilla **Hopper** (or any modded item pipe) directly **underneath** the Virtual Pasture block. The hopper will automatically pull all items from the 27-slot inventory and pipe them into your storage chests!
@@ -189,4 +206,4 @@ We express our deepest gratitude to the talented creators whose work made this i
 * **[The Cobblemon Team](https://cobblemon.com/)** — Creators of the Cobblemon mod and the core pasture API.
 * **[ludichat](https://github.com/ludichat)** — Creator of **[Cobbreeding](https://modrinth.com/mod/cobbreeding)**.
 * **[Accieo](https://github.com/Accieo)** — Creator of **[Cobbleworkers](https://modrinth.com/mod/cobbleworkers)**.
-* **gxenzy & Contributors** — Extended edition compatibility bridge, virtual job executor, and automated release workflows.
+* **gxenzy & Contributors** — Extended edition compatibility bridge, virtual job engine, and automated release workflows.
