@@ -81,7 +81,7 @@ public abstract class CobblebaseButtonPositionBridgeMixin extends Screen {
         }
     }
 
-    @Inject(method = "mouseClicked", at = @At("HEAD"), cancellable = true, priority = 500)
+    @Inject(method = "mouseClicked", at = @At("HEAD"), cancellable = true)
     private void virtualloot$onCobblebaseButtonClicked(double mouseX, double mouseY, int button, CallbackInfoReturnable<Boolean> cir) {
         if (!(configuration instanceof PasturePCGUIConfiguration) || button != 0) {
             return;
