@@ -63,6 +63,7 @@ public class VirtualPastureVisualizer {
 
             if (existing == null) {
                 PokemonEntity visualEntity = new PokemonEntity(world, pkmn, CobblemonEntities.POKEMON);
+                visualEntity.setPokemon(pkmn);
                 visualEntity.setId(ENTITY_COUNTER.incrementAndGet());
                 visualEntity.setNoAi(false);
                 visualEntity.setInvulnerable(true);

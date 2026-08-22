@@ -110,16 +110,28 @@ public final class VirtualPastureVisualToggleButton extends AbstractWidget {
             if (mc.level != null) {
                 List<CompoundTag> clientTags = new ArrayList<>();
                 if (currentMode > 0) {
-                    BlockEntity be = mc.level.getBlockEntity(bottomPos);
-                    if (be instanceof PokemonPastureBlockEntity pasture) {
-                        for (PokemonPastureBlockEntity.Tethering t : pasture.getTetheredPokemon()) {
-                            Pokemon pkmn = t.getPokemon();
-                            if (pkmn == null) {
-                                pkmn = PokemonSyncHelper.getPokemonFromPC(t.getPokemonId());
-                            }
-                            if (pkmn != null) {
-                                CompoundTag tag = PokemonSyncHelper.serializePokemon(pkmn);
-                                if (!tag.isEmpty()) clientTags.add(tag);
+                    // 1. Try extracting tethered pasture pokemon from open PCGUI screen
+                    if (mc.screen != null) {
+                        List<Pokemon> screenPkmn = PokemonSyncHelper.getPasturePokemonFromScreen(mc.screen);
+                        for (Pokemon p : screenPkmn) {
+                            CompoundTag tag = PokemonSyncHelper.serializePokemon(p);
+                            if (!tag.isEmpty()) clientTags.add(tag);
+                        }
+                    }
+
+                    // 2. Fallback to block entity tethered list if screen wasn't ready
+                    if (clientTags.isEmpty()) {
+                        BlockEntity be = mc.level.getBlockEntity(bottomPos);
+                        if (be instanceof PokemonPastureBlockEntity pasture) {
+                            for (PokemonPastureBlockEntity.Tethering t : pasture.getTetheredPokemon()) {
+                                Pokemon pkmn = t.getPokemon();
+                                if (pkmn == null) {
+                                    pkmn = PokemonSyncHelper.getPokemonFromPC(t.getPokemonId());
+                                }
+                                if (pkmn != null) {
+                                    CompoundTag tag = PokemonSyncHelper.serializePokemon(pkmn);
+                                    if (!tag.isEmpty()) clientTags.add(tag);
+                                }
                             }
                         }
                     }
