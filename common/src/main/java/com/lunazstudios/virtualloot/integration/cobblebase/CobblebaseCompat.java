@@ -19,6 +19,7 @@ import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.Vec3;
 import notlown.cobblebase.core.BaseManager;
 import notlown.cobblebase.core.CobblebaseConfig;
+import notlown.cobblebase.core.JobConfigOverrides;
 import notlown.cobblebase.core.LogManager;
 import notlown.cobblebase.core.ProducerOverrides;
 import notlown.cobblebase.core.SkillDef;
@@ -102,7 +103,7 @@ public final class CobblebaseCompat {
             if (skillDef == null) {
                 skillDef = SkillRegistry.INSTANCE.get(assignment);
             }
-            if (skillDef == null || !skillDef.getEnabled()) {
+            if (skillDef == null || !JobConfigOverrides.INSTANCE.isEnabled(assignment)) {
                 continue;
             }
 
@@ -120,7 +121,7 @@ public final class CobblebaseCompat {
             String id = entry.getSkillId();
             SkillDef def = SkillRegistry.INSTANCE.getEffective(id);
             if (def == null) def = SkillRegistry.INSTANCE.get(id);
-            if (def == null || !def.getEnabled()) continue;
+            if (def == null || !JobConfigOverrides.INSTANCE.isEnabled(id)) continue;
 
             // Prioritize Gathering & Production jobs over purely passive ones
             int priority = 1;
