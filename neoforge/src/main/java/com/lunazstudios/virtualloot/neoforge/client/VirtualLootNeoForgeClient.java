@@ -11,7 +11,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.ScreenEvent;
 
-@EventBusSubscriber(modid = VirtualLoot.MOD_ID, bus = EventBusSubscriber.Bus.GAME, value = Dist.CLIENT)
+@EventBusSubscriber(modid = VirtualLoot.MOD_ID, value = Dist.CLIENT)
 public final class VirtualLootNeoForgeClient {
 
     @SubscribeEvent

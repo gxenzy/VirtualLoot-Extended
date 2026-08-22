@@ -18,11 +18,13 @@ public final class VirtualLootFabricClient implements ClientModInitializer {
                 ScreenEvents.afterRender(screen).register((scr, context, mouseX, mouseY, delta) -> {
                     AdminStatsOverlay.render(context, scr, mouseX, mouseY, delta);
                 });
-                ScreenMouseEvents.beforeMouseClick(screen).register((scr, mouseX, mouseY, button) -> {
-                    return !AdminStatsOverlay.mouseClicked(scr, mouseX, mouseY, button);
+                ScreenMouseEvents.allowMouseClick(screen).register((scr, mouseX, mouseY, button) -> {
+                    boolean handled = AdminStatsOverlay.mouseClicked(scr, mouseX, mouseY, button);
+                    return !handled;
                 });
-                ScreenMouseEvents.beforeMouseScroll(screen).register((scr, mouseX, mouseY, horizontalAmount, verticalAmount) -> {
-                    return !AdminStatsOverlay.mouseScrolled(scr, mouseX, mouseY, verticalAmount);
+                ScreenMouseEvents.allowMouseScroll(screen).register((scr, mouseX, mouseY, horizontalAmount, verticalAmount) -> {
+                    boolean handled = AdminStatsOverlay.mouseScrolled(scr, mouseX, mouseY, verticalAmount);
+                    return !handled;
                 });
             }
         });
