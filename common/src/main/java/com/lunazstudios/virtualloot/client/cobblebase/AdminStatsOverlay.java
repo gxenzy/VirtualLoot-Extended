@@ -202,47 +202,51 @@ public class AdminStatsOverlay {
             String summary = String.format("§7Total species: §f%d   §7Avg prof: §f%.1f   §7Max prof: §f%d", total, avgProf, maxProf);
             context.drawString(font, summary, rightX + padding + 4, contentTop + 14, 0xCCCCCC, false);
 
-            // 2. Interactive Star Filters Bar
+            // 2. Interactive Star Filters Bar (Dynamic Widths, No Bold Resizing Jumps)
             int distY = contentTop + 26;
             context.drawString(font, "§7Filter:", rightX + padding + 4, distY + 2, 0xAAAAAA, false);
             starHitboxes.clear();
 
-            int bx = rightX + padding + 44;
-            // [All] filter button
-            int allW = 38;
+            int bx = rightX + padding + 42;
             int btnH = 12;
+
+            // [All] filter button
+            String allText = "All (" + total + ")";
+            String allLabel = (starFilter == 0) ? "§b" + allText : "§7" + allText;
+            int allW = font.width(allText) + 8;
             int allBg = (starFilter == 0) ? 0xFF2A3A4E : 0xFF181C24;
             int allBorder = (starFilter == 0) ? 0xFF58A6FF : 0xFF333344;
             context.fill(bx - 1, distY - 1, bx + allW + 1, distY + btnH + 1, allBorder);
             context.fill(bx, distY, bx + allW, distY + btnH, allBg);
-            String allLabel = (starFilter == 0) ? "§b§lAll (" + total + ")" : "§7All (" + total + ")";
-            context.drawString(font, allLabel, bx + 3, distY + 2, 0xFFFFFF, false);
+            context.drawString(font, allLabel, bx + 4, distY + 2, 0xFFFFFF, false);
             starHitboxes.put(0, new int[]{bx, distY, allW, btnH});
             bx += allW + 4;
 
             // [5★] down to [1★] buttons
             for (int prof = 5; prof >= 1; prof--) {
                 int count = byProf.getOrDefault(prof, 0);
-                int starW = 46;
+                String starText = prof + "★ (" + count + ")";
+                String starLabel = (starFilter == prof) ? "§6" + prof + "★ §e(" + count + ")" : "§e" + prof + "★ §8(" + count + ")";
+                int starW = font.width(starText) + 8;
                 int starBg = (starFilter == prof) ? 0xFF3E3A20 : 0xFF181C24;
                 int starBorder = (starFilter == prof) ? 0xFFFFD700 : 0xFF333344;
                 context.fill(bx - 1, distY - 1, bx + starW + 1, distY + btnH + 1, starBorder);
                 context.fill(bx, distY, bx + starW, distY + btnH, starBg);
-                String starLabel = (starFilter == prof) ? "§6§l" + prof + "★ §e(" + count + ")" : "§e" + prof + "★ §8(" + count + ")";
-                context.drawString(font, starLabel, bx + 3, distY + 2, 0xFFFFFF, false);
+                context.drawString(font, starLabel, bx + 4, distY + 2, 0xFFFFFF, false);
                 starHitboxes.put(prof, new int[]{bx, distY, starW, btnH});
                 bx += starW + 4;
             }
 
             // 3. Source Filter Toggle Button
-            int srcW = 86;
+            String srcText = (sourceFilter == 1) ? "Cobblemon Only" : (sourceFilter == 2) ? "Custom Only" : "All Species";
+            String srcLabel = (sourceFilter == 1) ? "§a" + srcText : (sourceFilter == 2) ? "§d" + srcText : "§f" + srcText;
+            int srcW = font.width(srcText) + 10;
             int srcX = rightX + rightW - padding - srcW;
             int srcBg = 0xFF222233;
             int srcBorder = 0xFF445566;
             context.fill(srcX - 1, distY - 1, srcX + srcW + 1, distY + btnH + 1, srcBorder);
             context.fill(srcX, distY, srcX + srcW, distY + btnH, srcBg);
-            String srcText = (sourceFilter == 1) ? "§aCobblemon Only" : (sourceFilter == 2) ? "§dCustom Only" : "§fAll Species";
-            context.drawString(font, srcText, srcX + 4, distY + 2, 0xFFFFFF, false);
+            context.drawString(font, srcLabel, srcX + 5, distY + 2, 0xFFFFFF, false);
             sourceHitbox = new int[]{srcX, distY, srcW, btnH};
 
             // 4. Filter and Sort Species List
