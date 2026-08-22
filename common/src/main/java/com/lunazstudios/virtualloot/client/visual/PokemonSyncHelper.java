@@ -5,9 +5,12 @@ import com.cobblemon.mod.common.pokemon.Pokemon;
 import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.CompoundTag;
 
+import java.lang.reflect.Array;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public final class PokemonSyncHelper {
 
@@ -97,10 +100,20 @@ public final class PokemonSyncHelper {
     }
 
     private static Pokemon searchForPokemon(Object obj, java.util.UUID targetId, int depth) {
-        if (obj == null || depth > 4) return null;
+        if (obj == null || depth > 5) return null;
 
         if (obj instanceof Pokemon p) {
             if (targetId.equals(p.getUuid())) return p;
+            return null;
+        }
+
+        if (obj.getClass().isArray()) {
+            int len = Array.getLength(obj);
+            for (int i = 0; i < len; i++) {
+                Object item = Array.get(obj, i);
+                Pokemon found = searchForPokemon(item, targetId, depth + 1);
+                if (found != null) return found;
+            }
             return null;
         }
 
@@ -112,13 +125,33 @@ public final class PokemonSyncHelper {
             return null;
         }
 
+        if (obj instanceof Map<?, ?> map) {
+            for (Object item : map.values()) {
+                Pokemon found = searchForPokemon(item, targetId, depth + 1);
+                if (found != null) return found;
+            }
+            return null;
+        }
+
         for (Method m : obj.getClass().getMethods()) {
-            if (m.getParameterCount() == 0 && m.getName().startsWith("get") && !m.getName().equals("getClass")) {
+            if (m.getParameterCount() == 0 && !m.getName().equals("getClass")) {
                 try {
                     Class<?> returnType = m.getReturnType();
-                    if (Pokemon.class.isAssignableFrom(returnType) || Iterable.class.isAssignableFrom(returnType) || returnType.getName().contains("Store") || returnType.getName().contains("Box") || returnType.getName().contains("Slot")) {
+                    if (Pokemon.class.isAssignableFrom(returnType) ||
+                        returnType.isArray() ||
+                        Iterable.class.isAssignableFrom(returnType) ||
+                        Map.class.isAssignableFrom(returnType) ||
+                        returnType.getName().contains("Store") ||
+                        returnType.getName().contains("Box") ||
+                        returnType.getName().contains("Slot") ||
+                        returnType.getName().contains("Storage") ||
+                        returnType.getName().contains("Party") ||
+                        returnType.getName().contains("PC") ||
+                        returnType.getName().contains("Pasture") ||
+                        returnType.getName().contains("Holder")) {
+
                         Object val = m.invoke(obj);
-                        if (val != null) {
+                        if (val != null && val != obj) {
                             Pokemon found = searchForPokemon(val, targetId, depth + 1);
                             if (found != null) return found;
                         }
@@ -130,18 +163,35 @@ public final class PokemonSyncHelper {
         return null;
     }
 
-    public static List<Pokemon> getAllPokemonFromScreen(Object screen) {
+    public static List<Pokemon> getPasturePokemonFromScreen(Object screen) {
         List<Pokemon> list = new ArrayList<>();
         if (screen == null) return list;
-        collectAllPokemon(screen, list, 0);
+
+        for (Field f : screen.getClass().getDeclaredFields()) {
+            try {
+                f.setAccessible(true);
+                Object val = f.get(screen);
+                if (val != null && (val.getClass().getName().contains("Pasture") || f.getName().toLowerCase().contains("pasture"))) {
+                    collectAllPokemon(val, list, 0);
+                }
+            } catch (Throwable ignored) {}
+        }
         return list;
     }
 
     private static void collectAllPokemon(Object obj, List<Pokemon> list, int depth) {
-        if (obj == null || depth > 4) return;
+        if (obj == null || depth > 5) return;
 
         if (obj instanceof Pokemon p) {
             if (!list.contains(p)) list.add(p);
+            return;
+        }
+
+        if (obj.getClass().isArray()) {
+            int len = Array.getLength(obj);
+            for (int i = 0; i < len; i++) {
+                collectAllPokemon(Array.get(obj, i), list, depth + 1);
+            }
             return;
         }
 
@@ -152,13 +202,26 @@ public final class PokemonSyncHelper {
             return;
         }
 
+        if (obj instanceof Map<?, ?> map) {
+            for (Object item : map.values()) {
+                collectAllPokemon(item, list, depth + 1);
+            }
+            return;
+        }
+
         for (Method m : obj.getClass().getMethods()) {
-            if (m.getParameterCount() == 0 && m.getName().startsWith("get") && !m.getName().equals("getClass")) {
+            if (m.getParameterCount() == 0 && !m.getName().equals("getClass")) {
                 try {
                     Class<?> returnType = m.getReturnType();
-                    if (Pokemon.class.isAssignableFrom(returnType) || Iterable.class.isAssignableFrom(returnType) || returnType.getName().contains("Pokemon") || returnType.getName().contains("Slot") || returnType.getName().contains("Pasture")) {
+                    if (Pokemon.class.isAssignableFrom(returnType) ||
+                        returnType.isArray() ||
+                        Iterable.class.isAssignableFrom(returnType) ||
+                        returnType.getName().contains("Pokemon") ||
+                        returnType.getName().contains("Slot") ||
+                        returnType.getName().contains("Pasture")) {
+
                         Object val = m.invoke(obj);
-                        if (val != null) {
+                        if (val != null && val != obj) {
                             collectAllPokemon(val, list, depth + 1);
                         }
                     }

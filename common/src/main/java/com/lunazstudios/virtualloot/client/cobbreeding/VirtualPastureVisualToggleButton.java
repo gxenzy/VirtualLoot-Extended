@@ -123,6 +123,13 @@ public final class VirtualPastureVisualToggleButton extends AbstractWidget {
                             }
                         }
                     }
+                    if (clientTags.isEmpty() && mc.screen != null) {
+                        List<Pokemon> pasturePkmn = PokemonSyncHelper.getPasturePokemonFromScreen(mc.screen);
+                        for (Pokemon p : pasturePkmn) {
+                            CompoundTag tag = PokemonSyncHelper.serializePokemon(p);
+                            if (!tag.isEmpty()) clientTags.add(tag);
+                        }
+                    }
                 }
                 VirtualPastureVisualizer.handleServerSync(bottomPos, currentMode, clientTags);
             }

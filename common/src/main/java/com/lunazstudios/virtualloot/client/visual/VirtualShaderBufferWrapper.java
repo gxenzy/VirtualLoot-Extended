@@ -18,16 +18,7 @@ public class VirtualShaderBufferWrapper implements MultiBufferSource {
 
     @Override
     public VertexConsumer getBuffer(RenderType renderType) {
-        RenderType targetType = renderType;
-        if (mode == 2 || mode == 3) {
-            // Use translucent render type for Hologram & Ghost
-            targetType = RenderType.entityTranslucent(renderType.format() != null ? renderType : renderType);
-        } else if (mode == 1) {
-            // Emissive cutout for Cyber Wireframe
-            targetType = RenderType.entityCutoutNoCull(renderType.format() != null ? renderType : renderType);
-        }
-
-        VertexConsumer original = delegate.getBuffer(targetType);
+        VertexConsumer original = delegate.getBuffer(renderType);
         return new FilteredVertexConsumer(original, mode, time);
     }
 
