@@ -12,6 +12,24 @@ public final class VirtualLootMixinPlugin implements IMixinConfigPlugin {
     private static final String COBBREEDING_PACKAGE = "com.lunazstudios.virtualloot.mixin.cobbreeding.";
     private static final String COBBLEBASE_PACKAGE = "com.lunazstudios.virtualloot.mixin.cobblebase.";
 
+    public static boolean isFabricLoader() {
+        try {
+            Class.forName("net.fabricmc.loader.api.FabricLoader", false, Thread.currentThread().getContextClassLoader());
+            return true;
+        } catch (Throwable ignored) {
+            return false;
+        }
+    }
+
+    public static boolean isNeoForgeLoader() {
+        try {
+            Class.forName("net.neoforged.fml.loading.FMLLoader", false, Thread.currentThread().getContextClassLoader());
+            return true;
+        } catch (Throwable ignored) {
+            return false;
+        }
+    }
+
     @Override
     public void onLoad(String mixinPackage) {
     }
@@ -27,7 +45,16 @@ public final class VirtualLootMixinPlugin implements IMixinConfigPlugin {
             return VirtualLootCompat.isCobbreedingClassAvailable();
         }
         if (mixinClassName.startsWith(COBBLEBASE_PACKAGE)) {
-            return VirtualLootCompat.isCobblebaseClassAvailable();
+            if (!VirtualLootCompat.isCobblebaseClassAvailable()) {
+                return false;
+            }
+            if (mixinClassName.contains("FabricAdminScreenMixin")) {
+                return isFabricLoader();
+            }
+            if (mixinClassName.contains("NeoForgeAdminScreenMixin")) {
+                return isNeoForgeLoader();
+            }
+            return true;
         }
         return true;
     }

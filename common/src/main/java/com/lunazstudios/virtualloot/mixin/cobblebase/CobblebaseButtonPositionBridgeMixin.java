@@ -58,12 +58,13 @@ public abstract class CobblebaseButtonPositionBridgeMixin extends Screen {
             activeBtn.visible = false;
         }
 
+        // Place Cobblebase button flush to the TOP-LEFT of PC GUI window
         Button customBtn = Button.builder(Component.literal("§bCobblebase"), b -> {
             Button target = virtualloot$getCobblebaseButton();
             if (target != null) {
                 target.onPress();
             }
-        }).bounds(pcX + 208, pcY - 13, 78, 16).build();
+        }).bounds(pcX, pcY - 16, 78, 16).build();
 
         addRenderableWidget(customBtn);
     }
