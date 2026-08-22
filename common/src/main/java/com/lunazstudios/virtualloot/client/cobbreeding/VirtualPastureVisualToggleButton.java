@@ -117,8 +117,8 @@ public final class VirtualPastureVisualToggleButton extends AbstractWidget {
             HudConfigManager.data.visualModeOffsetX = initialOffsetX + deltaX;
             HudConfigManager.data.visualModeOffsetY = initialOffsetY + deltaY;
 
-            int pcX = (Minecraft.getInstance().getWindow().getGuiScaledWidth() - 349) / 2;
-            int pcY = (Minecraft.getInstance().getWindow().getGuiScaledHeight() - 215) / 2;
+            int pcX = (Minecraft.getInstance().getWindow().getGuiScaledWidth() - com.cobblemon.mod.common.client.gui.pc.PCGUI.BASE_WIDTH) / 2;
+            int pcY = (Minecraft.getInstance().getWindow().getGuiScaledHeight() - com.cobblemon.mod.common.client.gui.pc.PCGUI.BASE_HEIGHT) / 2;
             setX(pcX + HudConfigManager.data.visualModeOffsetX);
             setY(pcY + HudConfigManager.data.visualModeOffsetY);
             return true;

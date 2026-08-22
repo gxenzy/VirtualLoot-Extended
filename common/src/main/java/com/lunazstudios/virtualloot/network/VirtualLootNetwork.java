@@ -17,6 +17,13 @@ public final class VirtualLootNetwork {
         null
     );
 
+    public static final PacketRegisterInfo<SyncVirtualPastureVisualsPacket> SYNC_VISUALS = new PacketRegisterInfo<>(
+        SyncVirtualPastureVisualsPacket.ID,
+        SyncVirtualPastureVisualsPacket::new,
+        null,
+        SyncVirtualPastureVisualsHandler.INSTANCE
+    );
+
     private VirtualLootNetwork() {
     }
 }

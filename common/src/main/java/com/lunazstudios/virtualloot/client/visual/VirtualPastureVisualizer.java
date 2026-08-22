@@ -3,14 +3,10 @@ package com.lunazstudios.virtualloot.client.visual;
 import com.cobblemon.mod.common.CobblemonEntities;
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity;
 import com.cobblemon.mod.common.pokemon.Pokemon;
-import com.cobblemon.mod.common.block.entity.PokemonPastureBlockEntity;
-import com.lunazstudios.virtualloot.block.VirtualPastureBlock;
-import com.lunazstudios.virtualloot.registry.VirtualLootBlocks;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.nbt.CompoundTag;
 
 import java.util.*;
 
@@ -31,72 +27,30 @@ public class VirtualPastureVisualizer {
 
     private static final Map<BlockPos, List<VisualPokemonHolder>> ACTIVE_PASTURE_VISUALS = new HashMap<>();
 
-    public static void clientTick() {
+    public static void handleServerSync(BlockPos pos, int mode, List<CompoundTag> pokemonTags) {
         Minecraft mc = Minecraft.getInstance();
         ClientLevel world = mc.level;
-        if (world == null || mc.player == null) {
-            clearAll();
+        if (world == null) return;
+
+        List<VisualPokemonHolder> currentHolders = ACTIVE_PASTURE_VISUALS.computeIfAbsent(pos, k -> new ArrayList<>());
+
+        if (mode == 0 || pokemonTags == null || pokemonTags.isEmpty()) {
+            for (VisualPokemonHolder h : currentHolders) {
+                h.entity.discard();
+            }
+            currentHolders.clear();
+            ACTIVE_PASTURE_VISUALS.remove(pos);
             return;
         }
 
-        BlockPos playerPos = mc.player.blockPosition();
-        int searchRadius = 32;
+        Set<UUID> syncedUuids = new HashSet<>();
 
-        Set<BlockPos> visiblePastures = new HashSet<>();
+        for (CompoundTag tag : pokemonTags) {
+            Pokemon pkmn = PokemonSyncHelper.deserializePokemon(tag);
+            if (pkmn == null) continue;
 
-        // Search for active virtual pastures within player render distance
-        int minX = (playerPos.getX() - searchRadius) >> 4;
-        int maxX = (playerPos.getX() + searchRadius) >> 4;
-        int minZ = (playerPos.getZ() - searchRadius) >> 4;
-        int maxZ = (playerPos.getZ() + searchRadius) >> 4;
-
-        for (int cx = minX; cx <= maxX; cx++) {
-            for (int cz = minZ; cz <= maxZ; cz++) {
-                if (world.getChunkSource().hasChunk(cx, cz)) {
-                    var chunk = world.getChunk(cx, cz);
-                    for (BlockPos pos : chunk.getBlockEntitiesPos()) {
-                        BlockEntity be = world.getBlockEntity(pos);
-                        if (be instanceof PokemonPastureBlockEntity pasture) {
-                            BlockState state = world.getBlockState(pos);
-                            if (VirtualLootBlocks.isVirtualPastureBlock(state.getBlock())) {
-                                int mode = VirtualPastureBlock.getVisualMode(state);
-                                if (mode > 0) {
-                                    visiblePastures.add(pos);
-                                    updatePastureVisuals(world, pos, pasture, mode);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        // Clean up visual entities for pastures no longer in range or turned OFF
-        Iterator<Map.Entry<BlockPos, List<VisualPokemonHolder>>> it = ACTIVE_PASTURE_VISUALS.entrySet().iterator();
-        while (it.hasNext()) {
-            Map.Entry<BlockPos, List<VisualPokemonHolder>> entry = it.next();
-            if (!visiblePastures.contains(entry.getKey())) {
-                for (VisualPokemonHolder holder : entry.getValue()) {
-                    holder.entity.discard();
-                }
-                it.remove();
-            }
-        }
-    }
-
-    private static void updatePastureVisuals(ClientLevel world, BlockPos pos, PokemonPastureBlockEntity pasture, int visualMode) {
-        List<VisualPokemonHolder> currentHolders = ACTIVE_PASTURE_VISUALS.computeIfAbsent(pos, k -> new ArrayList<>());
-
-        List<Pokemon> tetheredPokemon = pasture.getTetheredPokemon().stream()
-            .map(PokemonPastureBlockEntity.Tethering::getPokemon)
-            .filter(Objects::nonNull)
-            .toList();
-
-        Set<UUID> activeUuids = new HashSet<>();
-
-        for (Pokemon pkmn : tetheredPokemon) {
             UUID id = pkmn.getUuid();
-            activeUuids.add(id);
+            syncedUuids.add(id);
 
             VisualPokemonHolder existing = currentHolders.stream()
                 .filter(h -> h.pokemonId.equals(id))
@@ -104,14 +58,12 @@ public class VirtualPastureVisualizer {
                 .orElse(null);
 
             if (existing == null) {
-                // Spawn client-side visual entity
                 PokemonEntity visualEntity = new PokemonEntity(world, pkmn, CobblemonEntities.POKEMON);
                 visualEntity.setNoAi(false);
                 visualEntity.setInvulnerable(true);
                 visualEntity.setSilent(true);
                 visualEntity.noPhysics = false;
 
-                // Position within pasture radius
                 Random rand = new Random(id.hashCode());
                 double ox = (rand.nextDouble() - 0.5) * 6.0;
                 double oz = (rand.nextDouble() - 0.5) * 6.0;
@@ -120,9 +72,7 @@ public class VirtualPastureVisualizer {
                 visualEntity.yHeadRot = visualEntity.getYRot();
                 visualEntity.yBodyRot = visualEntity.getYRot();
 
-                // Tag with visual mode
-                visualEntity.addTag("virtualloot_visual_mode_" + visualMode);
-
+                visualEntity.addTag("virtualloot_visual_mode_" + mode);
                 world.addEntity(visualEntity);
 
                 VisualPokemonHolder newHolder = new VisualPokemonHolder(id, visualEntity);
@@ -130,30 +80,43 @@ public class VirtualPastureVisualizer {
                 newHolder.targetZ = visualEntity.getZ();
                 currentHolders.add(newHolder);
             } else {
-                // Update tag in case mode changed
                 existing.entity.removeTag("virtualloot_visual_mode_1");
                 existing.entity.removeTag("virtualloot_visual_mode_2");
                 existing.entity.removeTag("virtualloot_visual_mode_3");
-                existing.entity.addTag("virtualloot_visual_mode_" + visualMode);
-
-                // Gentle client-side wandering behavior inside pasture boundary
-                tickVisualEntityRoaming(existing, pos);
+                existing.entity.addTag("virtualloot_visual_mode_" + mode);
             }
         }
 
-        // Remove holders for Pokemon no longer in pasture
-        Iterator<VisualPokemonHolder> holderIt = currentHolders.iterator();
-        while (holderIt.hasNext()) {
-            VisualPokemonHolder h = holderIt.next();
-            if (!activeUuids.contains(h.pokemonId)) {
+        Iterator<VisualPokemonHolder> it = currentHolders.iterator();
+        while (it.hasNext()) {
+            VisualPokemonHolder h = it.next();
+            if (!syncedUuids.contains(h.pokemonId)) {
                 h.entity.discard();
-                holderIt.remove();
+                it.remove();
+            }
+        }
+    }
+
+    public static void clientTick() {
+        Minecraft mc = Minecraft.getInstance();
+        ClientLevel world = mc.level;
+        if (world == null || mc.player == null) {
+            clearAll();
+            return;
+        }
+
+        for (Map.Entry<BlockPos, List<VisualPokemonHolder>> entry : ACTIVE_PASTURE_VISUALS.entrySet()) {
+            BlockPos pasturePos = entry.getKey();
+            for (VisualPokemonHolder holder : entry.getValue()) {
+                tickVisualEntityRoaming(holder, pasturePos);
             }
         }
     }
 
     private static void tickVisualEntityRoaming(VisualPokemonHolder holder, BlockPos pasturePos) {
         PokemonEntity entity = holder.entity;
+        if (entity.isRemoved()) return;
+
         if (holder.roamCooldown-- <= 0) {
             Random rand = new Random();
             holder.roamCooldown = 100 + rand.nextInt(120);
@@ -165,7 +128,7 @@ public class VirtualPastureVisualizer {
             holder.targetZ = pasturePos.getZ() + 0.5 + oz;
         }
 
-        // Smoothly walk towards target if not yet there
+        // Smoothly walk towards target
         double dx = holder.targetX - entity.getX();
         double dz = holder.targetZ - entity.getZ();
         double distSq = dx * dx + dz * dz;

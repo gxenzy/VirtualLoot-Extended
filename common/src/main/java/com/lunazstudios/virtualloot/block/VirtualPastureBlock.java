@@ -259,7 +259,33 @@ public final class VirtualPastureBlock extends BaseEntityBlock implements Simple
         if (VirtualLootCompat.isCobbreedingLoaded()) {
             CobbreedingCompat.tick(world, pos, state, pasture);
         }
+
+        int visualMode = getVisualMode(state);
+        if (world instanceof ServerLevel serverLevel && serverLevel.getGameTime() % 20L == 0L) {
+            syncVisualsToPlayers(serverLevel, pos, visualMode, pasture);
+        }
+
         setOnState(world, pos, state, hasLinkedViewer(world, pos));
+    }
+
+    public static void syncVisualsToPlayers(ServerLevel world, BlockPos pos, int mode, PokemonPastureBlockEntity pasture) {
+        List<net.minecraft.nbt.CompoundTag> tags = new java.util.ArrayList<>();
+        if (mode > 0 && pasture != null) {
+            for (PokemonPastureBlockEntity.Tethering tethering : pasture.getTetheredPokemon()) {
+                Pokemon pkmn = tethering.getPokemon();
+                if (pkmn != null) {
+                    net.minecraft.nbt.CompoundTag tag = com.lunazstudios.virtualloot.client.visual.PokemonSyncHelper.serializePokemon(pkmn);
+                    if (!tag.isEmpty()) {
+                        tags.add(tag);
+                    }
+                }
+            }
+        }
+        com.lunazstudios.virtualloot.network.SyncVirtualPastureVisualsPacket packet =
+            new com.lunazstudios.virtualloot.network.SyncVirtualPastureVisualsPacket(pos, mode, tags);
+        for (ServerPlayer player : world.getChunkSource().chunkMap.getPlayers(new net.minecraft.world.level.ChunkPos(pos), false)) {
+            packet.sendToPlayer(player);
+        }
     }
 
     private static boolean hasLinkedViewer(Level world, BlockPos pos) {
@@ -328,6 +354,13 @@ public final class VirtualPastureBlock extends BaseEntityBlock implements Simple
             world.setBlockAndUpdate(topPos, topState.setValue(VISUAL_MODE, clamped));
         }
         world.setBlockAndUpdate(pos, updated);
+
+        if (world instanceof ServerLevel serverLevel) {
+            BlockEntity be = world.getBlockEntity(pos);
+            if (be instanceof PokemonPastureBlockEntity pasture) {
+                syncVisualsToPlayers(serverLevel, pos, clamped, pasture);
+            }
+        }
     }
 
     @Override
