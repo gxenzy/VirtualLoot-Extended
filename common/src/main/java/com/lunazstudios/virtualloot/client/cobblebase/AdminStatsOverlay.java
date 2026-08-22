@@ -32,6 +32,23 @@ public class AdminStatsOverlay {
         }
     }
 
+    public static Object getFieldValue(Object obj, String fieldName) {
+        if (obj == null) return null;
+        Class<?> clazz = obj.getClass();
+        while (clazz != null && clazz != Object.class) {
+            for (Field f : clazz.getDeclaredFields()) {
+                if (f.getName().equalsIgnoreCase(fieldName)) {
+                    try {
+                        f.setAccessible(true);
+                        return f.get(obj);
+                    } catch (Throwable ignored) {}
+                }
+            }
+            clazz = clazz.getSuperclass();
+        }
+        return null;
+    }
+
     public static boolean isOfficialCobblemon(String species) {
         try {
             Class<?> psClass = Class.forName("com.cobblemon.mod.common.api.pokemon.PokemonSpecies", false, Thread.currentThread().getContextClassLoader());
@@ -53,8 +70,7 @@ public class AdminStatsOverlay {
                     return;
                 }
             }
-        } catch (Throwable ignored) {
-        }
+        } catch (Throwable ignored) {}
         try {
             Class<?> helperClass = Class.forName("notlown.cobblebase.neoforge.client.gui.PokemonSpriteHelper", false, Thread.currentThread().getContextClassLoader());
             Object instance = helperClass.getField("INSTANCE").get(null);
@@ -64,62 +80,55 @@ public class AdminStatsOverlay {
                     return;
                 }
             }
-        } catch (Throwable ignored) {
-        }
+        } catch (Throwable ignored) {}
     }
 
     public static boolean isStatsTabActive(Object adminScreen) {
+        if (adminScreen == null) return false;
         try {
-            Field atField = adminScreen.getClass().getDeclaredField("activeTab");
-            atField.setAccessible(true);
-            String tab = (String) atField.get(adminScreen);
-            if (!"jobs".equals(tab)) return false;
+            Object tab = getFieldValue(adminScreen, "activeTab");
+            if (tab == null || !"jobs".equalsIgnoreCase(tab.toString())) return false;
 
-            Field jpField = adminScreen.getClass().getDeclaredField("jobsPanel");
-            jpField.setAccessible(true);
-            Object jobsPanel = jpField.get(adminScreen);
+            Object jobsPanel = getFieldValue(adminScreen, "jobsPanel");
             if (jobsPanel == null) return false;
 
-            Field vmField = jobsPanel.getClass().getDeclaredField("viewMode");
-            vmField.setAccessible(true);
-            Object vm = vmField.get(jobsPanel);
-            if (vm == null || !vm.toString().equals("DETAIL")) return false;
+            Object vm = getFieldValue(jobsPanel, "viewMode");
+            if (vm == null || !vm.toString().toUpperCase().contains("DETAIL")) return false;
 
-            Field dtField = jobsPanel.getClass().getDeclaredField("detailTab");
-            dtField.setAccessible(true);
-            Object dt = dtField.get(jobsPanel);
-            if (dt == null || !dt.toString().equals("STATS")) return false;
+            Object dt = getFieldValue(jobsPanel, "detailTab");
+            if (dt == null || !dt.toString().toUpperCase().contains("STATS")) return false;
 
-            Field djiField = jobsPanel.getClass().getDeclaredField("detailJobIdx");
-            djiField.setAccessible(true);
-            int idx = djiField.getInt(jobsPanel);
-            return idx >= 0;
+            Object dji = getFieldValue(jobsPanel, "detailJobIdx");
+            if (dji instanceof Number num) {
+                return num.intValue() >= 0;
+            }
+            return true;
         } catch (Throwable ignored) {
             return false;
         }
     }
 
     public static String getActiveSkillId(Object adminScreen) {
+        if (adminScreen == null) return "";
         try {
-            Field jpField = adminScreen.getClass().getDeclaredField("jobsPanel");
-            jpField.setAccessible(true);
-            Object jobsPanel = jpField.get(adminScreen);
+            Object jobsPanel = getFieldValue(adminScreen, "jobsPanel");
             if (jobsPanel == null) return "";
 
-            Field djiField = jobsPanel.getClass().getDeclaredField("detailJobIdx");
-            djiField.setAccessible(true);
-            int idx = djiField.getInt(jobsPanel);
+            Object dji = getFieldValue(jobsPanel, "detailJobIdx");
+            int idx = (dji instanceof Number num) ? num.intValue() : -1;
 
-            Field jeField = jobsPanel.getClass().getDeclaredField("jobEdits");
-            jeField.setAccessible(true);
-            List<?> edits = (List<?>) jeField.get(jobsPanel);
-            if (edits != null && idx >= 0 && idx < edits.size()) {
+            Object editsObj = getFieldValue(jobsPanel, "jobEdits");
+            if (editsObj instanceof List<?> edits && idx >= 0 && idx < edits.size()) {
                 Object job = edits.get(idx);
-                Method m = job.getClass().getMethod("getSkillId");
-                return (String) m.invoke(job);
+                Object skillId = getFieldValue(job, "skillId");
+                if (skillId != null) return skillId.toString();
+                for (Method m : job.getClass().getMethods()) {
+                    if (m.getName().equalsIgnoreCase("getSkillId") && m.getParameterCount() == 0) {
+                        return (String) m.invoke(job);
+                    }
+                }
             }
-        } catch (Throwable ignored) {
-        }
+        } catch (Throwable ignored) {}
         return "";
     }
 
@@ -129,31 +138,32 @@ public class AdminStatsOverlay {
         }
 
         try {
-            Field pxField = adminScreen.getClass().getDeclaredField("panelX");
-            pxField.setAccessible(true);
-            int panelX = pxField.getInt(adminScreen);
+            int screenW = Minecraft.getInstance().getWindow().getGuiScaledWidth();
+            int screenH = Minecraft.getInstance().getWindow().getGuiScaledHeight();
 
-            Field pyField = adminScreen.getClass().getDeclaredField("panelY");
-            pyField.setAccessible(true);
-            int panelY = pyField.getInt(adminScreen);
+            Object pxObj = getFieldValue(adminScreen, "panelX");
+            Object pyObj = getFieldValue(adminScreen, "panelY");
+            Object pwObj = getFieldValue(adminScreen, "panelW");
+            Object phObj = getFieldValue(adminScreen, "panelH");
 
-            Field pwField = adminScreen.getClass().getDeclaredField("panelW");
-            pwField.setAccessible(true);
-            int panelW = pwField.getInt(adminScreen);
-
-            Field phField = adminScreen.getClass().getDeclaredField("panelH");
-            phField.setAccessible(true);
-            int panelH = phField.getInt(adminScreen);
+            int panelW = (pwObj instanceof Number n) ? n.intValue() : Math.min(640, (int) (screenW * 0.88));
+            int panelH = (phObj instanceof Number n) ? n.intValue() : Math.min(440, (int) (screenH * 0.82));
+            int panelX = (pxObj instanceof Number n) ? n.intValue() : (screenW - panelW) / 2;
+            int panelY = (pyObj instanceof Number n) ? n.intValue() : (screenH - panelH) / 2;
 
             int sidebarW = 110;
             int padding = 4;
             int rightX = panelX + sidebarW;
             int rightW = panelW - sidebarW;
-            int contentTop = panelY + 22 + 16 + padding + 14 + 2 + 12 + 4;
+            int contentTop = panelY + 16 + 4 + 14 + 2 + 12 + 4;
             int contentBottom = panelY + panelH - 18 - 2;
 
-            // Clear right pane content area with sleek dark background
-            context.fill(rightX + padding, contentTop, rightX + rightW - padding, contentBottom, 0xFF141422);
+            // Push Z to render above Cobblebase base layers
+            context.pose().pushPose();
+            context.pose().translate(0, 0, 150);
+
+            // Clean background fill
+            context.fill(rightX + padding, contentTop, rightX + rightW - padding, contentBottom, 0xFF191928);
 
             String skillId = getActiveSkillId(adminScreen);
             Font font = Minecraft.getInstance().font;
@@ -174,6 +184,7 @@ public class AdminStatsOverlay {
 
             if (matching.isEmpty()) {
                 context.drawString(font, "§8No species can use this skill yet.", rightX + padding + 4, contentTop + 4, 0x888888, false);
+                context.pose().popPose();
                 return;
             }
 
@@ -318,8 +329,9 @@ public class AdminStatsOverlay {
                 int thumbY = gridTop + (int) ((float) statsScroll / maxScroll * (listH - thumbH));
                 context.fill(trackX, thumbY, trackX + 4, thumbY + thumbH, 0xFF58A6FF);
             }
-        } catch (Throwable ignored) {
-        }
+
+            context.pose().popPose();
+        } catch (Throwable ignored) {}
     }
 
     public static boolean mouseClicked(Object adminScreen, double mouseX, double mouseY, int button) {

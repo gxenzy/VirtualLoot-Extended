@@ -27,7 +27,6 @@ public abstract class CobblebaseButtonPositionBridgeMixin extends Screen {
 
     @Unique
     private static Button virtualloot$getCobblebaseButton() {
-        // Try Fabric holder
         try {
             Class<?> holderClass = Class.forName("notlown.cobblebase.fabric.client.gui.CobblebaseButtonHolder", false, Thread.currentThread().getContextClassLoader());
             java.lang.reflect.Field field = holderClass.getField("activeButton");
@@ -35,8 +34,6 @@ public abstract class CobblebaseButtonPositionBridgeMixin extends Screen {
             if (obj instanceof Button btn) return btn;
         } catch (Throwable ignored) {
         }
-
-        // Try NeoForge holder
         try {
             Class<?> holderClass = Class.forName("notlown.cobblebase.neoforge.client.gui.CobblebaseButtonHolder", false, Thread.currentThread().getContextClassLoader());
             java.lang.reflect.Field field = holderClass.getField("activeButton");
@@ -44,22 +41,39 @@ public abstract class CobblebaseButtonPositionBridgeMixin extends Screen {
             if (obj instanceof Button btn) return btn;
         } catch (Throwable ignored) {
         }
-
         return null;
     }
 
-    @Inject(method = "render", at = @At("HEAD"))
-    private void virtualloot$repositionCobblebaseButton(net.minecraft.client.gui.GuiGraphics context, int mouseX, int mouseY, float delta, CallbackInfo ci) {
+    @Inject(method = "init", at = @At("TAIL"))
+    private void virtualloot$initCobblebaseButton(CallbackInfo ci) {
+        if (!(configuration instanceof PasturePCGUIConfiguration)) {
+            return;
+        }
+
+        int pcX = (width - PCGUI.BASE_WIDTH) / 2;
+        int pcY = (height - PCGUI.BASE_HEIGHT) / 2;
+
+        Button activeBtn = virtualloot$getCobblebaseButton();
+        if (activeBtn != null) {
+            activeBtn.visible = false;
+        }
+
+        Button customBtn = Button.builder(Component.literal("§bCobblebase"), b -> {
+            Button target = virtualloot$getCobblebaseButton();
+            if (target != null) {
+                target.onPress();
+            }
+        }).bounds(pcX + 208, pcY - 13, 78, 16).build();
+
+        addRenderableWidget(customBtn);
+    }
+
+    @Inject(method = "render", at = @At("TAIL"))
+    private void virtualloot$hideOriginalCobblebaseButton(net.minecraft.client.gui.GuiGraphics context, int mouseX, int mouseY, float delta, CallbackInfo ci) {
         if (configuration instanceof PasturePCGUIConfiguration) {
             Button activeBtn = virtualloot$getCobblebaseButton();
             if (activeBtn != null) {
-                int pcX = (width - PCGUI.BASE_WIDTH) / 2;
-                int pcY = (height - PCGUI.BASE_HEIGHT) / 2;
-                activeBtn.setX(pcX + 208);
-                activeBtn.setY(pcY - 13);
-                activeBtn.setWidth(78);
-                activeBtn.setHeight(16);
-                activeBtn.visible = true;
+                activeBtn.visible = false;
             }
         }
     }
