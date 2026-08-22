@@ -2,10 +2,12 @@
   "schemaVersion": 1,
   "id": "virtualloot",
   "version": "${version}",
-  "name": "Cobblemon Virtual Loot",
-  "description": "Adds a Virtual Pasture that generates loot based on Cobblemon Loot Tables.",
+  "name": "Virtual Loot: MultiVerse",
+  "description": "Lag-free Virtual Pasture system with universal multi-mod compatibility for Cobblebase, Cobbreeding, Cobbleworkers, and Cobblemon.",
   "authors": [
-    "LunazStudios"
+    "LunazStudios",
+    "notlown",
+    "gxenzy"
   ],
   "contact": {
     "homepage": ""
@@ -33,6 +35,7 @@
     "cobblemon": "${cobblemon_version_range}"
   },
   "recommends": {
+    "cobblebase": ">=2.0.0",
     "cobbleworkers": "${cobbleworkers_version_range}",
     "cobbreeding": "${cobbreeding_version_range}"
   }

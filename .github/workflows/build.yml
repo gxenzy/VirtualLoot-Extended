@@ -1,4 +1,4 @@
-name: Build VirtualLoot (Cobblebase Compatible)
+name: Build & Release Virtual Loot (MultiVerse Edition)
 
 on:
   push:
@@ -8,13 +8,18 @@ on:
     branches: [ main, master ]
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
-  build:
+  build-and-release:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up JDK 21
         uses: actions/setup-java@v4
@@ -31,22 +36,97 @@ jobs:
       - name: Build Mod with Gradle
         run: ./gradlew build --no-daemon
 
+      - name: Extract Commit History for Changelog
+        id: changelog
+        run: |
+          echo "CHANGELOG<<EOF" >> $GITHUB_ENV
+          git log -n 5 --pretty=format:"* %s (%h by @%an)" >> $GITHUB_ENV
+          echo "" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
+      - name: Prepare Release Notes Body
+        id: release_notes
+        run: |
+          cat << 'EOF' > release_body.md
+          # 🌌 Virtual Loot: MultiVerse Edition
+
+          **Lag-free Virtual Pasture system with universal multi-mod compatibility for Cobblebase, Cobbreeding, Cobbleworkers, and Cobblemon.**
+
+          ---
+
+          ### 📦 Built Files Included in this Release:
+          * **Fabric 1.21.1:** `VirtualLoot-fabric-*.jar`
+          * **NeoForge 1.21.1:** `VirtualLoot-neoforge-*.jar`
+
+          ---
+
+          ### 📋 Compatibility Matrix:
+          | Component | Supported Version | Required? |
+          | :--- | :--- | :--- |
+          | **Minecraft** | `1.21.1` | ✅ Required |
+          | **Cobblemon** | `1.7.3+` | ✅ Required |
+          | **Architectury API** | `13.0.8+` | ✅ Required |
+          | **Fabric API / NeoForge** | `0.116.12+` / `21.1.234+` | ✅ Required |
+          | **Cobblebase** | `2.0.0+` | 🌟 Optional (Full Virtual Job Support) |
+          | **Cobbreeding** | `2.2.1+` | 🥚 Optional (Virtual Egg Generation) |
+          | **Cobbleworkers** | `2.0.4+` | ⛏️ Optional (Automated Job Loot) |
+
+          ---
+
+          ### ✨ Key Features in MultiVerse Edition:
+          * **⚡ Zero-Lag Base Management:** Manage up to 16+ Pokémon per pasture block with **zero entity spawns**, eliminating massive TPS and FPS drops.
+          * **🏗️ Full Cobblebase Virtual Jobs:** Assigned Cobblebase jobs (Producer, Mining, Harvester, Finder, Auras, Passive XP) run virtually on proficiency-scaled cooldowns.
+          * **🔄 Hopper & Storage Automation:** Collects all items into the block's 27-slot inventory. Place hoppers underneath to automatically pipe all produce directly into chests or sorting pipes!
+          * **📊 Cobblebase In-Game Log Sync:** Production history is recorded in Cobblebase's activity log GUI.
+          * **💤 Standard Species Drops:** Relaxing / unassigned Pokémon roll standard Cobblemon defeat drop tables.
+
+          ---
+
+          ### 📝 Recent Updates & Commits:
+          ${{ env.CHANGELOG }}
+
+          ---
+
+          ### 👥 Open Source Credits:
+          * **LunazStudios** — Creator of the original *Cobblemon Virtual Loot*.
+          * **notlown** — Creator of *Cobblebase*.
+          * **The Cobblemon Team** — Creators of Cobblemon.
+          * **gxenzy & Contributors** — MultiVerse edition compatibility bridge and automation.
+
+          *Licensed under the [MIT License](LICENSE.txt).*
+          EOF
+
       - name: Upload Fabric Mod Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: VirtualLoot-Fabric
+          name: VirtualLoot-MultiVerse-Fabric
           path: fabric/build/libs/*-fabric-*.jar
 
       - name: Upload NeoForge Mod Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: VirtualLoot-NeoForge
+          name: VirtualLoot-MultiVerse-NeoForge
           path: neoforge/build/libs/*-neoforge-*.jar
 
-      - name: Create Release
+      - name: Publish Release (Tagged Releases)
         if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v2
         with:
+          body_path: release_body.md
+          files: |
+            fabric/build/libs/*-fabric-*.jar
+            neoforge/build/libs/*-neoforge-*.jar
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish Rolling Release (Main Branch)
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: latest
+          name: "Virtual Loot: MultiVerse (Latest Build)"
+          body_path: release_body.md
+          prerelease: false
           files: |
             fabric/build/libs/*-fabric-*.jar
             neoforge/build/libs/*-neoforge-*.jar

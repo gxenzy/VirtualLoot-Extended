@@ -6,10 +6,10 @@ license = "MIT"
 [[mods]]
 modId = "virtualloot"
 version = "${version}"
-displayName = "Cobblemon Virtual Loot"
-authors = "LunazStudios"
+displayName = "Virtual Loot: MultiVerse"
+authors = "LunazStudios, notlown, gxenzy"
 description = '''
-Adds a Virtual Pasture that generates loot based on Cobblemon Loot Tables.
+Lag-free Virtual Pasture system with universal multi-mod compatibility for Cobblebase, Cobbreeding, Cobbleworkers, and Cobblemon.
 '''
 logoFile = "icon.png"
 
@@ -38,6 +38,13 @@ side = "BOTH"
 modId = "cobblemon"
 type = "required"
 versionRange = "${cobblemon_neoforge_version_range}"
+ordering = "AFTER"
+side = "BOTH"
+
+[[dependencies.virtualloot]]
+modId = "cobblebase"
+type = "optional"
+versionRange = "[2.0.0,)"
 ordering = "AFTER"
 side = "BOTH"
 
