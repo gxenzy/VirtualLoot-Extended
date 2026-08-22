@@ -5,12 +5,8 @@ import com.cobblemon.mod.common.pokemon.Pokemon;
 import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.CompoundTag;
 
-import java.lang.reflect.Array;
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.UUID;
 
 public final class PokemonSyncHelper {
 
@@ -87,146 +83,34 @@ public final class PokemonSyncHelper {
         }
     }
 
-    public static Pokemon getPokemonFromPC(java.util.UUID pokemonId) {
+    public static Pokemon getPokemonFromPC(UUID pokemonId) {
         if (pokemonId == null) return null;
         try {
             Object storage = CobblemonClient.INSTANCE.getStorage();
-            if (storage != null) {
-                Pokemon found = searchForPokemon(storage, pokemonId, 0);
-                if (found != null) return found;
+            if (storage == null) return null;
+
+            // Direct check on party & pc stores via safe methods
+            for (Method m : storage.getClass().getMethods()) {
+                if (m.getParameterCount() == 0 && (m.getName().equals("getParty") || m.getName().equals("getPc") || m.getName().equals("getMyParty") || m.getName().equals("getPC"))) {
+                    try {
+                        Object store = m.invoke(storage);
+                        if (store instanceof Iterable<?> iter) {
+                            for (Object item : iter) {
+                                if (item instanceof Pokemon p && pokemonId.equals(p.getUuid())) {
+                                    return p;
+                                } else if (item instanceof Iterable<?> innerIter) {
+                                    for (Object inner : innerIter) {
+                                        if (inner instanceof Pokemon p && pokemonId.equals(p.getUuid())) {
+                                            return p;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    } catch (Throwable ignored) {}
+                }
             }
         } catch (Throwable ignored) {}
         return null;
-    }
-
-    private static Pokemon searchForPokemon(Object obj, java.util.UUID targetId, int depth) {
-        if (obj == null || depth > 5) return null;
-
-        if (obj instanceof Pokemon p) {
-            if (targetId.equals(p.getUuid())) return p;
-            return null;
-        }
-
-        if (obj.getClass().isArray()) {
-            int len = Array.getLength(obj);
-            for (int i = 0; i < len; i++) {
-                Object item = Array.get(obj, i);
-                Pokemon found = searchForPokemon(item, targetId, depth + 1);
-                if (found != null) return found;
-            }
-            return null;
-        }
-
-        if (obj instanceof Iterable<?> iter) {
-            for (Object item : iter) {
-                Pokemon found = searchForPokemon(item, targetId, depth + 1);
-                if (found != null) return found;
-            }
-            return null;
-        }
-
-        if (obj instanceof Map<?, ?> map) {
-            for (Object item : map.values()) {
-                Pokemon found = searchForPokemon(item, targetId, depth + 1);
-                if (found != null) return found;
-            }
-            return null;
-        }
-
-        for (Method m : obj.getClass().getMethods()) {
-            if (m.getParameterCount() == 0 && !m.getName().equals("getClass")) {
-                try {
-                    Class<?> returnType = m.getReturnType();
-                    if (Pokemon.class.isAssignableFrom(returnType) ||
-                        returnType.isArray() ||
-                        Iterable.class.isAssignableFrom(returnType) ||
-                        Map.class.isAssignableFrom(returnType) ||
-                        returnType.getName().contains("Store") ||
-                        returnType.getName().contains("Box") ||
-                        returnType.getName().contains("Slot") ||
-                        returnType.getName().contains("Storage") ||
-                        returnType.getName().contains("Party") ||
-                        returnType.getName().contains("PC") ||
-                        returnType.getName().contains("Pasture") ||
-                        returnType.getName().contains("Holder")) {
-
-                        Object val = m.invoke(obj);
-                        if (val != null && val != obj) {
-                            Pokemon found = searchForPokemon(val, targetId, depth + 1);
-                            if (found != null) return found;
-                        }
-                    }
-                } catch (Throwable ignored) {}
-            }
-        }
-
-        return null;
-    }
-
-    public static List<Pokemon> getPasturePokemonFromScreen(Object screen) {
-        List<Pokemon> list = new ArrayList<>();
-        if (screen == null) return list;
-
-        for (Field f : screen.getClass().getDeclaredFields()) {
-            try {
-                f.setAccessible(true);
-                Object val = f.get(screen);
-                if (val != null && (val.getClass().getName().contains("Pasture") || f.getName().toLowerCase().contains("pasture"))) {
-                    collectAllPokemon(val, list, 0);
-                }
-            } catch (Throwable ignored) {}
-        }
-        return list;
-    }
-
-    private static void collectAllPokemon(Object obj, List<Pokemon> list, int depth) {
-        if (obj == null || depth > 5) return;
-
-        if (obj instanceof Pokemon p) {
-            if (!list.contains(p)) list.add(p);
-            return;
-        }
-
-        if (obj.getClass().isArray()) {
-            int len = Array.getLength(obj);
-            for (int i = 0; i < len; i++) {
-                collectAllPokemon(Array.get(obj, i), list, depth + 1);
-            }
-            return;
-        }
-
-        if (obj instanceof Iterable<?> iter) {
-            for (Object item : iter) {
-                collectAllPokemon(item, list, depth + 1);
-            }
-            return;
-        }
-
-        if (obj instanceof Map<?, ?> map) {
-            for (Object item : map.values()) {
-                collectAllPokemon(item, list, depth + 1);
-            }
-            return;
-        }
-
-        for (Method m : obj.getClass().getMethods()) {
-            if (m.getParameterCount() == 0 && !m.getName().equals("getClass")) {
-                try {
-                    Class<?> returnType = m.getReturnType();
-                    if (Pokemon.class.isAssignableFrom(returnType) ||
-                        returnType.isArray() ||
-                        Iterable.class.isAssignableFrom(returnType) ||
-                        returnType.getName().contains("Pokemon") ||
-                        returnType.getName().contains("Slot") ||
-                        returnType.getName().contains("Pasture")) {
-
-                        Object val = m.invoke(obj);
-                        if (val != null && val != obj) {
-                            collectAllPokemon(val, list, depth + 1);
-                        }
-                    }
-                } catch (Throwable ignored) {}
-            }
-        }
     }
 }
