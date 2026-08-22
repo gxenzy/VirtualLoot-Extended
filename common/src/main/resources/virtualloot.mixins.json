@@ -7,9 +7,7 @@
   "client": [
     "PasturePokemonScrollListMixin",
     "cobbreeding.PastureGuiVirtualLootButtonMixin",
-    "cobblebase.CobblebaseButtonPositionBridgeMixin",
-    "cobblebase.CobblebaseFabricAdminScreenMixin",
-    "cobblebase.CobblebaseNeoForgeAdminScreenMixin"
+    "cobblebase.CobblebaseButtonPositionBridgeMixin"
   ],
   "mixins": [
     "BlockEntityTypeMixin",
