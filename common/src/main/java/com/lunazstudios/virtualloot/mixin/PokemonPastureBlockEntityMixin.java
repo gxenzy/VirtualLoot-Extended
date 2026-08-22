@@ -209,6 +209,34 @@ public abstract class PokemonPastureBlockEntityMixin implements VirtualPastureIn
         }
     }
 
+    @Inject(method = "getUpdateTag", at = @At("RETURN"), cancellable = true)
+    private void virtualloot$getUpdateTag(HolderLookup.Provider registries, CallbackInfoReturnable<CompoundTag> cir) {
+        if (virtualloot$isVirtualPasture()) {
+            CompoundTag tag = cir.getReturnValue();
+            if (tag == null) tag = new CompoundTag();
+            net.minecraft.nbt.ListTag visualList = new net.minecraft.nbt.ListTag();
+            for (PokemonPastureBlockEntity.Tethering t : getTetheredPokemon()) {
+                Pokemon pkmn = t.getPokemon();
+                if (pkmn != null) {
+                    CompoundTag pkmnTag = com.lunazstudios.virtualloot.client.visual.PokemonSyncHelper.serializePokemon(pkmn);
+                    if (!pkmnTag.isEmpty()) {
+                        visualList.add(pkmnTag);
+                    }
+                }
+            }
+            tag.put("virtualloot_visual_pokemon", visualList);
+            cir.setReturnValue(tag);
+        }
+    }
+
+    @Inject(method = "getUpdatePacket", at = @At("HEAD"), cancellable = true)
+    private void virtualloot$getUpdatePacket(CallbackInfoReturnable<net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket> cir) {
+        if (virtualloot$isVirtualPasture()) {
+            PokemonPastureBlockEntity be = (PokemonPastureBlockEntity) (Object) this;
+            cir.setReturnValue(net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket.create(be));
+        }
+    }
+
     @Inject(method = "canAddPokemon", at = @At("HEAD"), cancellable = true, remap = false)
     private void virtualloot$canAddVirtualPokemon(ServerPlayer player, Pokemon pokemon, int maxPerPlayer, CallbackInfoReturnable<Boolean> cir) {
         if (!virtualloot$isVirtualPasture()) {

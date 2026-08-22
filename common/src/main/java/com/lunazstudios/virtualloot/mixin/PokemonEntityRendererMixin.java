@@ -26,8 +26,8 @@ public abstract class PokemonEntityRendererMixin<T extends LivingEntity, M exten
         if (entity instanceof PokemonEntity pkmn) {
             int mode = VirtualRenderShaderHelper.getVisualMode(pkmn);
             if (mode == 1) {
-                // Wireframe / Neon Outline
-                cir.setReturnValue(RenderType.outline(this.getTextureLocation(entity)));
+                // Cyber Emissive Wireframe
+                cir.setReturnValue(RenderType.entityCutoutNoCull(this.getTextureLocation(entity)));
             } else if (mode == 2) {
                 // Translucent Cyan Hologram
                 cir.setReturnValue(RenderType.entityTranslucentCull(this.getTextureLocation(entity)));

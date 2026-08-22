@@ -59,18 +59,21 @@ public class VirtualPastureVisualizer {
 
             if (existing == null) {
                 PokemonEntity visualEntity = new PokemonEntity(world, pkmn, CobblemonEntities.POKEMON);
+                visualEntity.setId(net.minecraft.world.entity.Entity.nextEntityId());
                 visualEntity.setNoAi(false);
                 visualEntity.setInvulnerable(true);
                 visualEntity.setSilent(true);
                 visualEntity.noPhysics = false;
+                visualEntity.setOnGround(true);
 
                 Random rand = new Random(id.hashCode());
-                double ox = (rand.nextDouble() - 0.5) * 6.0;
-                double oz = (rand.nextDouble() - 0.5) * 6.0;
+                double ox = (rand.nextDouble() - 0.5) * 5.0;
+                double oz = (rand.nextDouble() - 0.5) * 5.0;
                 visualEntity.setPos(pos.getX() + 0.5 + ox, pos.getY(), pos.getZ() + 0.5 + oz);
-                visualEntity.setYRot(rand.nextFloat() * 360f);
-                visualEntity.yHeadRot = visualEntity.getYRot();
-                visualEntity.yBodyRot = visualEntity.getYRot();
+                float yaw = rand.nextFloat() * 360f;
+                visualEntity.setYRot(yaw);
+                visualEntity.yHeadRot = yaw;
+                visualEntity.yBodyRot = yaw;
 
                 visualEntity.addTag("virtualloot_visual_mode_" + mode);
                 world.addEntity(visualEntity);
