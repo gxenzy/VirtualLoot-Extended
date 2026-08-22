@@ -1,31 +1,49 @@
 package com.lunazstudios.virtualloot.mixin.cobblebase;
 
-import com.cobblemon.mod.common.client.gui.pasture.PastureWidget;
+import com.cobblemon.mod.common.client.gui.pasture.PasturePCGUIConfiguration;
 import com.cobblemon.mod.common.client.gui.pc.PCGUI;
-import net.minecraft.client.Minecraft;
+import com.cobblemon.mod.common.client.gui.pc.PCGUIConfiguration;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.Component;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Pseudo;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Pseudo
-@Mixin(value = PastureWidget.class, priority = 2000)
-public abstract class CobblebaseButtonPositionBridgeMixin {
+@Mixin(value = PCGUI.class, priority = 2000)
+public abstract class CobblebaseButtonPositionBridgeMixin extends Screen {
 
-    @Inject(method = "renderWidget", at = @At("TAIL"))
+    @Shadow(remap = false)
+    @Final
+    private PCGUIConfiguration configuration;
+
+    protected CobblebaseButtonPositionBridgeMixin(Component title) {
+        super(title);
+    }
+
+    @Inject(method = "init", at = @At("TAIL"))
+    private void virtualloot$onInitCobblebaseButton(CallbackInfo ci) {
+        if (!(configuration instanceof PasturePCGUIConfiguration)) {
+            return;
+        }
+        try {
+            notlown.cobblebase.core.CobblebaseConfig.INSTANCE.setMainButtonCorner(notlown.cobblebase.core.MainButtonCorner.TOP_RIGHT);
+        } catch (Throwable ignored) {
+        }
+    }
+
+    @Inject(method = "render", at = @At("TAIL"))
     private void virtualloot$adjustCobblebaseButtonPosition(GuiGraphics context, int mouseX, int mouseY, float delta, CallbackInfo ci) {
-        Minecraft client = Minecraft.getInstance();
-        if (client.screen == null) return;
+        if (!(configuration instanceof PasturePCGUIConfiguration)) {
+            return;
+        }
 
-        int screenW = client.getWindow().getGuiScaledWidth();
-        int screenH = client.getWindow().getGuiScaledHeight();
-        int pcW = PCGUI.BASE_WIDTH;
-        int pcH = PCGUI.BASE_HEIGHT;
-        int pcX = (screenW - pcW) / 2;
-        int pcY = (screenH - pcH) / 2;
+        int pcX = (width - PCGUI.BASE_WIDTH) / 2;
+        int pcY = (height - PCGUI.BASE_HEIGHT) / 2;
 
         int targetX = pcX + 210;
         int targetY = pcY - 16;
