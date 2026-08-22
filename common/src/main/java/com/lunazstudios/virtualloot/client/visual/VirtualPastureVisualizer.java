@@ -94,7 +94,7 @@ public class VirtualPastureVisualizer {
                 visualEntity.yBodyRotO = yaw;
 
                 visualEntity.addTag("virtualloot_visual_mode_" + mode);
-                world.addEntity(visualEntity.getId(), visualEntity);
+                world.addEntity(visualEntity);
 
                 VisualPokemonHolder newHolder = new VisualPokemonHolder(id, visualEntity, mode);
                 newHolder.targetX = visualEntity.getX();

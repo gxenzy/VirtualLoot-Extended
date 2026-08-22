@@ -233,13 +233,6 @@ public abstract class PokemonPastureBlockEntityMixin implements VirtualPastureIn
         cir.setReturnValue(true);
     }
 
-    @Inject(method = "untether(Ljava/util/UUID;)Z", at = @At("RETURN"), remap = false)
-    private void virtualloot$onUntetherById(UUID tetheringId, CallbackInfoReturnable<Boolean> cir) {
-        if (virtualloot$isVirtualPasture()) {
-            virtualloot$broadcastVisualSync();
-        }
-    }
-
     @Unique
     private void virtualloot$broadcastVisualSync() {
         PokemonPastureBlockEntity pasture = (PokemonPastureBlockEntity) (Object) this;
@@ -257,8 +250,12 @@ public abstract class PokemonPastureBlockEntityMixin implements VirtualPastureIn
                 }
             }
             BlockPos basePos = pasture.getBlockPos();
-            new SyncVirtualPastureVisualPacket(basePos, visualMode, tags)
-                .sendToPlayersAround(serverLevel, basePos.getX() + 0.5D, basePos.getY() + 0.5D, basePos.getZ() + 0.5D, 64.0D);
+            SyncVirtualPastureVisualPacket syncPacket = new SyncVirtualPastureVisualPacket(basePos, visualMode, tags);
+            for (ServerPlayer p : serverLevel.players()) {
+                if (p.distanceToSqr(basePos.getX() + 0.5D, basePos.getY() + 0.5D, basePos.getZ() + 0.5D) <= 64.0D * 64.0D) {
+                    syncPacket.sendToPlayer(p);
+                }
+            }
         }
     }
 

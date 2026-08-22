@@ -10,6 +10,7 @@ import com.lunazstudios.virtualloot.registry.VirtualLootBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -61,6 +62,12 @@ public final class SetVirtualPastureVisualModeHandler implements ServerNetworkPa
         }
 
         SyncVirtualPastureVisualPacket syncPacket = new SyncVirtualPastureVisualPacket(basePos, packet.mode(), tags);
-        syncPacket.sendToPlayersAround(world, basePos.getX() + 0.5D, basePos.getY() + 0.5D, basePos.getZ() + 0.5D, 64.0D);
+        if (world instanceof ServerLevel serverLevel) {
+            for (ServerPlayer p : serverLevel.players()) {
+                if (p.distanceToSqr(basePos.getX() + 0.5D, basePos.getY() + 0.5D, basePos.getZ() + 0.5D) <= 64.0D * 64.0D) {
+                    syncPacket.sendToPlayer(p);
+                }
+            }
+        }
     }
 }
