@@ -83,4 +83,20 @@ public final class PokemonSyncHelper {
             return null;
         }
     }
+
+    public static Pokemon getPokemonFromPC(java.util.UUID pokemonId) {
+        if (pokemonId == null) return null;
+        try {
+            Minecraft mc = Minecraft.getInstance();
+            if (mc.player != null) {
+                for (Pokemon p : Cobblemon.INSTANCE.getStorage().getParty(mc.player).toGappyList()) {
+                    if (p != null && pokemonId.equals(p.getUuid())) return p;
+                }
+                for (Pokemon p : Cobblemon.INSTANCE.getStorage().getPC(mc.player).toGappyList()) {
+                    if (p != null && pokemonId.equals(p.getUuid())) return p;
+                }
+            }
+        } catch (Throwable ignored) {}
+        return null;
+    }
 }

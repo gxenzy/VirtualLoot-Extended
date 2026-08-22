@@ -83,6 +83,27 @@ public final class VirtualPastureVisualToggleButton extends AbstractWidget {
         if (pasturePos != null) {
             NetworkPacket<?> packet = new SetVirtualPastureVisualModePacket(pasturePos, currentMode);
             packet.sendToServer();
+
+            Minecraft mc = Minecraft.getInstance();
+            if (mc.level != null) {
+                net.minecraft.world.level.block.entity.BlockEntity be = mc.level.getBlockEntity(pasturePos);
+                if (be instanceof com.cobblemon.mod.common.block.entity.PokemonPastureBlockEntity pasture) {
+                    java.util.List<net.minecraft.nbt.CompoundTag> clientTags = new java.util.ArrayList<>();
+                    if (currentMode > 0) {
+                        for (com.cobblemon.mod.common.block.entity.PokemonPastureBlockEntity.Tethering t : pasture.getTetheredPokemon()) {
+                            com.cobblemon.mod.common.pokemon.Pokemon pkmn = t.getPokemon();
+                            if (pkmn == null) {
+                                pkmn = com.lunazstudios.virtualloot.client.visual.PokemonSyncHelper.getPokemonFromPC(t.getPokemonId());
+                            }
+                            if (pkmn != null) {
+                                net.minecraft.nbt.CompoundTag tag = com.lunazstudios.virtualloot.client.visual.PokemonSyncHelper.serializePokemon(pkmn);
+                                if (!tag.isEmpty()) clientTags.add(tag);
+                            }
+                        }
+                    }
+                    com.lunazstudios.virtualloot.client.visual.VirtualPastureVisualizer.handleServerSync(pasturePos, currentMode, clientTags);
+                }
+            }
         }
     }
 
