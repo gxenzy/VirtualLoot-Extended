@@ -1,20 +1,20 @@
 <p align="center">
-    <img src="common/src/main/resources/icon.png" alt="Virtual Loot MultiVerse Logo" width="128" height="128">
+    <img src="common/src/main/resources/icon.png" alt="Virtual Loot Extended Logo" width="128" height="128">
 </p>
 
 <p align="center">
     <img src="https://img.shields.io/badge/Minecraft-1.21.1-brightgreen?style=for-the-badge&logo=minecraft" alt="Minecraft 1.21.1">
     <img src="https://img.shields.io/badge/Cobblemon-1.7.3+-orange?style=for-the-badge" alt="Cobblemon 1.7.3">
     <img src="https://img.shields.io/badge/Platform-Fabric%20%7C%20NeoForge-blue?style=for-the-badge" alt="Fabric & NeoForge">
-    <img src="https://img.shields.io/badge/Edition-MultiVerse-purple?style=for-the-badge" alt="MultiVerse Edition">
+    <img src="https://img.shields.io/badge/Edition-Extended-blueviolet?style=for-the-badge" alt="Extended Edition">
     <img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge" alt="MIT License">
 </p>
 
 ---
 
-# 🌌 Virtual Loot: MultiVerse Edition
+# 🌌 Virtual Loot: Extended Edition
 
-**Virtual Loot: MultiVerse** is the ultimate multi-mod virtual pasture system for Cobblemon. It combines the zero-lag virtual pasture architecture with universal compatibility for **Cobblebase**, **Cobbreeding**, **Cobbleworkers**, and **Cobblemon**.
+**Virtual Loot: Extended** is an expanded, multi-mod virtual pasture ecosystem for Cobblemon. It combines the zero-lag virtual pasture architecture with native, out-of-the-box compatibility for **Cobblebase**, **Cobbreeding**, **Cobbleworkers**, and **Cobblemon**.
 
 Instead of spawning 16–64 physical Pokémon entities per pasture (which destroys server TPS and client FPS), Virtual Loot keeps your Pokémon virtually assigned to the block while executing all of their Palworld-style jobs, breeding, and drop tables in the background!
 
@@ -111,4 +111,4 @@ We express our deepest gratitude to the talented creators whose work made this i
 * **[The Cobblemon Team](https://cobblemon.com/)** — Creators of the Cobblemon mod and the core pasture API.
 * **[ludichat](https://github.com/ludichat)** — Creator of **[Cobbreeding](https://modrinth.com/mod/cobbreeding)**.
 * **[Accieo](https://github.com/Accieo)** — Creator of **[Cobbleworkers](https://modrinth.com/mod/cobbleworkers)**.
-* **gxenzy & Contributors** — MultiVerse edition compatibility bridge, virtual job engine, and automated release workflows.
+* **gxenzy & Contributors** — Extended edition compatibility bridge, virtual job engine, and automated release workflows.

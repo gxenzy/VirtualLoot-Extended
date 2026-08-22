@@ -1,4 +1,4 @@
-name: Build & Release Virtual Loot (MultiVerse Edition)
+name: Build & Release Virtual Loot (Extended Edition)
 
 on:
   push:
@@ -48,15 +48,15 @@ jobs:
         id: release_notes
         run: |
           cat << 'EOF' > release_body.md
-          # 🌌 Virtual Loot: MultiVerse Edition
+          # 🌌 Virtual Loot: Extended Edition
 
-          **Lag-free Virtual Pasture system with universal multi-mod compatibility for Cobblebase, Cobbreeding, Cobbleworkers, and Cobblemon.**
+          **Lag-free Virtual Pasture system with extended multi-mod compatibility for Cobblebase, Cobbreeding, Cobbleworkers, and Cobblemon.**
 
           ---
 
           ### 📦 Built Files Included in this Release:
-          * **Fabric 1.21.1:** `VirtualLoot-fabric-*.jar`
-          * **NeoForge 1.21.1:** `VirtualLoot-neoforge-*.jar`
+          * **Fabric 1.21.1:** `VirtualLoot-Extended-fabric-*.jar`
+          * **NeoForge 1.21.1:** `VirtualLoot-Extended-neoforge-*.jar`
 
           ---
 
@@ -73,7 +73,7 @@ jobs:
 
           ---
 
-          ### ✨ Key Features in MultiVerse Edition:
+          ### ✨ Key Features in Extended Edition:
           * **⚡ Zero-Lag Base Management:** Manage up to 16+ Pokémon per pasture block with **zero entity spawns**, eliminating massive TPS and FPS drops.
           * **🏗️ Full Cobblebase Virtual Jobs:** Assigned Cobblebase jobs (Producer, Mining, Harvester, Finder, Auras, Passive XP) run virtually on proficiency-scaled cooldowns.
           * **🔄 Hopper & Storage Automation:** Collects all items into the block's 27-slot inventory. Place hoppers underneath to automatically pipe all produce directly into chests or sorting pipes!
@@ -91,7 +91,7 @@ jobs:
           * **LunazStudios** — Creator of the original *Cobblemon Virtual Loot*.
           * **notlown** — Creator of *Cobblebase*.
           * **The Cobblemon Team** — Creators of Cobblemon.
-          * **gxenzy & Contributors** — MultiVerse edition compatibility bridge and automation.
+          * **gxenzy & Contributors** — Extended edition compatibility bridge and automation.
 
           *Licensed under the [MIT License](LICENSE.txt).*
           EOF
@@ -99,13 +99,13 @@ jobs:
       - name: Upload Fabric Mod Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: VirtualLoot-MultiVerse-Fabric
+          name: VirtualLoot-Extended-Fabric
           path: fabric/build/libs/*-fabric-*.jar
 
       - name: Upload NeoForge Mod Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: VirtualLoot-MultiVerse-NeoForge
+          name: VirtualLoot-Extended-NeoForge
           path: neoforge/build/libs/*-neoforge-*.jar
 
       - name: Publish Release (Tagged Releases)
@@ -124,7 +124,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: latest
-          name: "Virtual Loot: MultiVerse (Latest Build)"
+          name: "Virtual Loot: Extended (Latest Build)"
           body_path: release_body.md
           prerelease: false
           files: |

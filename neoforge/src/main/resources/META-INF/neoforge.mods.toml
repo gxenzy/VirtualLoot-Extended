@@ -6,10 +6,10 @@ license = "MIT"
 [[mods]]
 modId = "virtualloot"
 version = "${version}"
-displayName = "Virtual Loot: MultiVerse"
+displayName = "Virtual Loot: Extended"
 authors = "LunazStudios, notlown, gxenzy"
 description = '''
-Lag-free Virtual Pasture system with universal multi-mod compatibility for Cobblebase, Cobbreeding, Cobbleworkers, and Cobblemon.
+Lag-free Virtual Pasture system with extended multi-mod compatibility for Cobblebase, Cobbreeding, Cobbleworkers, and Cobblemon.
 '''
 logoFile = "icon.png"
 

@@ -2,8 +2,8 @@
   "schemaVersion": 1,
   "id": "virtualloot",
   "version": "${version}",
-  "name": "Virtual Loot: MultiVerse",
-  "description": "Lag-free Virtual Pasture system with universal multi-mod compatibility for Cobblebase, Cobbreeding, Cobbleworkers, and Cobblemon.",
+  "name": "Virtual Loot: Extended",
+  "description": "Lag-free Virtual Pasture system with extended multi-mod compatibility for Cobblebase, Cobbreeding, Cobbleworkers, and Cobblemon.",
   "authors": [
     "LunazStudios",
     "notlown",
