@@ -1,12 +1,11 @@
 package com.lunazstudios.virtualloot.mixin.cobblebase;
 
-import com.cobblemon.mod.common.Cobblemon;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
+import notlown.cobblebase.core.SkillEntry;
 import notlown.cobblebase.core.SpeciesSkillRegistry;
 import notlown.cobblebase.core.SpeciesSkills;
-import notlown.cobblebase.core.SkillEntry;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Pseudo;
 import org.spongepowered.asm.mixin.Shadow;
@@ -16,6 +15,8 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.*;
 
 @Pseudo
@@ -24,6 +25,11 @@ import java.util.*;
     "notlown.cobblebase.neoforge.client.gui.AdminJobsPanel"
 }, priority = 2000, remap = false)
 public abstract class CobblebaseAdminStatsMixin {
+
+    @Shadow(remap = false) private int x;
+    @Shadow(remap = false) private int y;
+    @Shadow(remap = false) private int w;
+    @Shadow(remap = false) private int h;
 
     @Unique private static int virtualloot$starFilter = 0; // 0=All, 1..5 = stars
     @Unique private static int virtualloot$sourceFilter = 0; // 0=All, 1=Cobblemon, 2=Custom
@@ -49,7 +55,7 @@ public abstract class CobblebaseAdminStatsMixin {
         try {
             Class<?> psClass = Class.forName("com.cobblemon.mod.common.api.pokemon.PokemonSpecies", false, Thread.currentThread().getContextClassLoader());
             Object inst = psClass.getField("INSTANCE").get(null);
-            java.lang.reflect.Method m = psClass.getMethod("getByName", String.class);
+            Method m = psClass.getMethod("getByName", String.class);
             return m.invoke(inst, species.toLowerCase()) != null;
         } catch (Throwable ignored) {
             return true;
@@ -61,7 +67,7 @@ public abstract class CobblebaseAdminStatsMixin {
         try {
             Class<?> helperClass = Class.forName("notlown.cobblebase.fabric.client.gui.PokemonSpriteHelper", false, Thread.currentThread().getContextClassLoader());
             Object instance = helperClass.getField("INSTANCE").get(null);
-            for (java.lang.reflect.Method m : helperClass.getMethods()) {
+            for (Method m : helperClass.getMethods()) {
                 if (m.getName().equals("renderSmallIconByName") && m.getParameterCount() == 6) {
                     m.invoke(instance, context, font, species, x, y, 0f);
                     return;
@@ -72,7 +78,7 @@ public abstract class CobblebaseAdminStatsMixin {
         try {
             Class<?> helperClass = Class.forName("notlown.cobblebase.neoforge.client.gui.PokemonSpriteHelper", false, Thread.currentThread().getContextClassLoader());
             Object instance = helperClass.getField("INSTANCE").get(null);
-            for (java.lang.reflect.Method m : helperClass.getMethods()) {
+            for (Method m : helperClass.getMethods()) {
                 if (m.getName().equals("renderSmallIconByName") && m.getParameterCount() == 6) {
                     m.invoke(instance, context, font, species, x, y, 0f);
                     return;
@@ -82,23 +88,66 @@ public abstract class CobblebaseAdminStatsMixin {
         }
     }
 
-    @Inject(method = "renderStats", at = @At("HEAD"), cancellable = true, remap = false)
-    private void virtualloot$customRenderStats(
-        Object contextObj, Object jobObj,
-        int rightX, int rightW, int contentTop, int contentBottom,
-        CallbackInfo ci
-    ) {
-        if (!(contextObj instanceof GuiGraphics context)) {
+    @Unique
+    private boolean virtualloot$isStatsTabActive() {
+        try {
+            Field vmField = this.getClass().getDeclaredField("viewMode");
+            vmField.setAccessible(true);
+            Object vm = vmField.get(this);
+            if (vm == null || !vm.toString().equals("DETAIL")) return false;
+
+            Field dtField = this.getClass().getDeclaredField("detailTab");
+            dtField.setAccessible(true);
+            Object dt = dtField.get(this);
+            if (dt == null || !dt.toString().equals("STATS")) return false;
+
+            Field djiField = this.getClass().getDeclaredField("detailJobIdx");
+            djiField.setAccessible(true);
+            int idx = djiField.getInt(this);
+            return idx >= 0;
+        } catch (Throwable ignored) {
+            return false;
+        }
+    }
+
+    @Unique
+    private String virtualloot$getActiveSkillId() {
+        try {
+            Field djiField = this.getClass().getDeclaredField("detailJobIdx");
+            djiField.setAccessible(true);
+            int idx = djiField.getInt(this);
+
+            Field jeField = this.getClass().getDeclaredField("jobEdits");
+            jeField.setAccessible(true);
+            List<?> edits = (List<?>) jeField.get(this);
+            if (edits != null && idx >= 0 && idx < edits.size()) {
+                Object job = edits.get(idx);
+                Method m = job.getClass().getMethod("getSkillId");
+                return (String) m.invoke(job);
+            }
+        } catch (Throwable ignored) {
+        }
+        return "";
+    }
+
+    @Inject(method = "render", at = @At("TAIL"), remap = false)
+    private void virtualloot$onRenderJobsPanel(GuiGraphics context, int mouseX, int mouseY, float delta, CallbackInfo ci) {
+        if (!virtualloot$isStatsTabActive()) {
             return;
         }
 
+        int sidebarW = 110;
+        int padding = 4;
+        int rightX = x + sidebarW;
+        int rightW = w - sidebarW;
+        int contentTop = y + padding + 14 + 2 + 12 + 4;
+        int contentBottom = y + h - 18 - 2;
+
+        // Clear the right pane content area
+        context.fill(rightX + padding, contentTop, rightX + rightW - padding, contentBottom, 0xFF141422);
+
+        String skillId = virtualloot$getActiveSkillId();
         Font font = Minecraft.getInstance().font;
-        String skillId = "";
-        try {
-            java.lang.reflect.Method getSkillId = jobObj.getClass().getMethod("getSkillId");
-            skillId = (String) getSkillId.invoke(jobObj);
-        } catch (Throwable ignored) {
-        }
 
         Map<String, SpeciesSkills> allSpecies = SpeciesSkillRegistry.INSTANCE.getAllAssigned();
         List<SpeciesStatEntry> matching = new ArrayList<>();
@@ -114,10 +163,8 @@ public abstract class CobblebaseAdminStatsMixin {
             }
         }
 
-        int padding = 8;
         if (matching.isEmpty()) {
             context.drawString(font, "§8No species can use this skill yet.", rightX + padding + 4, contentTop + 4, 0x888888, false);
-            ci.cancel();
             return;
         }
 
@@ -131,20 +178,19 @@ public abstract class CobblebaseAdminStatsMixin {
         }
 
         // 1. Overview Header
-        context.drawString(font, "§e§lOverview", rightX + padding + 4, contentTop + 4, 0xFFD700, false);
+        context.drawString(font, "§e§lOverview", rightX + padding + 4, contentTop + 2, 0xFFD700, false);
         String summary = String.format("§7Total species: §f%d   §7Avg prof: §f%.1f   §7Max prof: §f%d", total, avgProf, maxProf);
-        context.drawString(font, summary, rightX + padding + 4, contentTop + 16, 0xCCCCCC, false);
+        context.drawString(font, summary, rightX + padding + 4, contentTop + 14, 0xCCCCCC, false);
 
         // 2. Interactive Star Filters Bar
-        int distY = contentTop + 28;
-        context.drawString(font, "§7Filter:", rightX + padding + 4, distY + 3, 0xAAAAAA, false);
+        int distY = contentTop + 26;
+        context.drawString(font, "§7Filter:", rightX + padding + 4, distY + 2, 0xAAAAAA, false);
         virtualloot$starHitboxes.clear();
 
         int bx = rightX + padding + 44;
         // [All] filter button
         int allW = 38;
         int btnH = 12;
-        boolean allHov = false;
         int allBg = (virtualloot$starFilter == 0) ? 0xFF2A3A4E : 0xFF181C24;
         int allBorder = (virtualloot$starFilter == 0) ? 0xFF58A6FF : 0xFF333344;
         context.fill(bx - 1, distY - 1, bx + allW + 1, distY + btnH + 1, allBorder);
@@ -231,7 +277,7 @@ public abstract class CobblebaseAdminStatsMixin {
             int rowBg = (rowI % 2 == 0) ? 0xFF1E1E2C : 0xFF171724;
             context.fill(cx, ry, cx + colW, ry + rowHeight - 2, rowBg);
 
-            // Left badge / Sprite
+            // Left Sprite
             virtualloot$renderPokemonSprite(context, font, entry.species, cx + 2, ry + 1);
 
             // Name, Rank and Stars
@@ -267,13 +313,11 @@ public abstract class CobblebaseAdminStatsMixin {
             int thumbY = gridTop + (int) ((float) virtualloot$statsScroll / maxScroll * (listH - thumbH));
             context.fill(trackX, thumbY, trackX + 4, thumbY + thumbH, 0xFF58A6FF);
         }
-
-        ci.cancel();
     }
 
     @Inject(method = "mouseClicked", at = @At("HEAD"), cancellable = true, remap = false)
     private void virtualloot$onAdminStatsClicked(double mouseX, double mouseY, int button, CallbackInfoReturnable<Boolean> cir) {
-        if (button != 0) return;
+        if (button != 0 || !virtualloot$isStatsTabActive()) return;
 
         // Check star filter button hits
         for (Map.Entry<Integer, int[]> entry : virtualloot$starHitboxes.entrySet()) {
@@ -299,6 +343,7 @@ public abstract class CobblebaseAdminStatsMixin {
 
     @Inject(method = "mouseScrolled", at = @At("HEAD"), cancellable = true, remap = false)
     private void virtualloot$onAdminStatsScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount, CallbackInfoReturnable<Boolean> cir) {
+        if (!virtualloot$isStatsTabActive()) return;
         virtualloot$statsScroll = (int) Math.max(0, virtualloot$statsScroll - (verticalAmount * 18));
         cir.setReturnValue(true);
     }
