@@ -172,6 +172,18 @@ public abstract class PokemonPastureBlockEntityMixin implements VirtualPastureIn
             cobbreedingTag.putLong("Time", virtualloot$cobbreedingTime);
             cobbreedingTag.putInt("RequiredTicks", virtualloot$cobbreedingRequiredTicks);
             tag.put("VirtualLootCobbreeding", cobbreedingTag);
+
+            net.minecraft.nbt.ListTag visualList = new net.minecraft.nbt.ListTag();
+            for (PokemonPastureBlockEntity.Tethering t : getTetheredPokemon()) {
+                Pokemon pkmn = t.getPokemon();
+                if (pkmn != null) {
+                    CompoundTag pkmnTag = com.lunazstudios.virtualloot.client.visual.PokemonSyncHelper.serializePokemon(pkmn);
+                    if (!pkmnTag.isEmpty()) {
+                        visualList.add(pkmnTag);
+                    }
+                }
+            }
+            tag.put("virtualloot_visual_pokemon", visualList);
         }
     }
 
@@ -184,6 +196,16 @@ public abstract class PokemonPastureBlockEntityMixin implements VirtualPastureIn
             CompoundTag cobbreedingTag = tag.getCompound("VirtualLootCobbreeding");
             virtualloot$cobbreedingTime = cobbreedingTag.getLong("Time");
             virtualloot$cobbreedingRequiredTicks = cobbreedingTag.getInt("RequiredTicks");
+        }
+        if (tag.contains("virtualloot_visual_pokemon", CompoundTag.TAG_LIST)) {
+            net.minecraft.nbt.ListTag visualList = tag.getList("virtualloot_visual_pokemon", CompoundTag.TAG_COMPOUND);
+            List<CompoundTag> tags = new ArrayList<>();
+            for (int i = 0; i < visualList.size(); i++) {
+                tags.add(visualList.getCompound(i));
+            }
+            PokemonPastureBlockEntity pasture = (PokemonPastureBlockEntity) (Object) this;
+            int mode = com.lunazstudios.virtualloot.block.VirtualPastureBlock.getVisualMode(pasture.getBlockState());
+            com.lunazstudios.virtualloot.client.visual.VirtualPastureVisualizer.handleServerSync(pasture.getBlockPos(), mode, tags);
         }
     }
 

@@ -17,9 +17,5 @@ public final class VirtualLootFabric implements ModInitializer {
         FabricPacketInfo<?> visualModeInfo = new FabricPacketInfo<>(VirtualLootNetwork.SET_VISUAL_MODE);
         visualModeInfo.registerPacket(false);
         visualModeInfo.registerServerHandler();
-
-        FabricPacketInfo<?> syncVisualsInfo = new FabricPacketInfo<>(VirtualLootNetwork.SYNC_VISUALS);
-        syncVisualsInfo.registerPacket(false);
-        syncVisualsInfo.registerClientHandler();
     }
 }
