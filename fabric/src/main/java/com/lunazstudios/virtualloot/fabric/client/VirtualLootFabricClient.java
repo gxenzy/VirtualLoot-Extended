@@ -3,6 +3,8 @@ package com.lunazstudios.virtualloot.fabric.client;
 import com.cobblemon.mod.fabric.net.FabricPacketInfo;
 import com.lunazstudios.virtualloot.client.cobblebase.AdminStatsOverlay;
 import com.lunazstudios.virtualloot.client.visual.VirtualPastureVisualizer;
+import com.lunazstudios.virtualloot.network.SyncVirtualPastureVisualHandler;
+import com.lunazstudios.virtualloot.network.SyncVirtualPastureVisualPacket;
 import com.lunazstudios.virtualloot.network.VirtualLootNetwork;
 import com.lunazstudios.virtualloot.registry.VirtualLootBlocks;
 import net.fabricmc.api.ClientModInitializer;
@@ -17,8 +19,8 @@ public final class VirtualLootFabricClient implements ClientModInitializer {
     public void onInitializeClient() {
         BlockRenderLayerMap.INSTANCE.putBlock(VirtualLootBlocks.VIRTUAL_PASTURE.get(), RenderType.cutout());
 
-        FabricPacketInfo<?> syncVisualInfo = new FabricPacketInfo<>(VirtualLootNetwork.SYNC_VISUAL_MODE);
-        syncVisualInfo.registerClientHandler();
+        FabricPacketInfo<SyncVirtualPastureVisualPacket> syncVisualInfo = new FabricPacketInfo<>(VirtualLootNetwork.SYNC_VISUAL_MODE);
+        syncVisualInfo.registerClientHandler(SyncVirtualPastureVisualHandler.INSTANCE);
 
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             VirtualPastureVisualizer.clientTick();

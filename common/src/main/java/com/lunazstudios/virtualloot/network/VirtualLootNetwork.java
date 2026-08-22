@@ -30,7 +30,7 @@ public final class VirtualLootNetwork {
         SyncVirtualPastureVisualPacket.ID,
         SyncVirtualPastureVisualPacket::new,
         NO_OP_SERVER_HANDLER,
-        SyncVirtualPastureVisualHandler.INSTANCE
+        null
     );
 
     private VirtualLootNetwork() {
