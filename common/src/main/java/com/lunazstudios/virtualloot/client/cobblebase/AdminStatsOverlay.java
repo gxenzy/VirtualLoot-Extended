@@ -20,6 +20,19 @@ public class AdminStatsOverlay {
     private static final Map<Integer, int[]> starHitboxes = new HashMap<>();
     private static int[] sourceHitbox = null;
 
+    private static int lastTrackX = 0;
+    private static int lastTrackW = 6;
+    private static int lastGridTop = 0;
+    private static int lastListH = 0;
+    private static int lastContentHeight = 0;
+    private static int lastMaxScroll = 0;
+    private static int lastThumbH = 16;
+    private static int lastThumbY = 0;
+
+    private static boolean isDraggingScrollbar = false;
+    private static double scrollDragStartMouseY = 0;
+    private static int scrollDragInitialScroll = 0;
+
     public static class SpeciesStatEntry {
         public final String species;
         public final int prof;
@@ -134,6 +147,7 @@ public class AdminStatsOverlay {
 
     public static void render(GuiGraphics context, Object adminScreen, int mouseX, int mouseY, float delta) {
         if (!isStatsTabActive(adminScreen)) {
+            isDraggingScrollbar = false;
             return;
         }
 
@@ -202,7 +216,7 @@ public class AdminStatsOverlay {
             String summary = String.format("§7Total species: §f%d   §7Avg prof: §f%.1f   §7Max prof: §f%d", total, avgProf, maxProf);
             context.drawString(font, summary, rightX + padding + 4, contentTop + 14, 0xCCCCCC, false);
 
-            // 2. Interactive Star Filters Bar (Dynamic Widths, No Bold Resizing Jumps)
+            // 2. Interactive Star Filters Bar
             int distY = contentTop + 26;
             context.drawString(font, "§7Filter:", rightX + padding + 4, distY + 2, 0xAAAAAA, false);
             starHitboxes.clear();
@@ -275,15 +289,33 @@ public class AdminStatsOverlay {
             int rowHeight = 22;
             int cols = 2;
             int colGap = 6;
-            int innerW = rightW - padding * 2 - 8;
+            int innerW = rightW - padding * 2 - 10;
             int colW = (innerW - colGap * (cols - 1)) / cols;
 
             int totalRows = (filtered.size() + cols - 1) / cols;
             int contentHeight = totalRows * rowHeight;
             int maxScroll = Math.max(0, contentHeight - listH);
+
+            // Handle live scrollbar drag
+            if (isDraggingScrollbar && maxScroll > 0 && listH > lastThumbH) {
+                double deltaY = mouseY - scrollDragStartMouseY;
+                float scrollRatio = (float) deltaY / (listH - lastThumbH);
+                statsScroll = (int) Math.max(0, Math.min(maxScroll, scrollDragInitialScroll + scrollRatio * maxScroll));
+            }
+
             statsScroll = Math.max(0, Math.min(statsScroll, maxScroll));
 
-            context.enableScissor(rightX + padding, gridTop, rightX + rightW - padding, contentBottom);
+            // Record scrollbar bounds for hit detection
+            lastTrackX = rightX + rightW - padding - 6;
+            lastTrackW = 6;
+            lastGridTop = gridTop;
+            lastListH = listH;
+            lastContentHeight = contentHeight;
+            lastMaxScroll = maxScroll;
+            lastThumbH = Math.max(16, (int) ((float) listH / Math.max(1, contentHeight) * listH));
+            lastThumbY = gridTop + (int) ((float) statsScroll / Math.max(1, maxScroll) * (listH - lastThumbH));
+
+            context.enableScissor(rightX + padding, gridTop, rightX + rightW - padding - 8, contentBottom);
 
             for (int i = 0; i < filtered.size(); i++) {
                 SpeciesStatEntry entry = filtered.get(i);
@@ -325,13 +357,12 @@ public class AdminStatsOverlay {
 
             context.disableScissor();
 
-            // 6. Scrollbar track & thumb
+            // 6. Scrollbar track & thumb with interactive hover and drag styles
             if (contentHeight > listH) {
-                int trackX = rightX + rightW - padding - 4;
-                context.fill(trackX, gridTop, trackX + 4, contentBottom, 0xFF14141E);
-                int thumbH = Math.max(16, (int) ((float) listH / contentHeight * listH));
-                int thumbY = gridTop + (int) ((float) statsScroll / maxScroll * (listH - thumbH));
-                context.fill(trackX, thumbY, trackX + 4, thumbY + thumbH, 0xFF58A6FF);
+                int trackBg = 0xFF14141E;
+                int thumbBg = isDraggingScrollbar ? 0xFFFFD700 : 0xFF58A6FF;
+                context.fill(lastTrackX, gridTop, lastTrackX + lastTrackW, contentBottom, trackBg);
+                context.fill(lastTrackX, lastThumbY, lastTrackX + lastTrackW, lastThumbY + lastThumbH, thumbBg);
             }
 
             context.pose().popPose();
@@ -361,6 +392,30 @@ public class AdminStatsOverlay {
             }
         }
 
+        // Check scrollbar click and drag start
+        if (lastContentHeight > lastListH && mouseX >= lastTrackX - 4 && mouseX <= lastTrackX + lastTrackW + 4 && mouseY >= lastGridTop && mouseY <= lastGridTop + lastListH) {
+            if (mouseY >= lastThumbY && mouseY <= lastThumbY + lastThumbH) {
+                isDraggingScrollbar = true;
+                scrollDragStartMouseY = mouseY;
+                scrollDragInitialScroll = statsScroll;
+            } else {
+                float clickRatio = (float) (mouseY - lastGridTop - lastThumbH / 2.0) / Math.max(1, lastListH - lastThumbH);
+                statsScroll = (int) Math.max(0, Math.min(lastMaxScroll, clickRatio * lastMaxScroll));
+                isDraggingScrollbar = true;
+                scrollDragStartMouseY = mouseY;
+                scrollDragInitialScroll = statsScroll;
+            }
+            return true;
+        }
+
+        return false;
+    }
+
+    public static boolean mouseReleased(Object adminScreen, double mouseX, double mouseY, int button) {
+        if (isDraggingScrollbar) {
+            isDraggingScrollbar = false;
+            return true;
+        }
         return false;
     }
 

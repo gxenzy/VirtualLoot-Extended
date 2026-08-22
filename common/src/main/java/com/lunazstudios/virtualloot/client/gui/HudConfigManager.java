@@ -18,6 +18,8 @@ public class HudConfigManager {
         public int cobblebaseOffsetY = -16;
         public int virtualLootOffsetX = 228;
         public int virtualLootOffsetY = -14;
+        public int hudBtnOffsetX = 352;
+        public int hudBtnOffsetY = 0;
     }
 
     public static HudData data = new HudData();
@@ -66,6 +68,8 @@ public class HudConfigManager {
         data.cobblebaseOffsetY = -16;
         data.virtualLootOffsetX = 228;
         data.virtualLootOffsetY = -14;
+        data.hudBtnOffsetX = 352;
+        data.hudBtnOffsetY = 0;
         save();
     }
 }

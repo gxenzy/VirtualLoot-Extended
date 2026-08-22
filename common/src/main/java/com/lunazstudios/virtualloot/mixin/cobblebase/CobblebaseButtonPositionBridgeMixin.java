@@ -38,6 +38,9 @@ public abstract class CobblebaseButtonPositionBridgeMixin extends Screen {
     private boolean virtualloot$isDraggingCobblebase = false;
 
     @Unique
+    private boolean virtualloot$isDraggingHudBtn = false;
+
+    @Unique
     private double virtualloot$dragStartX;
 
     @Unique
@@ -99,7 +102,7 @@ public abstract class CobblebaseButtonPositionBridgeMixin extends Screen {
 
         addRenderableWidget(virtualloot$cobblebaseBtn);
 
-        // 2. HUD Edit Mode Toggle Button (small gear icon at pcX + 332, pcY - 14)
+        // 2. HUD Edit Mode Toggle Button (movable, default outside PC frame at pcX + 352, pcY + 0)
         virtualloot$hudEditBtn = Button.builder(Component.literal(HudConfigManager.editMode ? "§6✓ Done" : "§7⚙ HUD"), b -> {
             HudConfigManager.editMode = !HudConfigManager.editMode;
             b.setMessage(Component.literal(HudConfigManager.editMode ? "§6✓ Done" : "§7⚙ HUD"));
@@ -109,19 +112,25 @@ public abstract class CobblebaseButtonPositionBridgeMixin extends Screen {
             if (!HudConfigManager.editMode) {
                 HudConfigManager.save();
             }
-        }).bounds(pcX + 288, pcY - 14, 46, 14).build();
+        }).bounds(pcX + HudConfigManager.data.hudBtnOffsetX, pcY + HudConfigManager.data.hudBtnOffsetY, 46, 14).build();
 
         addRenderableWidget(virtualloot$hudEditBtn);
 
-        // 3. Reset Defaults Button (visible only in HUD edit mode)
+        // 3. Reset Defaults Button (sits beside HUD edit button in edit mode)
         virtualloot$resetHudBtn = Button.builder(Component.literal("§c↺ Reset"), b -> {
             HudConfigManager.resetDefaults();
             if (virtualloot$cobblebaseBtn != null) {
                 virtualloot$cobblebaseBtn.setX(pcX + HudConfigManager.data.cobblebaseOffsetX);
                 virtualloot$cobblebaseBtn.setY(pcY + HudConfigManager.data.cobblebaseOffsetY);
             }
+            if (virtualloot$hudEditBtn != null) {
+                virtualloot$hudEditBtn.setX(pcX + HudConfigManager.data.hudBtnOffsetX);
+                virtualloot$hudEditBtn.setY(pcY + HudConfigManager.data.hudBtnOffsetY);
+            }
+            b.setX(pcX + HudConfigManager.data.hudBtnOffsetX - 48);
+            b.setY(pcY + HudConfigManager.data.hudBtnOffsetY);
             this.repositionElements();
-        }).bounds(pcX + 242, pcY - 14, 44, 14).build();
+        }).bounds(pcX + HudConfigManager.data.hudBtnOffsetX - 48, pcY + HudConfigManager.data.hudBtnOffsetY, 44, 14).build();
         virtualloot$resetHudBtn.visible = HudConfigManager.editMode;
 
         addRenderableWidget(virtualloot$resetHudBtn);
@@ -129,14 +138,26 @@ public abstract class CobblebaseButtonPositionBridgeMixin extends Screen {
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        if (button == 0 && HudConfigManager.editMode && virtualloot$cobblebaseBtn != null) {
-            if (virtualloot$cobblebaseBtn.isMouseOver(mouseX, mouseY)) {
+        if (button == 0 && HudConfigManager.editMode) {
+            // Drag Cobblebase button
+            if (virtualloot$cobblebaseBtn != null && virtualloot$cobblebaseBtn.isMouseOver(mouseX, mouseY)) {
                 virtualloot$isDraggingCobblebase = true;
                 virtualloot$dragStartX = mouseX;
                 virtualloot$dragStartY = mouseY;
                 virtualloot$initialOffsetX = HudConfigManager.data.cobblebaseOffsetX;
                 virtualloot$initialOffsetY = HudConfigManager.data.cobblebaseOffsetY;
                 return true;
+            }
+            // Drag HUD button (Hold Shift or right area of button to drag HUD button, or click normally to toggle done)
+            if (virtualloot$hudEditBtn != null && virtualloot$hudEditBtn.isMouseOver(mouseX, mouseY)) {
+                if (hasShiftDown()) {
+                    virtualloot$isDraggingHudBtn = true;
+                    virtualloot$dragStartX = mouseX;
+                    virtualloot$dragStartY = mouseY;
+                    virtualloot$initialOffsetX = HudConfigManager.data.hudBtnOffsetX;
+                    virtualloot$initialOffsetY = HudConfigManager.data.hudBtnOffsetY;
+                    return true;
+                }
             }
         }
         return super.mouseClicked(mouseX, mouseY, button);
@@ -149,23 +170,45 @@ public abstract class CobblebaseButtonPositionBridgeMixin extends Screen {
             HudConfigManager.save();
             return true;
         }
+        if (virtualloot$isDraggingHudBtn) {
+            virtualloot$isDraggingHudBtn = false;
+            HudConfigManager.save();
+            return true;
+        }
         return super.mouseReleased(mouseX, mouseY, button);
     }
 
     @Override
     public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
+        int pcX = (width - PCGUI.BASE_WIDTH) / 2;
+        int pcY = (height - PCGUI.BASE_HEIGHT) / 2;
+
         if (virtualloot$isDraggingCobblebase && HudConfigManager.editMode && virtualloot$cobblebaseBtn != null) {
             int deltaX = (int) (mouseX - virtualloot$dragStartX);
             int deltaY = (int) (mouseY - virtualloot$dragStartY);
             HudConfigManager.data.cobblebaseOffsetX = virtualloot$initialOffsetX + deltaX;
             HudConfigManager.data.cobblebaseOffsetY = virtualloot$initialOffsetY + deltaY;
 
-            int pcX = (width - PCGUI.BASE_WIDTH) / 2;
-            int pcY = (height - PCGUI.BASE_HEIGHT) / 2;
             virtualloot$cobblebaseBtn.setX(pcX + HudConfigManager.data.cobblebaseOffsetX);
             virtualloot$cobblebaseBtn.setY(pcY + HudConfigManager.data.cobblebaseOffsetY);
             return true;
         }
+
+        if (virtualloot$isDraggingHudBtn && HudConfigManager.editMode && virtualloot$hudEditBtn != null) {
+            int deltaX = (int) (mouseX - virtualloot$dragStartX);
+            int deltaY = (int) (mouseY - virtualloot$dragStartY);
+            HudConfigManager.data.hudBtnOffsetX = virtualloot$initialOffsetX + deltaX;
+            HudConfigManager.data.hudBtnOffsetY = virtualloot$initialOffsetY + deltaY;
+
+            virtualloot$hudEditBtn.setX(pcX + HudConfigManager.data.hudBtnOffsetX);
+            virtualloot$hudEditBtn.setY(pcY + HudConfigManager.data.hudBtnOffsetY);
+            if (virtualloot$resetHudBtn != null) {
+                virtualloot$resetHudBtn.setX(pcX + HudConfigManager.data.hudBtnOffsetX - 48);
+                virtualloot$resetHudBtn.setY(pcY + HudConfigManager.data.hudBtnOffsetY);
+            }
+            return true;
+        }
+
         return super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
     }
 
@@ -191,9 +234,22 @@ public abstract class CobblebaseButtonPositionBridgeMixin extends Screen {
                     context.fill(bx + bw, by, bx + bw + 1, by + bh, color);
                 }
 
+                // Highlight HUD button with border
+                if (virtualloot$hudEditBtn != null) {
+                    int bx = virtualloot$hudEditBtn.getX();
+                    int by = virtualloot$hudEditBtn.getY();
+                    int bw = virtualloot$hudEditBtn.getWidth();
+                    int bh = virtualloot$hudEditBtn.getHeight();
+                    int color = virtualloot$isDraggingHudBtn ? 0xFFFFD700 : 0xFF58A6FF;
+                    context.fill(bx - 1, by - 1, bx + bw + 1, by, color);
+                    context.fill(bx - 1, by + bh, bx + bw + 1, by + bh + 1, color);
+                    context.fill(bx - 1, by, bx, by + bh, color);
+                    context.fill(bx + bw, by, bx + bw + 1, by + bh, color);
+                }
+
                 // Draw Edit Mode banner text
                 Font font = Minecraft.getInstance().font;
-                String banner = "§6§l[HUD Edit Mode] §eDrag buttons to reposition anywhere • Click [✓ Done] to save";
+                String banner = "§6§l[HUD Edit Mode] §eDrag buttons to reposition anywhere (Hold Shift to drag HUD button) • Click [✓ Done] to save";
                 context.drawString(font, banner, 8, 8, 0xFFFFFF, true);
             }
         }
