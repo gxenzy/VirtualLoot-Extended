@@ -8,7 +8,7 @@
     "PasturePokemonScrollListMixin",
     "cobbreeding.PastureGuiVirtualLootButtonMixin",
     "cobblebase.CobblebaseButtonPositionBridgeMixin",
-    "cobblebase.CobblebaseAdminStatsMixin"
+    "cobblebase.CobblebaseAdminScreenMixin"
   ],
   "mixins": [
     "BlockEntityTypeMixin",
