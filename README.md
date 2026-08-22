@@ -3,46 +3,67 @@
 </p>
 
 <p align="center">
-    <img src="https://i.imgur.com/D40j3RV.png" alt="Fabric" width="105" height="28">
-    <img src="https://i.imgur.com/ou0Id20.png" alt="NeoForge" width="127" height="28">
-    <img src="https://i.imgur.com/pIrXd83.png" alt="Requires ArchitecturyAPI" width="222" height="28">
-    <img src="https://i.imgur.com/48cXpQd.png" alt="Requires Cobblemon" width="211" height="28">
-    <img src="https://i.imgur.com/Yr2BrdD.png" alt="Requires FabricAPI (For Fabric)" width="211" height="28">
+    <img src="https://img.shields.io/badge/Minecraft-1.21.1-brightgreen?style=for-the-badge&logo=minecraft" alt="Minecraft 1.21.1">
+    <img src="https://img.shields.io/badge/Cobblemon-1.7.3-orange?style=for-the-badge" alt="Cobblemon 1.7.3">
+    <img src="https://img.shields.io/badge/Platform-Fabric%20%7C%20NeoForge-blue?style=for-the-badge" alt="Fabric & NeoForge">
+    <img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge" alt="MIT License">
 </p>
 
-**Cobblemon Virtual Loot** adds a Virtual Pasture to Cobblemon, inspired by the idea behind **Cobblemon Pasture Loot**.
+---
 
-After seeing players report lag issues from having many Pokemon entities walking around and also wanting a way to keep Pokemon outside purely as cute decorative companions without them constantly dropping items on the ground, this mod was created as a cleaner alternative. Instead of spawning the Pokemon outside, the Virtual Pasture keeps them virtually assigned through the Cobblemon pasture system and generates their Cobblemon loot directly inside its own inventory. This helps reduce world clutter, avoids item drops piling up on the ground, and lets decorative Pokemon stay decorative.
+# Cobblemon: Virtual Loot (Cobblebase Edition)
 
-<p align="center">
-  <a href="https://x.com/LunazStudios">
-    <img src="https://img.shields.io/badge/TWITTER-91132a?style=for-the-badge&logo=x&logoColor=FFFFFF&labelColor=ff758e" />
-  </a>
-</p>
+**Cobblemon Virtual Loot** adds a **Virtual Pasture** to Cobblemon, providing a lag-free, fully automated alternative to traditional entity-heavy pasture systems.
 
-***
+By keeping Pokémon virtually assigned inside the pasture block instead of spawning dozens of physical entities in the world, Virtual Loot completely eliminates entity ticking, collision lag, and world clutter. With this edition, Virtual Loot features deep, native integration with **Cobblebase**, allowing Palworld-style Pokémon base jobs (Producer, Mining, Harvester, Finder, Auras, etc.) to run 100% virtually with outputs deposited directly into the Virtual Pasture's internal inventory or piped through hoppers!
 
-## How It Works
+---
 
-Place a **Virtual Pasture** and use it like a Cobblemon pasture. Pokemon assigned to the block stay virtual, so they do not appear as entities in the world, but the block still processes their loot generation.
+## 🌟 Key Features
 
-The generated loot is based on the Pokémon own Cobblemon defeat drops. In practice, the mod reads the assigned Pokemon, checks that it is valid and not fainted, uses the Pokemon form's drop table, rolls one of the generated item drops, and inserts the result into the Virtual Pasture inventory.
+* **⚡ Zero Entity Lag:** Manage up to 16+ Pokémon per pasture without spawning a single entity into the world. Eliminates the massive TPS and FPS drops caused by multiple active pastures.
+* **🏗️ Full Cobblebase Job Support:** Assigned Cobblebase jobs (Producer, Mining, Harvester, Finder, Healer, Mentor) run virtually on their configured cooldowns and proficiency levels.
+* **📦 27-Slot Internal Storage:** All generated produce, mined ores, harvested crops, and drops are collected inside the block's internal 27-slot chest inventory.
+* **🔄 Automated Hopper Extraction:** Place vanilla or modded hoppers directly beneath the Virtual Pasture block to automatically drain all collected items into chests or automated sorting systems.
+* **📊 Cobblebase Log Sync:** Every virtual job completion is recorded in Cobblebase's activity log system, making all production history viewable in-game through the Cobblebase GUI.
+* **🥚 Cobbreeding Integration:** Supports virtual egg generation, breeding toggles, timers, and inheritance without physical entity breeding loops.
+* **🎒 Cobbleworkers Integration:** Supports automated worker jobs (Pickup, Fishing, Diving, Archaeology).
+* **💤 Relaxing / Idle Drops:** Pokémon set to Relax / Idle automatically generate their standard Cobblemon species defeat drop tables.
 
-Generated items are stored in the Virtual Pasture's 27-slot inventory. Players can open this inventory directly by using **Shift + Right Click** on the block. Items can also be extracted automatically with hoppers below the Virtual Pasture or similar item-transport systems.
+---
 
-The mod is available for both **Fabric** and **NeoForge**.
+## 🛠️ How It Works
 
-***
+1. **Craft & Place a Virtual Pasture:** Place the block down in your base.
+2. **Assign Pokémon:** Right-click the block to open the Pasture PC interface and deposit your Pokémon.
+3. **Assign Cobblebase Jobs:** Click the **Cobblebase** button in the top corner of the pasture screen to assign roles:
+   * **Producer (Wooloo, Miltank, Combee, Meowth, etc.):** Generates lore-based items (Wool, Moomoo Milk, Honey, Gold Nuggets, Diamonds, Slime Balls, etc.) into the inventory.
+   * **Mining:** Yields ores and minerals based on Pokémon proficiency.
+   * **Harvester:** Gathers crops, berries, and wood.
+   * **Finder / Forager:** Rolls configured loot tables.
+   * **Healer & Mentor:** Provides passive team buffs, healing, and passive XP to nearby players.
+4. **Collect Loot:**
+   * **Manual:** **Shift + Right Click** the Virtual Pasture to open its 27-slot inventory.
+   * **Automated:** Place a **Hopper** underneath pointing into a chest, barrel, or storage pipe.
 
-## Configuration
+---
 
-The config file is generated at:
+## 📋 Cobblebase Job Mechanics in Virtual Pasture
 
-```json
-config/PastureLoot.json
-```
+| Job Type | Example Pokémon | Virtual Pasture Behavior |
+| :--- | :--- | :--- |
+| **Producer** | Wooloo, Mareep, Miltank, Combee, Carbink, Meowth | Produces lore items on proficiency-scaled cooldowns into block inventory. |
+| **Mining** | Roggenrola, Geodude, Drilbur, Excadrill, Aron | Yields ores (Coal, Iron, Copper, Gold, Redstone, Amethyst) on cooldown. |
+| **Harvester** | Bulbasaur, Oddish, Petilil, Bounsweet, Smoliv | Yields crops (Wheat, Carrots, Potatoes, Berries, Melons) on cooldown. |
+| **Finder / Forager** | Meowth, Zigzagoon, Greedent, Pachirisu | Rolls configured Cobblebase loot tables for rare items and treasures. |
+| **Support / Auras** | Chansey, Blissey, Audino, Togekiss | Applies base buffs, team healing, and passive XP to the player. |
+| **Relax / Idle** | Any unassigned Pokémon | Generates standard Cobblemon species drop tables over time. |
 
-Default config:
+---
+
+## ⚙️ Configuration
+
+The configuration file is automatically generated at `config/PastureLoot.json`:
 
 ```json
 {
@@ -51,97 +72,39 @@ Default config:
   "item_blacklist": [
     "minecraft:porkchop",
     "minecraft:beef",
-    "minecraft:chicken",
-    "minecraft:mutton",
-    "minecraft:rabbit",
-    "minecraft:fish",
-    "minecraft:cooked_porkchop",
-    "minecraft:cooked_beef",
-    "minecraft:cooked_chicken",
-    "minecraft:cooked_mutton",
-    "minecraft:cooked_rabbit",
-    "minecraft:cooked_fish",
-    "minecraft:leather",
-    "minecraft:bone",
-    "minecraft:spider_eye",
-    "minecraft:rotten_flesh",
-    "minecraft:rabbit_hide",
-    "minecraft:rabbit_foot",
-    "minecraft:cod",
-    "minecraft:pufferfish",
-    "minecraft:bone_block",
-    "minecraft:bone_meal",
-    "cobblemon:sharp_beak",
-    "minecraft:honey_bottle",
-    "minecraft:salmon",
-    "minecraft:white_wool"
+    "minecraft:chicken"
   ],
   "flatten_item_quantity": false
 }
 ```
 
-`tick_per_minute` controls how many game ticks the mod treats as one loot minute. The default value, `1200`, is the same as 60 seconds in normal Minecraft timing.
+* `tick_per_minute`: Number of game ticks treated as one minute (default: `1200`).
+* `drop_chance_per_minute`: Chance for unassigned/idle Pokémon to roll standard species drops per minute (default: `0.05` = 5%).
+* `item_blacklist`: Blacklist specific item IDs from being generated.
+* `flatten_item_quantity`: If `true`, forces all generated drop stacks to a quantity of 1.
 
-`drop_chance_per_minute` controls the chance for each assigned Pokemon to generate loot during that configured minute. The default value, `0.05`, means each Pokemon has a 5% chance per configured minute. Internally, this is converted into a per-tick chance, so generation stays smooth instead of happening all at once.
+---
 
-`item_blacklist` blocks specific item IDs from being generated. If a Pokemon's rolled drop is in this list, that drop is ignored.
+## 📜 Legal Notice & Open-Source Compliance
 
-`flatten_item_quantity` controls stack size behavior. When disabled, generated items keep the quantity rolled by the Pokemon's drop data. When enabled, every valid generated item stack is forced to 1 item.
+This project is a compatibility bridge and open-source contribution combining the architectures of **Cobblemon Virtual Loot** and **Cobblebase**.
 
-***
+* **License:** This software is licensed under the **[MIT License](LICENSE.txt)** with portions adapted from Cobblemon under the **[Mozilla Public License 2.0 (MPL-2.0)](https://mozilla.org/MPL/2.0/)**.
+* **Open-Source Compliance:** Under the terms of the MIT and MPL-2.0 licenses, you are free to use, modify, distribute, include in modpacks, and build upon this code, provided that original copyright notices and license permissions are preserved.
+* **Disclaimer:** This mod is an independent open-source project and is not officially affiliated with, endorsed by, or associated with Mojang AB, Microsoft, CobbledStudios, or Pocketpair.
+  * *Minecraft* is a registered trademark of Mojang Synergies AB.
+  * *Cobblemon* is an open-source Pokémon mod by CobbledStudios.
+  * *Pokémon* is a registered trademark of Nintendo, Game Freak, and Creatures Inc.
 
-## Optional Compatibility
+---
 
-**Cobblemon Virtual Loot** works on its own with Cobblemon, but it also includes optional compatibility with other Cobblemon addons. These addons are not required. If they are not installed, the mod will keep loading normally and the extra compatibility features will simply stay disabled.
+## 👥 Credits & Attributions
 
-### Cobbreeding
+We express our deepest gratitude to the talented creators whose work made this integration possible:
 
-When **Cobbreeding** is installed, Pokemon inside the Virtual Pasture can generate eggs using Cobbreeding's own breeding systems.
-
-The compatibility respects Cobbreeding's rules, configs, timers, toggles, egg generation, inheritance, shiny chances, egg moves, egg item data, and related behavior. Eggs are inserted into the same Virtual Pasture inventory as the normal loot, without spawning Pokemon entities in the world.
-
-The Cobbreeding button can still be used to enable or disable breeding. A stick button is also added beside it, allowing players to toggle Virtual Loot generation separately. This means a Virtual Pasture can be set to generate only loot, only eggs, both, or neither.
-
-### Cobbleworkers
-
-When **Cobbleworkers** is installed, the Virtual Pasture can generate loot for selected Cobbleworkers jobs without spawning the Pokemon in the world.
-
-Supported jobs:
-
-- `cobbleworkers:pickup_looter`
-- `cobbleworkers:fishing_looter`
-- `cobbleworkers:dive_looter`
-- `cobbleworkers:archaeologist`
-
-`pickup_looter` works directly from eligible Pokemon. `fishing_looter` and `dive_looter` require at least one water block with air above it within 5 blocks of the Virtual Pasture. `archaeologist` requires at least one valid archaeology block with air above it within 5 blocks of the Virtual Pasture.
-
-All generated Cobbleworkers loot goes into the same 27-slot Virtual Pasture inventory and follows the Virtual Loot toggle.
-
-***
-
-## Frequently Asked Questions
-
-**Q: Can I use this mod in my modpack or create content with it?** **A:** Absolutely! You're welcome to include **Cobblemon Virtual Loot** in your modpack or feature it in your videos. Just remember to credit the mod appropriately and avoid claiming it as your own work.
-
-**Q: Does this mod spawn Pokemon into the world?** **A:** No. The Virtual Pasture keeps Pokemon virtually assigned to the block and generates loot internally.
-
-**Q: Does this mod drop generated items on the ground?** **A:** No. Generated items are placed inside the Virtual Pasture inventory.
-
-**Q: Do I need Cobbreeding or Cobbleworkers?** **A:** No. They are optional compatibilities. The mod works without them.
-
-**Q: How do I collect the generated loot?** **A:** Sneak-use the Virtual Pasture to open its inventory, or place hoppers below the block to extract items automatically.
-
-***
-
-## Credits
-
-Special thanks to the **Cobblemon** team for creating Cobblemon and the pasture system that made this mod possible.
-
-Special thanks to the creators of **Cobbreeding** and **Cobbleworkers** for the addons supported by the optional compatibility systems.
-
-***
-
-<div align="center">
-    <p><i>Cobblemon Virtual Loot is not affiliated with Cobblemon nor Minecraft.</i></p>
-    <p><i>Minecraft is a trademark of Mojang Synergies AB | Cobblemon is a trademark of CobbledStudios</i></p>
-</div>
+* **[LunazStudios](https://github.com/LunazStudios)** — Creator of the original **[Cobblemon Virtual Loot](https://github.com/LunazStudios/VirtualLoot)** ([Modrinth Page](https://modrinth.com/mod/cobblemon-virtual-loot)).
+* **[notlown](https://github.com/notlown)** — Creator of **[Cobblebase](https://github.com/notlown/cobblebase)** ([Modrinth Page](https://modrinth.com/mod/cobblebase)).
+* **[The Cobblemon Team](https://cobblemon.com/)** — Creators of the Cobblemon mod and the core pasture API.
+* **[ludichat](https://github.com/ludichat)** — Creator of **[Cobbreeding](https://modrinth.com/mod/cobbreeding)**.
+* **[Accieo](https://github.com/Accieo)** — Creator of **[Cobbleworkers](https://modrinth.com/mod/cobbleworkers)**.
+* **gxenzy & Contributors** — Cobblebase compatibility bridge implementation, virtual job executor engine, and automated build workflows.
