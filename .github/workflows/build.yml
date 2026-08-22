@@ -7,6 +7,20 @@ on:
   pull_request:
     branches: [ main, master ]
   workflow_dispatch:
+    inputs:
+      version_type:
+        description: 'Version Type (Release, Beta, Alpha)'
+        required: true
+        default: 'Release'
+        type: choice
+        options:
+          - Release
+          - Beta
+          - Alpha
+      custom_title:
+        description: 'Custom Version Subtitle (e.g. Cobblebase & Universal Integration)'
+        required: false
+        default: 'Cobblebase & Universal Integration'
 
 permissions:
   contents: write
@@ -36,62 +50,106 @@ jobs:
       - name: Build Mod with Gradle
         run: ./gradlew build --no-daemon
 
-      - name: Extract Commit History for Changelog
-        id: changelog
+      - name: Extract Metadata & Changelog
+        id: meta
         run: |
+          MOD_VER=$(grep "mod_version=" gradle.properties | cut -d'=' -f2 | tr -d '\r')
+          MC_VER=$(grep "minecraft_version=" gradle.properties | cut -d'=' -f2 | tr -d '\r')
+          
+          # Determine Version Type
+          VER_TYPE="${{ github.event.inputs.version_type }}"
+          if [ -z "$VER_TYPE" ]; then
+            if [[ "$GITHUB_REF" == *"alpha"* ]]; then
+              VER_TYPE="Alpha"
+            elif [[ "$GITHUB_REF" == *"beta"* ]]; then
+              VER_TYPE="Beta"
+            else
+              VER_TYPE="Release"
+            fi
+          fi
+          
+          SUBTITLE="${{ github.event.inputs.custom_title }}"
+          if [ -z "$SUBTITLE" ]; then
+            SUBTITLE="Cobblebase & Universal Integration"
+          fi
+          
+          echo "MOD_VERSION=$MOD_VER" >> $GITHUB_ENV
+          echo "MC_VERSION=$MC_VER" >> $GITHUB_ENV
+          echo "VERSION_TYPE=$VER_TYPE" >> $GITHUB_ENV
+          echo "VERSION_SUBTITLE=$SUBTITLE" >> $GITHUB_ENV
+          
+          # Extract commit changelog
           echo "CHANGELOG<<EOF" >> $GITHUB_ENV
-          git log -n 5 --pretty=format:"* %s (%h by @%an)" >> $GITHUB_ENV
+          git log -n 8 --pretty=format:"* %s (%h by @%an)" >> $GITHUB_ENV
           echo "" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
 
-      - name: Prepare Release Notes Body
-        id: release_notes
+      - name: Generate Comprehensive Release Notes Body
         run: |
           cat << 'EOF' > release_body.md
-          # 🌌 Virtual Loot: Extended Edition
+          # 🌌 Virtual Loot: Extended [${{ env.MC_VERSION }}] v${{ env.MOD_VERSION }} - ${{ env.VERSION_SUBTITLE }}
 
-          **Lag-free Virtual Pasture system with extended multi-mod compatibility for Cobblebase, Cobbreeding, Cobbleworkers, and Cobblemon.**
-
-          ---
-
-          ### 📦 Built Files Included in this Release:
-          * **Fabric 1.21.1:** `VirtualLoot-Extended-fabric-*.jar`
-          * **NeoForge 1.21.1:** `VirtualLoot-Extended-neoforge-*.jar`
+          > **Version Type:** 🟢 **${{ env.VERSION_TYPE }}** (${{ env.VERSION_TYPE == 'Release' && 'Stable Production' || 'Experimental / Testing' }})  
+          > **Target Minecraft:** `1.21.1`  
+          > **Environment:** 💻 **Client & Server: Required on both** (Works on Singleplayer & Dedicated Servers)  
+          > **Supported Loaders:** Fabric, NeoForge  
 
           ---
 
-          ### 📋 Compatibility Matrix:
-          | Component | Supported Version | Required? |
-          | :--- | :--- | :--- |
-          | **Minecraft** | `1.21.1` | ✅ Required |
-          | **Cobblemon** | `1.7.3+` | ✅ Required |
-          | **Architectury API** | `13.0.8+` | ✅ Required |
-          | **Fabric API / NeoForge** | `0.116.12+` / `21.1.234+` | ✅ Required |
-          | **Cobblebase** | `2.0.0+` | 🌟 Optional (Full Virtual Job Support) |
-          | **Cobbreeding** | `2.2.1+` | 🥚 Optional (Virtual Egg Generation) |
-          | **Cobbleworkers** | `2.0.4+` | ⛏️ Optional (Automated Job Loot) |
+          ## 📌 Metadata & Environment Information
+          * **Mod Name:** Virtual Loot: Extended
+          * **Mod Loaders:** Fabric (>=0.19.3), NeoForge (>=21.1.234)
+          * **Minecraft Version:** 1.21.1
+          * **Java Runtime:** Java 21 (JDK 21+)
+          * **Environment Compatibility:**
+            * **Client & Server (Required on Both):** Adds custom Virtual Pasture blocks, models, textures, GUI buttons, network sync packets, and server-side virtual ticking logic.
+            * **Singleplayer:** Fully supported out-of-the-box.
+            * **Dedicated Multiplayer Server:** Fully supported. Install the `.jar` on both the server and player clients.
 
           ---
 
-          ### ✨ Key Features in Extended Edition:
-          * **⚡ Zero-Lag Base Management:** Manage up to 16+ Pokémon per pasture block with **zero entity spawns**, eliminating massive TPS and FPS drops.
-          * **🏗️ Full Cobblebase Virtual Jobs:** Assigned Cobblebase jobs (Producer, Mining, Harvester, Finder, Auras, Passive XP) run virtually on proficiency-scaled cooldowns.
-          * **🔄 Hopper & Storage Automation:** Collects all items into the block's 27-slot inventory. Place hoppers underneath to automatically pipe all produce directly into chests or sorting pipes!
-          * **📊 Cobblebase In-Game Log Sync:** Production history is recorded in Cobblebase's activity log GUI.
-          * **💤 Standard Species Drops:** Relaxing / unassigned Pokémon roll standard Cobblemon defeat drop tables.
+          ## 📦 Dependencies & Compatibility Matrix
+
+          ### 🟢 Required Dependencies:
+          | Dependency | Required Version | Loader | Notes |
+          | :--- | :--- | :--- | :--- |
+          | **Minecraft** | `1.21.1` | Both | Base Game |
+          | **Cobblemon** | `>=1.7.3` | Both | Core Pokémon Framework |
+          | **Architectury API** | `>=13.0.8` | Both | Cross-loader runtime abstraction |
+          | **Fabric API** | `>=0.116.12` | Fabric | Required for Fabric Loader |
+          | **NeoForge** | `>=21.1.234` | NeoForge | Required for NeoForge Loader |
+
+          ### 🌟 Supported Optional Integrations & Related Addons:
+          | Mod | Recommended Version | Role / Feature | Notes |
+          | :--- | :--- | :--- | :--- |
+          | **Cobblebase** | `>=2.0.0` | 🏗️ Palworld-style Virtual Base Jobs | Executes Producer, Mining, Harvester, Finder, Auras & Buffs virtually |
+          | **Cobbreeding** | `>=2.2.1` | 🥚 Virtual Egg Breeding & Ticking | Generates eggs directly into the 27-slot pasture inventory |
+          | **Cobbleworkers** | `>=2.0.4` | ⛏️ Automated Worker Jobs | Pickup, Fishing, Diving, Archaeology virtual jobs |
+          | **Cloth Config API** | `>=15.0.140` | ⚙️ Config screen helper | Required by Cobblebase / VirtualLoot config |
+          | **Xaero's Minimap** | `>=24.7.0` | 🗺️ Minimap Base Waypoints | Integrates with Cobblebase base tracking |
 
           ---
 
-          ### 📝 Recent Updates & Commits:
+          ## ✨ What This Mod Solves & Features:
+          * **⚡ Zero-Lag Pastures:** Keeps Pokémon virtually assigned inside the block with **0 physical entities spawned**, completely eliminating FPS/TPS drops from dozens of walking Pokémon.
+          * **🏗️ Native Cobblebase Integration:** Pokémon assigned to Producer, Mining, Harvester, or Finder jobs produce items directly inside the Virtual Pasture on lore-based cooldowns.
+          * **📦 27-Slot Internal Storage:** All generated produce, mined ores, and drops are collected inside the block.
+          * **🔄 Hopper & Automation Support:** Place a hopper underneath the Virtual Pasture to automatically pipe items into chests or storage pipes!
+          * **📊 Activity Log Sync:** Production is recorded in Cobblebase's activity log GUI.
+          * **💤 Standard Species Drops:** Unassigned / relaxing Pokémon roll standard Cobblemon defeat drop tables.
+
+          ---
+
+          ## 📝 Version Changelog
           ${{ env.CHANGELOG }}
 
           ---
 
-          ### 👥 Open Source Credits:
-          * **LunazStudios** — Creator of the original *Cobblemon Virtual Loot*.
-          * **notlown** — Creator of *Cobblebase*.
-          * **The Cobblemon Team** — Creators of Cobblemon.
-          * **gxenzy & Contributors** — Extended edition compatibility bridge and automation.
+          ## 👥 Open Source Credits & Attributions:
+          * **[LunazStudios](https://github.com/LunazStudios)** — Creator of the original *Cobblemon Virtual Loot*.
+          * **[notlown](https://github.com/notlown)** — Creator of *Cobblebase*.
+          * **[The Cobblemon Team](https://cobblemon.com/)** — Creators of Cobblemon.
+          * **gxenzy & Contributors** — Extended edition compatibility bridge, virtual job executor, and automation.
 
           *Licensed under the [MIT License](LICENSE.txt).*
           EOF
@@ -112,7 +170,9 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v2
         with:
+          name: "Virtual Loot: Extended [${{ env.MC_VERSION }}] ${{ github.ref_name }} - ${{ env.VERSION_SUBTITLE }}"
           body_path: release_body.md
+          prerelease: ${{ env.VERSION_TYPE != 'Release' }}
           files: |
             fabric/build/libs/*-fabric-*.jar
             neoforge/build/libs/*-neoforge-*.jar
@@ -124,7 +184,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: latest
-          name: "Virtual Loot: Extended (Latest Build)"
+          name: "Virtual Loot: Extended [${{ env.MC_VERSION }}] v${{ env.MOD_VERSION }} - ${{ env.VERSION_SUBTITLE }}"
           body_path: release_body.md
           prerelease: false
           files: |
