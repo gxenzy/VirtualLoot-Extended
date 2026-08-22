@@ -3,7 +3,6 @@ package com.lunazstudios.virtualloot.mixin.cobblebase;
 import com.cobblemon.mod.common.client.gui.pasture.PasturePCGUIConfiguration;
 import com.cobblemon.mod.common.client.gui.pc.PCGUI;
 import com.cobblemon.mod.common.client.gui.pc.PCGUIConfiguration;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
@@ -49,43 +48,18 @@ public abstract class CobblebaseButtonPositionBridgeMixin extends Screen {
         return null;
     }
 
-    @Inject(method = "init", at = @At("TAIL"))
-    private void virtualloot$onInitCobblebaseButton(CallbackInfo ci) {
-        if (!(configuration instanceof PasturePCGUIConfiguration)) {
-            return;
-        }
-
-        int pcX = (width - PCGUI.BASE_WIDTH) / 2;
-        int pcY = (height - PCGUI.BASE_HEIGHT) / 2;
-
-        int btnX = pcX + 208;
-        int btnY = pcY - 13;
-        int btnW = 78;
-        int btnH = 16;
-
-        Button activeBtn = virtualloot$getCobblebaseButton();
-        if (activeBtn != null) {
-            // Hide Cobblebase's own hardcoded button so it doesn't draw at (pcX + 271)
-            activeBtn.visible = false;
-        }
-
-        // Add our clean, perfectly-aligned button widget to the screen
-        Button customBtn = Button.builder(Component.literal("§bCobblebase"), b -> {
-            Button target = virtualloot$getCobblebaseButton();
-            if (target != null) {
-                target.onPress();
-            }
-        }).bounds(btnX, btnY, btnW, btnH).build();
-
-        addRenderableWidget(customBtn);
-    }
-
     @Inject(method = "render", at = @At("HEAD"))
-    private void virtualloot$ensureOriginalHidden(net.minecraft.client.gui.GuiGraphics context, int mouseX, int mouseY, float delta, CallbackInfo ci) {
+    private void virtualloot$repositionCobblebaseButton(net.minecraft.client.gui.GuiGraphics context, int mouseX, int mouseY, float delta, CallbackInfo ci) {
         if (configuration instanceof PasturePCGUIConfiguration) {
             Button activeBtn = virtualloot$getCobblebaseButton();
             if (activeBtn != null) {
-                activeBtn.visible = false;
+                int pcX = (width - PCGUI.BASE_WIDTH) / 2;
+                int pcY = (height - PCGUI.BASE_HEIGHT) / 2;
+                activeBtn.setX(pcX + 208);
+                activeBtn.setY(pcY - 13);
+                activeBtn.setWidth(78);
+                activeBtn.setHeight(16);
+                activeBtn.visible = true;
             }
         }
     }
