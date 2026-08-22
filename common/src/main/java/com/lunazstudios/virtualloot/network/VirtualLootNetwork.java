@@ -18,10 +18,10 @@ public final class VirtualLootNetwork {
         null
     );
 
-    public static final PacketRegisterInfo<SyncVirtualPastureVisualPacket> SYNC_VISUAL_MODE = new PacketRegisterInfo<>(
+    public static final PacketRegisterInfo<SyncVirtualPastureVisualPacket> SYNC_VISUAL_MODE = new PacketRegisterInfo<SyncVirtualPastureVisualPacket>(
         SyncVirtualPastureVisualPacket.ID,
         SyncVirtualPastureVisualPacket::new,
-        (ServerNetworkPacketHandler<SyncVirtualPastureVisualPacket>) null,
+        (packet, server, player) -> {},
         SyncVirtualPastureVisualHandler.INSTANCE
     );
 
