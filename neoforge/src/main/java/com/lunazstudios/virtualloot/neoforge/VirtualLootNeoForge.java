@@ -2,6 +2,8 @@ package com.lunazstudios.virtualloot.neoforge;
 
 import com.cobblemon.mod.neoforge.net.NeoForgePacketInfo;
 import com.lunazstudios.virtualloot.VirtualLoot;
+import com.lunazstudios.virtualloot.client.visual.VirtualPastureVisualizer;
+import com.lunazstudios.virtualloot.network.SyncVirtualPastureVisualPacket;
 import com.lunazstudios.virtualloot.network.VirtualLootNetwork;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
@@ -19,6 +21,14 @@ public final class VirtualLootNeoForge {
         PayloadRegistrar registrar = event.registrar(VirtualLoot.MOD_ID).versioned("1.0.0");
         new NeoForgePacketInfo<>(VirtualLootNetwork.TOGGLE_VIRTUAL_LOOT).registerToServer(registrar);
         new NeoForgePacketInfo<>(VirtualLootNetwork.SET_VISUAL_MODE).registerToServer(registrar);
-        new NeoForgePacketInfo<>(VirtualLootNetwork.SYNC_VISUAL_MODE).registerToClient(registrar);
+        registrar.playToClient(
+            SyncVirtualPastureVisualPacket.TYPE,
+            SyncVirtualPastureVisualPacket.STREAM_CODEC,
+            (payload, context) -> {
+                context.enqueueWork(() -> {
+                    VirtualPastureVisualizer.handleServerSync(payload.pos(), payload.mode(), payload.pokemonTags());
+                });
+            }
+        );
     }
 }

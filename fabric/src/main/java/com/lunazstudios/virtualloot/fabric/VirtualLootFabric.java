@@ -2,8 +2,10 @@ package com.lunazstudios.virtualloot.fabric;
 
 import com.cobblemon.mod.fabric.net.FabricPacketInfo;
 import com.lunazstudios.virtualloot.VirtualLoot;
+import com.lunazstudios.virtualloot.network.SyncVirtualPastureVisualPacket;
 import com.lunazstudios.virtualloot.network.VirtualLootNetwork;
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 
 public final class VirtualLootFabric implements ModInitializer {
     @Override
@@ -18,7 +20,6 @@ public final class VirtualLootFabric implements ModInitializer {
         visualModeInfo.registerPacket(false);
         visualModeInfo.registerServerHandler();
 
-        FabricPacketInfo<?> syncVisualInfo = new FabricPacketInfo<>(VirtualLootNetwork.SYNC_VISUAL_MODE);
-        syncVisualInfo.registerPacket(true);
+        PayloadTypeRegistry.playS2C().register(SyncVirtualPastureVisualPacket.TYPE, SyncVirtualPastureVisualPacket.STREAM_CODEC);
     }
 }
