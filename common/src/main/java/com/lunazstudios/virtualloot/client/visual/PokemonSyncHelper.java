@@ -6,6 +6,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.CompoundTag;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
 
 public final class PokemonSyncHelper {
 
@@ -86,44 +88,82 @@ public final class PokemonSyncHelper {
         if (pokemonId == null) return null;
         try {
             Object storage = CobblemonClient.INSTANCE.getStorage();
-            if (storage == null) return null;
-
-            for (Method m : storage.getClass().getMethods()) {
-                if (m.getParameterCount() == 1 && m.getParameterTypes()[0] == java.util.UUID.class) {
-                    try {
-                        Object res = m.invoke(storage, pokemonId);
-                        if (res instanceof Pokemon p) return p;
-                    } catch (Throwable ignored) {}
-                }
-            }
-
-            for (Method m : storage.getClass().getMethods()) {
-                if (m.getParameterCount() == 0) {
-                    try {
-                        Object val = m.invoke(storage);
-                        if (val instanceof Iterable<?> iter) {
-                            for (Object obj : iter) {
-                                if (obj instanceof Pokemon p && pokemonId.equals(p.getUuid())) return p;
-                            }
-                        }
-                        if (val != null) {
-                            for (Method storeMethod : val.getClass().getMethods()) {
-                                if (storeMethod.getParameterCount() == 0) {
-                                    try {
-                                        Object inner = storeMethod.invoke(val);
-                                        if (inner instanceof Iterable<?> innerIter) {
-                                            for (Object obj : innerIter) {
-                                                if (obj instanceof Pokemon p && pokemonId.equals(p.getUuid())) return p;
-                                            }
-                                        }
-                                    } catch (Throwable ignored) {}
-                                }
-                            }
-                        }
-                    } catch (Throwable ignored) {}
-                }
+            if (storage != null) {
+                Pokemon found = searchForPokemon(storage, pokemonId, 0);
+                if (found != null) return found;
             }
         } catch (Throwable ignored) {}
         return null;
+    }
+
+    private static Pokemon searchForPokemon(Object obj, java.util.UUID targetId, int depth) {
+        if (obj == null || depth > 4) return null;
+
+        if (obj instanceof Pokemon p) {
+            if (targetId.equals(p.getUuid())) return p;
+            return null;
+        }
+
+        if (obj instanceof Iterable<?> iter) {
+            for (Object item : iter) {
+                Pokemon found = searchForPokemon(item, targetId, depth + 1);
+                if (found != null) return found;
+            }
+            return null;
+        }
+
+        for (Method m : obj.getClass().getMethods()) {
+            if (m.getParameterCount() == 0 && m.getName().startsWith("get") && !m.getName().equals("getClass")) {
+                try {
+                    Class<?> returnType = m.getReturnType();
+                    if (Pokemon.class.isAssignableFrom(returnType) || Iterable.class.isAssignableFrom(returnType) || returnType.getName().contains("Store") || returnType.getName().contains("Box") || returnType.getName().contains("Slot")) {
+                        Object val = m.invoke(obj);
+                        if (val != null) {
+                            Pokemon found = searchForPokemon(val, targetId, depth + 1);
+                            if (found != null) return found;
+                        }
+                    }
+                } catch (Throwable ignored) {}
+            }
+        }
+
+        return null;
+    }
+
+    public static List<Pokemon> getAllPokemonFromScreen(Object screen) {
+        List<Pokemon> list = new ArrayList<>();
+        if (screen == null) return list;
+        collectAllPokemon(screen, list, 0);
+        return list;
+    }
+
+    private static void collectAllPokemon(Object obj, List<Pokemon> list, int depth) {
+        if (obj == null || depth > 4) return;
+
+        if (obj instanceof Pokemon p) {
+            if (!list.contains(p)) list.add(p);
+            return;
+        }
+
+        if (obj instanceof Iterable<?> iter) {
+            for (Object item : iter) {
+                collectAllPokemon(item, list, depth + 1);
+            }
+            return;
+        }
+
+        for (Method m : obj.getClass().getMethods()) {
+            if (m.getParameterCount() == 0 && m.getName().startsWith("get") && !m.getName().equals("getClass")) {
+                try {
+                    Class<?> returnType = m.getReturnType();
+                    if (Pokemon.class.isAssignableFrom(returnType) || Iterable.class.isAssignableFrom(returnType) || returnType.getName().contains("Pokemon") || returnType.getName().contains("Slot") || returnType.getName().contains("Pasture")) {
+                        Object val = m.invoke(obj);
+                        if (val != null) {
+                            collectAllPokemon(val, list, depth + 1);
+                        }
+                    }
+                } catch (Throwable ignored) {}
+            }
+        }
     }
 }

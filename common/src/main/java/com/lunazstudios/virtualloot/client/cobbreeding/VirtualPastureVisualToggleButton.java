@@ -2,8 +2,12 @@ package com.lunazstudios.virtualloot.client.cobbreeding;
 
 import com.cobblemon.mod.common.api.net.NetworkPacket;
 import com.cobblemon.mod.common.block.PastureBlock;
+import com.cobblemon.mod.common.block.entity.PokemonPastureBlockEntity;
+import com.cobblemon.mod.common.pokemon.Pokemon;
 import com.lunazstudios.virtualloot.block.VirtualPastureBlock;
 import com.lunazstudios.virtualloot.client.gui.HudConfigManager;
+import com.lunazstudios.virtualloot.client.visual.PokemonSyncHelper;
+import com.lunazstudios.virtualloot.client.visual.VirtualPastureVisualizer;
 import com.lunazstudios.virtualloot.network.SetVirtualPastureVisualModePacket;
 import com.lunazstudios.virtualloot.registry.VirtualLootBlocks;
 import net.minecraft.client.Minecraft;
@@ -13,9 +17,14 @@ import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public final class VirtualPastureVisualToggleButton extends AbstractWidget {
 
@@ -34,7 +43,7 @@ public final class VirtualPastureVisualToggleButton extends AbstractWidget {
         updateTooltip();
     }
 
-    private int resolveCurrentMode() {
+    private BlockPos resolveBottomPos() {
         Minecraft mc = Minecraft.getInstance();
         Level level = mc.level;
         if (level != null && pasturePos != null) {
@@ -42,9 +51,21 @@ public final class VirtualPastureVisualToggleButton extends AbstractWidget {
             BlockState state = level.getBlockState(targetPos);
             if (VirtualLootBlocks.isVirtualPastureBlock(state.getBlock())) {
                 if (state.getValue(PastureBlock.Companion.getPART()) == PastureBlock.PasturePart.TOP) {
-                    targetPos = targetPos.below();
-                    state = level.getBlockState(targetPos);
+                    return targetPos.below();
                 }
+            }
+            return targetPos;
+        }
+        return pasturePos;
+    }
+
+    private int resolveCurrentMode() {
+        Minecraft mc = Minecraft.getInstance();
+        Level level = mc.level;
+        if (level != null && pasturePos != null) {
+            BlockPos targetPos = resolveBottomPos();
+            BlockState state = level.getBlockState(targetPos);
+            if (VirtualLootBlocks.isVirtualPastureBlock(state.getBlock())) {
                 return VirtualPastureBlock.getVisualMode(state);
             }
         }
@@ -80,29 +101,37 @@ public final class VirtualPastureVisualToggleButton extends AbstractWidget {
         currentMode = (currentMode + 1) % 4;
         updateTooltip();
 
-        if (pasturePos != null) {
-            NetworkPacket<?> packet = new SetVirtualPastureVisualModePacket(pasturePos, currentMode);
+        BlockPos bottomPos = resolveBottomPos();
+        if (bottomPos != null) {
+            NetworkPacket<?> packet = new SetVirtualPastureVisualModePacket(bottomPos, currentMode);
             packet.sendToServer();
 
             Minecraft mc = Minecraft.getInstance();
             if (mc.level != null) {
-                net.minecraft.world.level.block.entity.BlockEntity be = mc.level.getBlockEntity(pasturePos);
-                if (be instanceof com.cobblemon.mod.common.block.entity.PokemonPastureBlockEntity pasture) {
-                    java.util.List<net.minecraft.nbt.CompoundTag> clientTags = new java.util.ArrayList<>();
-                    if (currentMode > 0) {
-                        for (com.cobblemon.mod.common.block.entity.PokemonPastureBlockEntity.Tethering t : pasture.getTetheredPokemon()) {
-                            com.cobblemon.mod.common.pokemon.Pokemon pkmn = t.getPokemon();
+                List<CompoundTag> clientTags = new ArrayList<>();
+                if (currentMode > 0) {
+                    BlockEntity be = mc.level.getBlockEntity(bottomPos);
+                    if (be instanceof PokemonPastureBlockEntity pasture) {
+                        for (PokemonPastureBlockEntity.Tethering t : pasture.getTetheredPokemon()) {
+                            Pokemon pkmn = t.getPokemon();
                             if (pkmn == null) {
-                                pkmn = com.lunazstudios.virtualloot.client.visual.PokemonSyncHelper.getPokemonFromPC(t.getPokemonId());
+                                pkmn = PokemonSyncHelper.getPokemonFromPC(t.getPokemonId());
                             }
                             if (pkmn != null) {
-                                net.minecraft.nbt.CompoundTag tag = com.lunazstudios.virtualloot.client.visual.PokemonSyncHelper.serializePokemon(pkmn);
+                                CompoundTag tag = PokemonSyncHelper.serializePokemon(pkmn);
                                 if (!tag.isEmpty()) clientTags.add(tag);
                             }
                         }
                     }
-                    com.lunazstudios.virtualloot.client.visual.VirtualPastureVisualizer.handleServerSync(pasturePos, currentMode, clientTags);
+                    if (clientTags.isEmpty() && mc.screen != null) {
+                        List<Pokemon> screenPkmn = PokemonSyncHelper.getAllPokemonFromScreen(mc.screen);
+                        for (Pokemon p : screenPkmn) {
+                            CompoundTag tag = PokemonSyncHelper.serializePokemon(p);
+                            if (!tag.isEmpty()) clientTags.add(tag);
+                        }
+                    }
                 }
+                VirtualPastureVisualizer.handleServerSync(bottomPos, currentMode, clientTags);
             }
         }
     }

@@ -67,10 +67,14 @@ public class VirtualPastureVisualizer {
                 visualEntity.noPhysics = false;
                 visualEntity.setOnGround(true);
 
+                if (mode == 1 || mode == 2) {
+                    visualEntity.setGlowingTag(true);
+                }
+
                 Random rand = new Random(id.hashCode());
-                double ox = (rand.nextDouble() - 0.5) * 5.0;
-                double oz = (rand.nextDouble() - 0.5) * 5.0;
-                visualEntity.setPos(pos.getX() + 0.5 + ox, pos.getY(), pos.getZ() + 0.5 + oz);
+                double ox = (rand.nextDouble() - 0.5) * 4.0;
+                double oz = (rand.nextDouble() - 0.5) * 4.0;
+                visualEntity.setPos(pos.getX() + 0.5 + ox, pos.getY() + 1.0, pos.getZ() + 0.5 + oz);
                 float yaw = rand.nextFloat() * 360f;
                 visualEntity.setYRot(yaw);
                 visualEntity.yHeadRot = yaw;
@@ -88,6 +92,11 @@ public class VirtualPastureVisualizer {
                 existing.entity.removeTag("virtualloot_visual_mode_2");
                 existing.entity.removeTag("virtualloot_visual_mode_3");
                 existing.entity.addTag("virtualloot_visual_mode_" + mode);
+                if (mode == 1 || mode == 2) {
+                    existing.entity.setGlowingTag(true);
+                } else {
+                    existing.entity.setGlowingTag(false);
+                }
             }
         }
 
@@ -123,16 +132,14 @@ public class VirtualPastureVisualizer {
 
         if (holder.roamCooldown-- <= 0) {
             Random rand = new Random();
-            holder.roamCooldown = 100 + rand.nextInt(120);
+            holder.roamCooldown = 80 + rand.nextInt(100);
 
-            // Choose target position within 3.5 blocks of pasture center
-            double ox = (rand.nextDouble() - 0.5) * 7.0;
-            double oz = (rand.nextDouble() - 0.5) * 7.0;
+            double ox = (rand.nextDouble() - 0.5) * 5.0;
+            double oz = (rand.nextDouble() - 0.5) * 5.0;
             holder.targetX = pasturePos.getX() + 0.5 + ox;
             holder.targetZ = pasturePos.getZ() + 0.5 + oz;
         }
 
-        // Smoothly walk towards target
         double dx = holder.targetX - entity.getX();
         double dz = holder.targetZ - entity.getZ();
         double distSq = dx * dx + dz * dz;
