@@ -118,11 +118,20 @@ public abstract class PastureGuiVirtualLootButtonMixin extends Screen {
 
         int pcX = (width - PCGUI.BASE_WIDTH) / 2;
         int pcY = (height - PCGUI.BASE_HEIGHT) / 2;
+
+        // 1. Virtual Loot Toggle Button (Chest)
         addRenderableWidget(new VirtualLootToggleButton(
             pcX + HudConfigManager.data.virtualLootOffsetX,
             pcY + HudConfigManager.data.virtualLootOffsetY,
             18,
             18,
+            pos
+        ));
+
+        // 2. Virtual Pasture Visual Mode Toggle Button (Off / Wireframe / Hologram / Ghost)
+        addRenderableWidget(new com.lunazstudios.virtualloot.client.cobbreeding.VirtualPastureVisualToggleButton(
+            pcX + HudConfigManager.data.visualModeOffsetX,
+            pcY + HudConfigManager.data.visualModeOffsetY,
             pos
         ));
     }

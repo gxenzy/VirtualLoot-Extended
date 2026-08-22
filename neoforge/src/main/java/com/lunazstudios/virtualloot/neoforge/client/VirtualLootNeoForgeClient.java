@@ -2,6 +2,7 @@ package com.lunazstudios.virtualloot.neoforge.client;
 
 import com.lunazstudios.virtualloot.VirtualLoot;
 import com.lunazstudios.virtualloot.client.cobblebase.AdminStatsOverlay;
+import com.lunazstudios.virtualloot.client.visual.VirtualPastureVisualizer;
 import com.lunazstudios.virtualloot.registry.VirtualLootBlocks;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;
@@ -9,10 +10,16 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.ScreenEvent;
 
 @EventBusSubscriber(modid = VirtualLoot.MOD_ID, value = Dist.CLIENT)
 public final class VirtualLootNeoForgeClient {
+
+    @SubscribeEvent
+    public static void onClientTick(ClientTickEvent.Post event) {
+        VirtualPastureVisualizer.clientTick();
+    }
 
     @SubscribeEvent
     public static void onScreenRenderPost(ScreenEvent.Render.Post event) {
@@ -25,6 +32,15 @@ public final class VirtualLootNeoForgeClient {
     public static void onScreenClickPre(ScreenEvent.MouseButtonPressed.Pre event) {
         if (event.getScreen().getClass().getName().contains("AdminScreen")) {
             if (AdminStatsOverlay.mouseClicked(event.getScreen(), event.getMouseX(), event.getMouseY(), event.getButton())) {
+                event.setCanceled(true);
+            }
+        }
+    }
+
+    @SubscribeEvent
+    public static void onScreenReleasePre(ScreenEvent.MouseButtonReleased.Pre event) {
+        if (event.getScreen().getClass().getName().contains("AdminScreen")) {
+            if (AdminStatsOverlay.mouseReleased(event.getScreen(), event.getMouseX(), event.getMouseY(), event.getButton())) {
                 event.setCanceled(true);
             }
         }

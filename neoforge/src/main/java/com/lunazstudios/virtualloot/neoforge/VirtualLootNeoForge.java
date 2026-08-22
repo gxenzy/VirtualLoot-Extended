@@ -18,5 +18,6 @@ public final class VirtualLootNeoForge {
     private void registerPayloadHandlers(RegisterPayloadHandlersEvent event) {
         PayloadRegistrar registrar = event.registrar(VirtualLoot.MOD_ID).versioned("1.0.0");
         new NeoForgePacketInfo<>(VirtualLootNetwork.TOGGLE_VIRTUAL_LOOT).registerToServer(registrar);
+        new NeoForgePacketInfo<>(VirtualLootNetwork.SET_VISUAL_MODE).registerToServer(registrar);
     }
 }

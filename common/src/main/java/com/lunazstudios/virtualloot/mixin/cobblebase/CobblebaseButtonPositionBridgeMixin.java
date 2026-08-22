@@ -260,7 +260,7 @@ public abstract class CobblebaseButtonPositionBridgeMixin extends Screen {
 
                 // Top banner instruction text
                 Font font = Minecraft.getInstance().font;
-                String banner = "§6§l[HUD Edit Mode] §eDrag [Cobblebase], [Virtual Loot], or [⚙] button anywhere • Click [✓ Done] to save";
+                String banner = "§6§l[HUD Edit Mode] §eDrag [Cobblebase], [Virtual Loot], [Visuals], or [⚙] anywhere • Click [✓ Done] to save";
                 int textW = font.width(banner);
                 int textX = (width - textW) / 2;
                 context.drawString(font, banner, textX, 26, 0xFFFFFF, true);

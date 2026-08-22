@@ -83,6 +83,7 @@ import java.util.function.BiConsumer;
 public final class VirtualPastureBlock extends BaseEntityBlock implements SimpleWaterloggedBlock {
     public static final MapCodec<VirtualPastureBlock> CODEC = simpleCodec(VirtualPastureBlock::new);
     public static final BooleanProperty LOOT_ENABLED = BooleanProperty.create("loot_enabled");
+    public static final net.minecraft.world.level.block.state.properties.IntegerProperty VISUAL_MODE = net.minecraft.world.level.block.state.properties.IntegerProperty.create("visual_mode", 0, 3);
     private static final Component INVENTORY_TITLE = Component.translatable("container.virtualloot.virtual_pasture");
     private static final VoxelShape SOUTH_AABB_TOP = buildCollider(true, Direction.NORTH);
     private static final VoxelShape NORTH_AABB_TOP = buildCollider(true, Direction.SOUTH);
@@ -100,6 +101,7 @@ public final class VirtualPastureBlock extends BaseEntityBlock implements Simple
             .setValue(PastureBlock.Companion.getPART(), PastureBlock.PasturePart.BOTTOM)
             .setValue(PastureBlock.Companion.getON(), false)
             .setValue(LOOT_ENABLED, true)
+            .setValue(VISUAL_MODE, 0)
             .setValue(BlockStateProperties.WATERLOGGED, false));
     }
 
@@ -149,6 +151,7 @@ public final class VirtualPastureBlock extends BaseEntityBlock implements Simple
         builder.add(PastureBlock.Companion.getPART());
         builder.add(PastureBlock.Companion.getON());
         builder.add(LOOT_ENABLED);
+        builder.add(VISUAL_MODE);
         builder.add(BlockStateProperties.WATERLOGGED);
     }
 
@@ -309,6 +312,24 @@ public final class VirtualPastureBlock extends BaseEntityBlock implements Simple
         world.setBlockAndUpdate(pos, updated);
     }
 
+    public static int getVisualMode(BlockState state) {
+        return state.hasProperty(VISUAL_MODE) ? state.getValue(VISUAL_MODE) : 0;
+    }
+
+    public static void setVisualMode(Level world, BlockPos pos, BlockState state, int mode) {
+        if (!state.hasProperty(VISUAL_MODE) || state.getValue(PastureBlock.Companion.getPART()) != PastureBlock.PasturePart.BOTTOM) {
+            return;
+        }
+        int clamped = Math.max(0, Math.min(3, mode));
+        BlockState updated = state.setValue(VISUAL_MODE, clamped);
+        BlockPos topPos = pos.above();
+        BlockState topState = world.getBlockState(topPos);
+        if (topState.is(VirtualLootBlocks.VIRTUAL_PASTURE.get()) && topState.hasProperty(VISUAL_MODE)) {
+            world.setBlockAndUpdate(topPos, topState.setValue(VISUAL_MODE, clamped));
+        }
+        world.setBlockAndUpdate(pos, updated);
+    }
+
     @Override
     public void setPlacedBy(Level world, BlockPos pos, BlockState state, LivingEntity placer, ItemStack itemStack) {
         world.setBlock(
@@ -316,6 +337,7 @@ public final class VirtualPastureBlock extends BaseEntityBlock implements Simple
             state
                 .setValue(PastureBlock.Companion.getPART(), PastureBlock.PasturePart.TOP)
                 .setValue(LOOT_ENABLED, state.getValue(LOOT_ENABLED))
+                .setValue(VISUAL_MODE, state.getValue(VISUAL_MODE))
                 .setValue(BlockStateProperties.WATERLOGGED, world.getFluidState(pos.above()).getType() == Fluids.WATER),
             3
         );

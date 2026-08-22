@@ -10,6 +10,13 @@ public final class VirtualLootNetwork {
         null
     );
 
+    public static final PacketRegisterInfo<SetVirtualPastureVisualModePacket> SET_VISUAL_MODE = new PacketRegisterInfo<>(
+        SetVirtualPastureVisualModePacket.ID,
+        SetVirtualPastureVisualModePacket::new,
+        SetVirtualPastureVisualModeHandler.INSTANCE,
+        null
+    );
+
     private VirtualLootNetwork() {
     }
 }
