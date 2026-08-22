@@ -36,21 +36,49 @@ public abstract class PastureGuiVirtualLootButtonMixin extends Screen {
             return;
         }
         Minecraft minecraft = Minecraft.getInstance();
-        if (minecraft.level == null || !(minecraft.hitResult instanceof BlockHitResult blockHitResult) || blockHitResult.getType() != HitResult.Type.BLOCK) {
+        if (minecraft.level == null || minecraft.player == null) {
             return;
         }
-        BlockPos pos = blockHitResult.getBlockPos();
+
+        BlockPos pos = null;
+        if (minecraft.hitResult instanceof BlockHitResult blockHitResult && blockHitResult.getType() == HitResult.Type.BLOCK) {
+            BlockPos hitPos = blockHitResult.getBlockPos();
+            BlockState hitState = minecraft.level.getBlockState(hitPos);
+            if (hitState.hasProperty(PastureBlock.Companion.getPART())) {
+                if (hitState.getValue(PastureBlock.Companion.getPART()) == PastureBlock.PasturePart.TOP) {
+                    hitPos = hitPos.below();
+                }
+                pos = hitPos;
+            }
+        }
+
+        // Fallback: search around player for nearby pasture block
+        if (pos == null) {
+            BlockPos playerPos = minecraft.player.blockPosition();
+            outer:
+            for (int dy = -2; dy <= 3; dy++) {
+                for (int dx = -5; dx <= 5; dx++) {
+                    for (int dz = -5; dz <= 5; dz++) {
+                        BlockPos p = playerPos.offset(dx, dy, dz);
+                        BlockState s = minecraft.level.getBlockState(p);
+                        if (s.hasProperty(PastureBlock.Companion.getPART()) && s.getValue(PastureBlock.Companion.getPART()) == PastureBlock.PasturePart.BOTTOM) {
+                            pos = p;
+                            break outer;
+                        }
+                    }
+                }
+            }
+        }
+
+        if (pos == null) {
+            return;
+        }
+
         BlockState state = minecraft.level.getBlockState(pos);
-        if (!state.hasProperty(PastureBlock.Companion.getPART())) {
-            return;
-        }
-        if (state.getValue(PastureBlock.Companion.getPART()) == PastureBlock.PasturePart.TOP) {
-            pos = pos.below();
-            state = minecraft.level.getBlockState(pos);
-        }
         if (!VirtualLootBlocks.isVirtualPastureBlock(state.getBlock())) {
             return;
         }
+
         int x = (width - PCGUI.BASE_WIDTH) / 2;
         int y = (height - PCGUI.BASE_HEIGHT) / 2;
         addRenderableWidget(new VirtualLootToggleButton(x + 292, y - 10, 20, 18, pos));

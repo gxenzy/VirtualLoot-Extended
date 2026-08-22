@@ -12,7 +12,8 @@
   "mixins": [
     "BlockEntityTypeMixin",
     "PokemonPastureBlockEntityMixin",
-    "cobbreeding.VirtualPastureBlockCobbreedingMixin"
+    "cobbreeding.VirtualPastureBlockCobbreedingMixin",
+    "cobbreeding.StateHolderPastureSafetyMixin"
   ],
   "injectors": {
     "defaultRequire": 1
