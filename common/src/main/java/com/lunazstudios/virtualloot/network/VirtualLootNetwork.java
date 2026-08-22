@@ -1,7 +1,8 @@
 package com.lunazstudios.virtualloot.network;
 
-import com.cobblemon.mod.common.api.net.ServerNetworkPacketHandler;
 import com.cobblemon.mod.common.net.PacketRegisterInfo;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 
 public final class VirtualLootNetwork {
     public static final PacketRegisterInfo<ToggleVirtualLootPacket> TOGGLE_VIRTUAL_LOOT = new PacketRegisterInfo<>(
@@ -18,10 +19,15 @@ public final class VirtualLootNetwork {
         null
     );
 
-    public static final PacketRegisterInfo<SyncVirtualPastureVisualPacket> SYNC_VISUAL_MODE = new PacketRegisterInfo<SyncVirtualPastureVisualPacket>(
+    public static final StreamCodec<RegistryFriendlyByteBuf, SyncVirtualPastureVisualPacket> SYNC_VISUAL_CODEC = StreamCodec.ofMember(
+        SyncVirtualPastureVisualPacket::encode,
+        SyncVirtualPastureVisualPacket::new
+    );
+
+    public static final PacketRegisterInfo<SyncVirtualPastureVisualPacket> SYNC_VISUAL_MODE = new PacketRegisterInfo<>(
         SyncVirtualPastureVisualPacket.ID,
-        SyncVirtualPastureVisualPacket::new,
-        (packet, server, player) -> {},
+        SYNC_VISUAL_CODEC,
+        null,
         SyncVirtualPastureVisualHandler.INSTANCE
     );
 
