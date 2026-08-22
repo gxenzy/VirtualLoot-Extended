@@ -2,11 +2,8 @@ package com.lunazstudios.virtualloot.client.cobbreeding;
 
 import com.cobblemon.mod.common.api.net.NetworkPacket;
 import com.cobblemon.mod.common.block.PastureBlock;
-import com.cobblemon.mod.common.block.entity.PokemonPastureBlockEntity;
-import com.cobblemon.mod.common.pokemon.Pokemon;
 import com.lunazstudios.virtualloot.block.VirtualPastureBlock;
 import com.lunazstudios.virtualloot.client.gui.HudConfigManager;
-import com.lunazstudios.virtualloot.client.visual.PokemonSyncHelper;
 import com.lunazstudios.virtualloot.client.visual.VirtualPastureVisualizer;
 import com.lunazstudios.virtualloot.network.SetVirtualPastureVisualModePacket;
 import com.lunazstudios.virtualloot.registry.VirtualLootBlocks;
@@ -17,14 +14,11 @@ import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collections;
 
 public final class VirtualPastureVisualToggleButton extends AbstractWidget {
 
@@ -106,37 +100,8 @@ public final class VirtualPastureVisualToggleButton extends AbstractWidget {
             NetworkPacket<?> packet = new SetVirtualPastureVisualModePacket(bottomPos, currentMode);
             packet.sendToServer();
 
-            Minecraft mc = Minecraft.getInstance();
-            if (mc.level != null) {
-                List<CompoundTag> clientTags = new ArrayList<>();
-                if (currentMode > 0) {
-                    // 1. Try extracting tethered pasture pokemon from open PCGUI screen
-                    if (mc.screen != null) {
-                        List<Pokemon> screenPkmn = PokemonSyncHelper.getPasturePokemonFromScreen(mc.screen);
-                        for (Pokemon p : screenPkmn) {
-                            CompoundTag tag = PokemonSyncHelper.serializePokemon(p);
-                            if (!tag.isEmpty()) clientTags.add(tag);
-                        }
-                    }
-
-                    // 2. Fallback to block entity tethered list if screen wasn't ready
-                    if (clientTags.isEmpty()) {
-                        BlockEntity be = mc.level.getBlockEntity(bottomPos);
-                        if (be instanceof PokemonPastureBlockEntity pasture) {
-                            for (PokemonPastureBlockEntity.Tethering t : pasture.getTetheredPokemon()) {
-                                Pokemon pkmn = t.getPokemon();
-                                if (pkmn == null) {
-                                    pkmn = PokemonSyncHelper.getPokemonFromPC(t.getPokemonId());
-                                }
-                                if (pkmn != null) {
-                                    CompoundTag tag = PokemonSyncHelper.serializePokemon(pkmn);
-                                    if (!tag.isEmpty()) clientTags.add(tag);
-                                }
-                            }
-                        }
-                    }
-                }
-                VirtualPastureVisualizer.handleServerSync(bottomPos, currentMode, clientTags);
+            if (currentMode == 0) {
+                VirtualPastureVisualizer.handleServerSync(bottomPos, 0, Collections.emptyList());
             }
         }
     }

@@ -68,7 +68,7 @@ public class VirtualPastureVisualizer {
                 visualEntity.setNoAi(false);
                 visualEntity.setInvulnerable(true);
                 visualEntity.setSilent(true);
-                visualEntity.noPhysics = (mode == 3); // No clip / fly through for ghosts
+                visualEntity.noPhysics = (mode == 3);
                 visualEntity.setOnGround(mode != 3);
 
                 visualEntity.setGlowingTag(mode == 1 || mode == 2);
@@ -78,13 +78,23 @@ public class VirtualPastureVisualizer {
                 double oz = (rand.nextDouble() - 0.5) * 4.0;
                 double initialY = pos.getY() + 1.0 + (mode == 3 ? 0.5 : 0.0);
                 visualEntity.setPos(pos.getX() + 0.5 + ox, initialY, pos.getZ() + 0.5 + oz);
+                visualEntity.xo = visualEntity.getX();
+                visualEntity.yo = visualEntity.getY();
+                visualEntity.zo = visualEntity.getZ();
+                visualEntity.xOld = visualEntity.getX();
+                visualEntity.yOld = visualEntity.getY();
+                visualEntity.zOld = visualEntity.getZ();
+
                 float yaw = rand.nextFloat() * 360f;
                 visualEntity.setYRot(yaw);
                 visualEntity.yHeadRot = yaw;
                 visualEntity.yBodyRot = yaw;
+                visualEntity.yRotO = yaw;
+                visualEntity.yHeadRotO = yaw;
+                visualEntity.yBodyRotO = yaw;
 
                 visualEntity.addTag("virtualloot_visual_mode_" + mode);
-                world.addEntity(visualEntity);
+                world.addEntity(visualEntity.getId(), visualEntity);
 
                 VisualPokemonHolder newHolder = new VisualPokemonHolder(id, visualEntity, mode);
                 newHolder.targetX = visualEntity.getX();
@@ -184,11 +194,10 @@ public class VirtualPastureVisualizer {
             entity.yBodyRot = targetYaw;
 
             double speed = (mode == 3) ? 0.025 : 0.035;
-            double vy = (mode == 3) ? Math.sin(entity.tickCount * 0.1) * 0.015 : entity.getDeltaMovement().y;
-            entity.setDeltaMovement(Math.cos(angle) * speed, vy, Math.sin(angle) * speed);
-        } else {
-            double vy = (mode == 3) ? Math.sin(entity.tickCount * 0.1) * 0.015 : entity.getDeltaMovement().y;
-            entity.setDeltaMovement(0, vy, 0);
+            double vx = Math.cos(angle) * speed;
+            double vz = Math.sin(angle) * speed;
+            double vy = (mode == 3) ? Math.sin(entity.tickCount * 0.1) * 0.015 : 0.0;
+            entity.setPos(entity.getX() + vx, entity.getY() + vy, entity.getZ() + vz);
         }
     }
 

@@ -30,9 +30,13 @@ import com.lunazstudios.virtualloot.integration.cobbleworkers.CobbleworkersCompa
 import com.lunazstudios.virtualloot.integration.cobblebase.CobblebaseCompat;
 import com.lunazstudios.virtualloot.loot.PastureLootGenerator;
 import com.lunazstudios.virtualloot.registry.VirtualLootBlocks;
+import com.lunazstudios.virtualloot.client.visual.PokemonSyncHelper;
+import com.lunazstudios.virtualloot.network.SyncVirtualPastureVisualPacket;
 import com.mojang.serialization.MapCodec;
+import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -416,6 +420,21 @@ public final class VirtualPastureBlock extends BaseEntityBlock implements Simple
             serverPlayer.getUUID(),
             new PastureLink(linkId, pcId, world.dimensionTypeRegistration().unwrapKey().orElseThrow().location(), basePos, permissions)
         );
+
+        int visualMode = getVisualMode(state);
+        if (visualMode > 0) {
+            List<CompoundTag> tags = new ArrayList<>();
+            for (PokemonPastureBlockEntity.Tethering t : pasture.getTetheredPokemon()) {
+                Pokemon pkmn = t.getPokemon();
+                if (pkmn != null) {
+                    CompoundTag tag = PokemonSyncHelper.serializePokemon(pkmn, world.registryAccess());
+                    if (!tag.isEmpty()) {
+                        tags.add(tag);
+                    }
+                }
+            }
+            new SyncVirtualPastureVisualPacket(basePos, visualMode, tags).sendToPlayer(serverPlayer);
+        }
 
         world.playSound(null, pos, CobblemonSounds.PC_ON, SoundSource.BLOCKS, 0.5F, 1.0F);
         world.gameEvent(serverPlayer, GameEvent.BLOCK_OPEN, pos);

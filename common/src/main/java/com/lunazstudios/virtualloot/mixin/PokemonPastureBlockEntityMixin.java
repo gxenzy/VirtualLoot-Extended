@@ -5,12 +5,16 @@ import com.cobblemon.mod.common.block.entity.PokemonPastureBlockEntity;
 import com.cobblemon.mod.common.net.messages.client.pasture.OpenPasturePacket;
 import com.cobblemon.mod.common.net.messages.client.pasture.PokemonPasturedPacket;
 import com.cobblemon.mod.common.pokemon.Pokemon;
+import com.lunazstudios.virtualloot.block.VirtualPastureBlock;
+import com.lunazstudios.virtualloot.client.visual.PokemonSyncHelper;
 import com.lunazstudios.virtualloot.integration.VirtualPastureInventory;
 import com.lunazstudios.virtualloot.integration.VirtualLootCompat;
 import com.lunazstudios.virtualloot.integration.cobbreeding.CobbreedingPastureInventoryBridge;
+import com.lunazstudios.virtualloot.network.SyncVirtualPastureVisualPacket;
 import com.lunazstudios.virtualloot.registry.VirtualLootBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
@@ -225,7 +229,37 @@ public abstract class PokemonPastureBlockEntityMixin implements VirtualPastureIn
             new PokemonPasturedPacket(dto).sendToPlayer(player);
         }
         pasture.setChanged();
+        virtualloot$broadcastVisualSync();
         cir.setReturnValue(true);
+    }
+
+    @Inject(method = "untether(Ljava/util/UUID;)Z", at = @At("RETURN"), remap = false)
+    private void virtualloot$onUntetherById(UUID tetheringId, CallbackInfoReturnable<Boolean> cir) {
+        if (virtualloot$isVirtualPasture()) {
+            virtualloot$broadcastVisualSync();
+        }
+    }
+
+    @Unique
+    private void virtualloot$broadcastVisualSync() {
+        PokemonPastureBlockEntity pasture = (PokemonPastureBlockEntity) (Object) this;
+        if (!virtualloot$isVirtualPasture()) return;
+        int visualMode = VirtualPastureBlock.getVisualMode(pasture.getBlockState());
+        if (pasture.getLevel() instanceof ServerLevel serverLevel) {
+            List<CompoundTag> tags = new ArrayList<>();
+            if (visualMode > 0) {
+                for (PokemonPastureBlockEntity.Tethering t : getTetheredPokemon()) {
+                    Pokemon pkmn = t.getPokemon();
+                    if (pkmn != null) {
+                        CompoundTag tag = PokemonSyncHelper.serializePokemon(pkmn, serverLevel.registryAccess());
+                        if (!tag.isEmpty()) tags.add(tag);
+                    }
+                }
+            }
+            BlockPos basePos = pasture.getBlockPos();
+            new SyncVirtualPastureVisualPacket(basePos, visualMode, tags)
+                .sendToPlayersAround(serverLevel, basePos.getX() + 0.5D, basePos.getY() + 0.5D, basePos.getZ() + 0.5D, 64.0D);
+        }
     }
 
     @Unique
