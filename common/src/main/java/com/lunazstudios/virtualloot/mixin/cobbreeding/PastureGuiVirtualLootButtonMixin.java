@@ -79,8 +79,8 @@ public abstract class PastureGuiVirtualLootButtonMixin extends Screen {
             return;
         }
 
-        int x = (width - PCGUI.BASE_WIDTH) / 2;
-        int y = (height - PCGUI.BASE_HEIGHT) / 2;
-        addRenderableWidget(new VirtualLootToggleButton(x + 292, y - 10, 20, 18, pos));
+        int pcX = (width - PCGUI.BASE_WIDTH) / 2;
+        int pcY = (height - PCGUI.BASE_HEIGHT) / 2;
+        addRenderableWidget(new VirtualLootToggleButton(pcX + 290, pcY - 13, 20, 18, pos));
     }
 }

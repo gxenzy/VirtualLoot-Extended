@@ -3,6 +3,7 @@ package com.lunazstudios.virtualloot.mixin.cobblebase;
 import com.cobblemon.mod.common.client.gui.pasture.PasturePCGUIConfiguration;
 import com.cobblemon.mod.common.client.gui.pc.PCGUI;
 import com.cobblemon.mod.common.client.gui.pc.PCGUIConfiguration;
+import com.lunazstudios.virtualloot.integration.cobblebase.CobblebaseCompat;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
@@ -51,32 +52,36 @@ public abstract class CobblebaseButtonPositionBridgeMixin extends Screen {
         return null;
     }
 
-    @Inject(method = "render", at = @At("TAIL"))
-    private void virtualloot$adjustAndRenderCobblebaseButton(GuiGraphics context, int mouseX, int mouseY, float delta, CallbackInfo ci) {
+    @Inject(method = "init", at = @At("HEAD"))
+    private void virtualloot$onInitCobblebaseCorner(CallbackInfo ci) {
+        if (configuration instanceof PasturePCGUIConfiguration) {
+            CobblebaseCompat.configureCobblebaseButtonCorner();
+        }
+    }
+
+    @Inject(method = "render", at = @At("HEAD"))
+    private void virtualloot$onRenderCobblebasePosition(GuiGraphics context, int mouseX, int mouseY, float delta, CallbackInfo ci) {
         if (!(configuration instanceof PasturePCGUIConfiguration)) {
             return;
         }
 
+        CobblebaseCompat.configureCobblebaseButtonCorner();
+
         int pcX = (width - PCGUI.BASE_WIDTH) / 2;
         int pcY = (height - PCGUI.BASE_HEIGHT) / 2;
 
-        int btnX = pcX + 210;
-        int btnY = pcY - 14;
+        int btnX = pcX + 208;
+        int btnY = pcY - 13;
 
         Button btn = virtualloot$getCobblebaseButton();
         if (btn != null) {
             btn.setX(btnX);
             btn.setY(btnY);
             btn.visible = true;
-
-            context.pose().pushPose();
-            context.pose().translate(0, 0, 300);
-            btn.render(context, mouseX, mouseY, delta);
-            context.pose().popPose();
         }
     }
 
-    @Inject(method = "mouseClicked", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "mouseClicked", at = @At("HEAD"), cancellable = true, priority = 500)
     private void virtualloot$onCobblebaseButtonClicked(double mouseX, double mouseY, int button, CallbackInfoReturnable<Boolean> cir) {
         if (!(configuration instanceof PasturePCGUIConfiguration) || button != 0) {
             return;
@@ -85,8 +90,8 @@ public abstract class CobblebaseButtonPositionBridgeMixin extends Screen {
         int pcX = (width - PCGUI.BASE_WIDTH) / 2;
         int pcY = (height - PCGUI.BASE_HEIGHT) / 2;
 
-        int btnX = pcX + 210;
-        int btnY = pcY - 14;
+        int btnX = pcX + 208;
+        int btnY = pcY - 13;
         int btnW = 78;
         int btnH = 16;
 
