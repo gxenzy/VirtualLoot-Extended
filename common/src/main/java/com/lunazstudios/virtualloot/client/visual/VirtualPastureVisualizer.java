@@ -1,5 +1,6 @@
 package com.lunazstudios.virtualloot.client.visual;
 
+import com.cobblemon.mod.common.CobblemonEntities;
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity;
 import com.cobblemon.mod.common.pokemon.Pokemon;
 import com.cobblemon.mod.common.block.entity.PokemonPastureBlockEntity;
@@ -104,7 +105,7 @@ public class VirtualPastureVisualizer {
 
             if (existing == null) {
                 // Spawn client-side visual entity
-                PokemonEntity visualEntity = new PokemonEntity(world, pkmn);
+                PokemonEntity visualEntity = new PokemonEntity(world, pkmn, CobblemonEntities.POKEMON);
                 visualEntity.setNoAi(false);
                 visualEntity.setInvulnerable(true);
                 visualEntity.setSilent(true);
