@@ -1,0 +1,19 @@
+{
+  "required": true,
+  "package": "com.lunazstudios.virtualloot.mixin",
+  "plugin": "com.lunazstudios.virtualloot.mixin.VirtualLootMixinPlugin",
+  "compatibilityLevel": "JAVA_21",
+  "minVersion": "0.8",
+  "client": [
+    "PasturePokemonScrollListMixin",
+    "cobbreeding.PastureGuiVirtualLootButtonMixin"
+  ],
+  "mixins": [
+    "BlockEntityTypeMixin",
+    "PokemonPastureBlockEntityMixin",
+    "cobbreeding.VirtualPastureBlockCobbreedingMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

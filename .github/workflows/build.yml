@@ -1,0 +1,54 @@
+name: Build VirtualLoot (Cobblebase Compatible)
+
+on:
+  push:
+    branches: [ main, master ]
+    tags: [ 'v*' ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+
+      - name: Make Gradlew Executable
+        run: chmod +x ./gradlew
+
+      - name: Build Mod with Gradle
+        run: ./gradlew build --no-daemon
+
+      - name: Upload Fabric Mod Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: VirtualLoot-Fabric
+          path: fabric/build/libs/*-fabric-*.jar
+
+      - name: Upload NeoForge Mod Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: VirtualLoot-NeoForge
+          path: neoforge/build/libs/*-neoforge-*.jar
+
+      - name: Create Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            fabric/build/libs/*-fabric-*.jar
+            neoforge/build/libs/*-neoforge-*.jar
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

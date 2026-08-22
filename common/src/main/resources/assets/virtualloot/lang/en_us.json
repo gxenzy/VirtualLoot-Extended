@@ -1,0 +1,6 @@
+{
+  "block.virtualloot.virtual_pasture": "Virtual Pasture",
+  "container.virtualloot.virtual_pasture": "Virtual Pasture",
+  "itemGroup.virtualloot": "Cobblemon Virtual Loot",
+  "virtualloot.msg.pasture_loot_button.tooltip": "Toggle virtual loot"
+}

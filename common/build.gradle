@@ -1,0 +1,13 @@
+architectury {
+    common rootProject.enabled_platforms.split(',')
+}
+
+dependencies {
+    modImplementation "net.fabricmc:fabric-loader:$rootProject.fabric_loader_version"
+
+    modImplementation "dev.architectury:architectury:$rootProject.architectury_api_version"
+    modCompileOnly "com.cobblemon:fabric:$rootProject.cobblemon_version"
+    modCompileOnly "maven.modrinth:cobbleworkers:$rootProject.cobbleworkers_fabric_maven_version"
+    modCompileOnly "maven.modrinth:cobbreeding:$rootProject.cobbreeding_fabric_maven_version"
+    modCompileOnly files("${rootProject.projectDir}/libs/cobblebase-fabric-2.0.0+1.7.0.jar")
+}

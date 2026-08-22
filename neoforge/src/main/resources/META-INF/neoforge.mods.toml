@@ -1,0 +1,59 @@
+modLoader = "javafml"
+loaderVersion = "[2,)"
+#issueTrackerURL = ""
+license = "MIT"
+
+[[mods]]
+modId = "virtualloot"
+version = "${version}"
+displayName = "Cobblemon Virtual Loot"
+authors = "LunazStudios"
+description = '''
+Adds a Virtual Pasture that generates loot based on Cobblemon Loot Tables.
+'''
+logoFile = "icon.png"
+
+[[dependencies.virtualloot]]
+modId = "neoforge"
+type = "required"
+versionRange = "[21,)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.virtualloot]]
+modId = "minecraft"
+type = "required"
+versionRange = "[1.21.1,)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.virtualloot]]
+modId = "architectury"
+type = "required"
+versionRange = "[13.0.8,)"
+ordering = "AFTER"
+side = "BOTH"
+
+[[dependencies.virtualloot]]
+modId = "cobblemon"
+type = "required"
+versionRange = "${cobblemon_neoforge_version_range}"
+ordering = "AFTER"
+side = "BOTH"
+
+[[dependencies.virtualloot]]
+modId = "cobbleworkers"
+type = "optional"
+versionRange = "${cobbleworkers_neoforge_version_range}"
+ordering = "AFTER"
+side = "BOTH"
+
+[[dependencies.virtualloot]]
+modId = "cobbreeding"
+type = "optional"
+versionRange = "${cobbreeding_neoforge_version_range}"
+ordering = "AFTER"
+side = "BOTH"
+
+[[mixins]]
+config = "virtualloot.mixins.json"

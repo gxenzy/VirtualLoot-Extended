@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "id": "virtualloot",
+  "version": "${version}",
+  "name": "Cobblemon Virtual Loot",
+  "description": "Adds a Virtual Pasture that generates loot based on Cobblemon Loot Tables.",
+  "authors": [
+    "LunazStudios"
+  ],
+  "contact": {
+    "homepage": ""
+  },
+  "license": "MIT",
+  "icon": "icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "com.lunazstudios.virtualloot.fabric.VirtualLootFabric"
+    ],
+    "client": [
+      "com.lunazstudios.virtualloot.fabric.client.VirtualLootFabricClient"
+    ]
+  },
+  "mixins": [
+    "virtualloot.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.19.3",
+    "minecraft": "~1.21.1",
+    "java": ">=21",
+    "architectury": ">=13.0.8",
+    "fabric-api": "*",
+    "cobblemon": "${cobblemon_version_range}"
+  },
+  "recommends": {
+    "cobbleworkers": "${cobbleworkers_version_range}",
+    "cobbreeding": "${cobbreeding_version_range}"
+  }
+}

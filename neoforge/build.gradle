@@ -1,0 +1,79 @@
+plugins {
+    id 'com.github.johnrengelman.shadow'
+}
+
+architectury {
+    platformSetupLoomIde()
+    neoForge()
+}
+
+configurations {
+    common {
+        canBeResolved = true
+        canBeConsumed = false
+    }
+    compileClasspath.extendsFrom common
+    runtimeClasspath.extendsFrom common
+    developmentNeoForge.extendsFrom common
+
+    // Files in this configuration will be bundled into your mod using the Shadow plugin.
+    // Don't use the `shadow` configuration from the plugin itself as it's meant for excluding files.
+    shadowBundle {
+        canBeResolved = true
+        canBeConsumed = false
+    }
+}
+
+repositories {
+    maven {
+        name = 'NeoForged'
+        url = 'https://maven.neoforged.net/releases'
+    }
+    maven {
+        name = 'KotlinForForge'
+        url = 'https://thedarkcolour.github.io/KotlinForForge/'
+    }
+}
+
+dependencies {
+    neoForge "net.neoforged:neoforge:$rootProject.neoforge_version"
+
+    modImplementation "dev.architectury:architectury-neoforge:$rootProject.architectury_api_version"
+    modImplementation "com.cobblemon:neoforge:$rootProject.cobblemon_version"
+    modRuntimeOnly "thedarkcolour:kotlinforforge-neoforge:$rootProject.kotlin_for_forge_version"
+    forgeRuntimeLibrary "org.jetbrains.kotlin:kotlin-reflect:$rootProject.kotlin_for_forge_kotlin_version"
+    forgeRuntimeLibrary "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$rootProject.kotlin_for_forge_kotlin_version"
+    forgeRuntimeLibrary "org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:$rootProject.kotlin_for_forge_coroutines_version"
+    forgeRuntimeLibrary "org.jetbrains.kotlinx:kotlinx-serialization-json-jvm:$rootProject.kotlin_for_forge_serialization_version"
+    modCompileOnly "maven.modrinth:cobbleworkers:$rootProject.cobbleworkers_neoforge_maven_version"
+    modCompileOnly "maven.modrinth:cobbreeding:$rootProject.cobbreeding_neoforge_maven_version"
+    modCompileOnly files("${rootProject.projectDir}/libs/cobblebase-fabric-2.0.0+1.7.0.jar")
+
+    common(project(path: ':common', configuration: 'namedElements')) { transitive false }
+    shadowBundle project(path: ':common', configuration: 'transformProductionNeoForge')
+}
+
+processResources {
+    inputs.property 'version', project.version
+    inputs.property 'cobblemon_neoforge_version_range', rootProject.cobblemon_neoforge_version_range
+    inputs.property 'cobbleworkers_neoforge_version_range', rootProject.cobbleworkers_neoforge_version_range
+    inputs.property 'cobbreeding_neoforge_version_range', rootProject.cobbreeding_neoforge_version_range
+
+    from(rootProject.file('common/src/main/resources/icon.png'))
+
+    filesMatching('META-INF/neoforge.mods.toml') {
+        expand version: project.version,
+            cobblemon_neoforge_version_range: rootProject.cobblemon_neoforge_version_range,
+            cobbleworkers_neoforge_version_range: rootProject.cobbleworkers_neoforge_version_range,
+            cobbreeding_neoforge_version_range: rootProject.cobbreeding_neoforge_version_range
+    }
+}
+
+shadowJar {
+    configurations = [project.configurations.shadowBundle]
+    archiveClassifier = 'dev-shadow'
+}
+
+remapJar {
+    input.set shadowJar.archiveFile
+}

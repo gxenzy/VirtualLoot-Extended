@@ -1,0 +1,202 @@
+plugins {
+    id 'com.github.johnrengelman.shadow'
+}
+
+architectury {
+    platformSetupLoomIde()
+    fabric()
+}
+
+configurations {
+    common {
+        canBeResolved = true
+        canBeConsumed = false
+    }
+    compileClasspath.extendsFrom common
+    runtimeClasspath.extendsFrom common
+    developmentFabric.extendsFrom common
+
+    // Files in this configuration will be bundled into your mod using the Shadow plugin.
+    // Don't use the `shadow` configuration from the plugin itself as it's meant for excluding files.
+    shadowBundle {
+        canBeResolved = true
+        canBeConsumed = false
+    }
+}
+
+dependencies {
+    modImplementation "net.fabricmc:fabric-loader:$rootProject.fabric_loader_version"
+
+    modImplementation "net.fabricmc.fabric-api:fabric-api:$rootProject.fabric_api_version"
+    modRuntimeOnly "net.fabricmc:fabric-language-kotlin:$rootProject.fabric_language_kotlin_version"
+
+    modImplementation "dev.architectury:architectury-fabric:$rootProject.architectury_api_version"
+    modImplementation "com.cobblemon:fabric:$rootProject.cobblemon_version"
+    modCompileOnly "maven.modrinth:cobbleworkers:$rootProject.cobbleworkers_fabric_maven_version"
+    modCompileOnly "maven.modrinth:cobbreeding:$rootProject.cobbreeding_fabric_maven_version"
+    modCompileOnly files("${rootProject.projectDir}/libs/cobblebase-fabric-2.0.0+1.7.0.jar")
+
+    common(project(path: ':common', configuration: 'namedElements')) { transitive false }
+    shadowBundle project(path: ':common', configuration: 'transformProductionFabric')
+}
+
+processResources {
+    inputs.property 'version', project.version
+    inputs.property 'cobblemon_version_range', rootProject.cobblemon_version_range
+    inputs.property 'cobbleworkers_version_range', rootProject.cobbleworkers_version_range
+    inputs.property 'cobbreeding_version_range', rootProject.cobbreeding_version_range
+
+    from(rootProject.file('common/src/main/resources/icon.png'))
+
+    filesMatching('fabric.mod.json') {
+        expand version: project.version,
+            cobblemon_version_range: rootProject.cobblemon_version_range,
+            cobbleworkers_version_range: rootProject.cobbleworkers_version_range,
+            cobbreeding_version_range: rootProject.cobbreeding_version_range
+    }
+}
+
+shadowJar {
+    configurations = [project.configurations.shadowBundle]
+    archiveClassifier = 'dev-shadow'
+}
+
+remapJar {
+    input.set shadowJar.archiveFile
+}
+
+def patchKotlinMetadataD2 = { byte[] input, Map<String, String> intermediaryToNamed ->
+    if (input.length < 10 || input[0] != (byte) 0xCA || input[1] != (byte) 0xFE || input[2] != (byte) 0xBA || input[3] != (byte) 0xBE) {
+        return input
+    }
+
+    def intermediaryPattern = java.util.regex.Pattern.compile('net/minecraft/class_\\d+(?:\\$class_\\d+)*')
+    def replaceIntermediaryNames = { String value ->
+        def matcher = intermediaryPattern.matcher(value)
+        def buffer = new StringBuffer()
+        while (matcher.find()) {
+            def replacement = intermediaryToNamed.getOrDefault(matcher.group(), matcher.group())
+            matcher.appendReplacement(buffer, java.util.regex.Matcher.quoteReplacement(replacement))
+        }
+        matcher.appendTail(buffer)
+        buffer.toString()
+    }
+
+    def reader = new org.objectweb.asm.ClassReader(input)
+    def writer = new org.objectweb.asm.ClassWriter(reader, 0)
+    def visitor = new org.objectweb.asm.ClassVisitor(org.objectweb.asm.Opcodes.ASM9, writer) {
+        String visitedClassName
+
+        @Override
+        void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
+            visitedClassName = name
+            super.visit(version, access, name, signature, superName, interfaces)
+        }
+
+        @Override
+        org.objectweb.asm.MethodVisitor visitMethod(int access, String name, String descriptor, String signature, String[] exceptions) {
+            if (name == 'method_25931'
+                && descriptor == '(Lnet/minecraft/server/packs/resources/PreparableReloadListener$PreparationBarrier;Lnet/minecraft/server/packs/resources/ResourceManager;Lnet/minecraft/util/profiling/ProfilerFiller;Lnet/minecraft/util/profiling/ProfilerFiller;Ljava/util/concurrent/Executor;Ljava/util/concurrent/Executor;)Ljava/util/concurrent/CompletableFuture;') {
+                name = 'reload'
+            }
+            super.visitMethod(access, name, descriptor, signature, exceptions)
+        }
+
+        @Override
+        org.objectweb.asm.AnnotationVisitor visitAnnotation(String descriptor, boolean visible) {
+            def annotation = super.visitAnnotation(descriptor, visible)
+            if (descriptor != 'Lkotlin/Metadata;') {
+                return annotation
+            }
+
+            return new org.objectweb.asm.AnnotationVisitor(org.objectweb.asm.Opcodes.ASM9, annotation) {
+                @Override
+                org.objectweb.asm.AnnotationVisitor visitArray(String name) {
+                    def array = super.visitArray(name)
+                    if (name != 'd2') {
+                        return array
+                    }
+
+                    return new org.objectweb.asm.AnnotationVisitor(org.objectweb.asm.Opcodes.ASM9, array) {
+                        @Override
+                        void visit(String elementName, Object value) {
+                            if (value instanceof String) {
+                                value = replaceIntermediaryNames(value)
+                            }
+                            super.visit(elementName, value)
+                        }
+                    }
+                }
+            }
+        }
+    }
+    reader.accept(visitor, 0)
+    writer.toByteArray()
+}
+
+tasks.register('patchCobblemonFabricKotlinMetadata') {
+    doLast {
+        def mappingFiles = fileTree("${gradle.gradleUserHomeDir}/caches/fabric-loom/${rootProject.minecraft_version}") {
+            include "loom.mappings.*-v2/mappings.tiny"
+            exclude "**/*neoforge*/**"
+        }.files.sort { it.absolutePath }
+
+        if (mappingFiles.empty) {
+            throw new GradleException("Could not find Loom mappings.tiny for ${rootProject.minecraft_version}")
+        }
+
+        def intermediaryToNamed = [:]
+        mappingFiles.last().eachLine { line ->
+            if (line.startsWith('c\t')) {
+                def parts = line.split('\t')
+                if (parts.length >= 4) {
+                    intermediaryToNamed[parts[2]] = parts[3]
+                }
+            }
+        }
+
+        def jars = fileTree("${rootProject.projectDir}/.gradle/loom-cache/remapped_mods") {
+            include "**/com/cobblemon/fabric/${rootProject.cobblemon_version}/fabric-${rootProject.cobblemon_version}.jar"
+        }.files
+
+        if (jars.empty) {
+            throw new GradleException("Could not find remapped Cobblemon Fabric jar to patch")
+        }
+
+        jars.each { jarFile ->
+            def tempFile = new File(jarFile.parentFile, "${jarFile.name}.patched")
+            boolean changed = false
+
+            new java.util.jar.JarFile(jarFile).withCloseable { source ->
+                new java.util.jar.JarOutputStream(new FileOutputStream(tempFile)).withCloseable { target ->
+                    source.entries().each { entry ->
+                        byte[] bytes = source.getInputStream(entry).bytes
+                        if (!entry.directory && entry.name.endsWith('.class')) {
+                            byte[] patched = patchKotlinMetadataD2(bytes, intermediaryToNamed)
+                            changed = changed || !java.util.Arrays.equals(bytes, patched)
+                            bytes = patched
+                        }
+
+                        def outputEntry = new java.util.jar.JarEntry(entry.name)
+                        outputEntry.time = entry.time
+                        target.putNextEntry(outputEntry)
+                        if (!entry.directory) {
+                            target.write(bytes)
+                        }
+                        target.closeEntry()
+                    }
+                }
+            }
+
+            if (changed) {
+                java.nio.file.Files.move(tempFile.toPath(), jarFile.toPath(), java.nio.file.StandardCopyOption.REPLACE_EXISTING)
+            } else {
+                tempFile.delete()
+            }
+        }
+    }
+}
+
+tasks.matching { it.name == 'runClient' || it.name == 'runServer' }.configureEach {
+    dependsOn tasks.named('patchCobblemonFabricKotlinMetadata')
+}
