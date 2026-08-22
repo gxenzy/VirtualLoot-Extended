@@ -13,7 +13,7 @@
 
 ---
 
-## 📖 Overview
+## <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/town-map.png" width="24" height="24" align="center"> Overview
 
 In traditional Cobblemon pastures, placing dozens of Pokémon causes severe server tick rate drops (TPS degradation) and client FPS stuttering due to 3D entity rendering, continuous physics collision, and pathfinding calculations. Furthermore, item drops scatter randomly across the terrain, creating world clutter.
 
@@ -25,21 +25,21 @@ All produce, mined minerals, harvested crops, rare treasures, and eggs are neatl
 
 ---
 
-## 🌟 Key Features
+## <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/star-piece.png" width="24" height="24" align="center"> Key Features
 
-* **⚡ Zero Entity Lag:** Manage up to 16+ Pokémon per pasture block with **0 physical entities spawned**, completely eliminating pasture entity tick lag and pathfinding spikes.
-* **🏗️ Full Cobblebase 2.0+ Virtual Jobs:** All 42+ Cobblebase jobs (Producer, 12 Finder subtypes, Mining, Harvester, Guard, Support Healers/Mentors, and Auras) run virtually on proficiency-scaled cooldowns.
-* **📦 27-Slot Internal Storage:** All generated produce, ores, crops, and drops are deposited inside the block's internal chest inventory. Access anytime with **Shift + Right Click**.
-* **🔄 Automated Hopper Extraction:** Place vanilla or modded hoppers directly beneath the Virtual Pasture block to automatically drain all collected items into chests, barrels, or sorting systems.
-* **📊 Cobblebase Log Sync:** Every virtual job completion is recorded in Cobblebase's activity log system, making all production history viewable in-game through the Cobblebase GUI.
-* **🥚 Cobbreeding Integration:** Supports virtual egg generation, breeding toggles, timers, and inheritance without physical entity breeding loops.
-* **⛏️ Cobbleworkers Integration:** Supports automated worker jobs (Pickup, Fishing, Diving, Archaeology).
-* **💤 Relaxing / Idle Drops:** Pokémon set to Relax / Idle automatically generate their standard Cobblemon species defeat drop tables.
-* **🌐 Multiplayer & Singleplayer Ready:** Full owner-permission locking, packet synchronization, and singleplayer/dedicated server compatibility.
+* <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/thunder-stone.png" width="20" height="20" align="center"> **Zero Entity Lag:** Manage up to 16+ Pokémon per pasture block with **0 physical entities spawned**, completely eliminating pasture entity tick lag and pathfinding spikes.
+* <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/light-clay.png" width="20" height="20" align="center"> **Full Cobblebase 2.0+ Virtual Jobs:** All 42+ Cobblebase jobs (Producer, 12 Finder subtypes, Mining, Harvester, Guard, Support Healers/Mentors, and Auras) run virtually on proficiency-scaled cooldowns.
+* <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/storage-key.png" width="20" height="20" align="center"> **27-Slot Internal Storage:** All generated produce, ores, crops, and drops are deposited inside the block's internal chest inventory. Access anytime with **Shift + Right Click**.
+* <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/mach-bike.png" width="20" height="20" align="center"> **Automated Hopper Extraction:** Place vanilla or modded hoppers directly beneath the Virtual Pasture block to automatically drain all collected items into chests, barrels, or sorting systems.
+* <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/fame-checker.png" width="20" height="20" align="center"> **Cobblebase Log Sync:** Every virtual job completion is recorded in Cobblebase's activity log system, making all production history viewable in-game through the Cobblebase GUI.
+* <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/lucky-egg.png" width="20" height="20" align="center"> **Cobbreeding Integration:** Supports virtual egg generation, breeding toggles, timers, and inheritance without physical entity breeding loops.
+* <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/hard-stone.png" width="20" height="20" align="center"> **Cobbleworkers Integration:** Supports automated worker jobs (Pickup, Fishing, Diving, Archaeology).
+* <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-flute.png" width="20" height="20" align="center"> **Relaxing / Idle Drops:** Pokémon set to Relax / Idle automatically generate their standard Cobblemon species defeat drop tables.
+* <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/vs-seeker.png" width="20" height="20" align="center"> **Multiplayer & Singleplayer Ready:** Full owner-permission locking, packet synchronization, and singleplayer/dedicated server compatibility.
 
 ---
 
-## 📌 Environment & Metadata Specifications
+## <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/fame-checker.png" width="24" height="24" align="center"> Environment & Metadata Specifications
 
 | Attribute | Specification |
 | :--- | :--- |
@@ -48,15 +48,15 @@ All produce, mined minerals, harvested crops, rare treasures, and eggs are neatl
 | **Target Minecraft** | **1.21.1** |
 | **Target Cobblemon** | **1.7.3+** (also compatible with 1.7.0+) |
 | **Java Runtime** | **Java 21 (JDK 21+)** |
-| **Environment** | 💻 **Client & Server (Required on both sides)** |
-| **Singleplayer Support** | ✅ Fully supported out-of-the-box (integrated server + client). |
-| **Dedicated Server Support** | ✅ Fully supported. Install the `.jar` on both the server and client modpacks. |
+| **Environment** | **Client & Server (Required on both sides)** |
+| **Singleplayer Support** | Fully supported out-of-the-box (integrated server + client). |
+| **Dedicated Server Support** | Fully supported. Install the `.jar` on both the server and client modpacks. |
 
 ---
 
-## 📦 Dependencies & Compatibility Matrix
+## <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png" width="24" height="24" align="center"> Dependencies & Compatibility Matrix
 
-### 🟢 Required Dependencies
+### <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/great-ball.png" width="20" height="20" align="center"> Required Dependencies
 | Dependency | Version | Loader | Description |
 | :--- | :--- | :--- | :--- |
 | **Minecraft** | `1.21.1` | Both | Base Game |
@@ -65,7 +65,7 @@ All produce, mined minerals, harvested crops, rare treasures, and eggs are neatl
 | **Fabric API** | `>=0.116.12` | Fabric | Required for Fabric Loader |
 | **NeoForge** | `>=21.1.234` | NeoForge | Required for NeoForge Loader |
 
-### 🌟 Supported Integrations & Recommended Addons
+### <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/ultra-ball.png" width="20" height="20" align="center"> Supported Integrations & Recommended Addons
 | Mod | Recommended Version | Role & Features in Extended Edition |
 | :--- | :--- | :--- |
 | **[Cobblebase](https://modrinth.com/mod/cobblebase)** | `>=2.0.0` | **Palworld-Style Base Jobs:** Executes all 42 jobs (Producer, Finder, Harvester, Mining, Auras) virtually inside the pasture. |
@@ -76,7 +76,7 @@ All produce, mined minerals, harvested crops, rare treasures, and eggs are neatl
 
 ---
 
-## 🌾 Verified Job Mechanics & Complete Pokémon Sprite Catalog
+## <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/miracle-seed.png" width="24" height="24" align="center"> Verified Job Mechanics & Complete Pokémon Sprite Catalog
 
 ### 1. Producer Job Map (Cobblebase `cobblebase:producer`)
 Every Pokémon species listed below produces lore items on configured cooldowns directly into the Virtual Pasture inventory:
@@ -94,7 +94,7 @@ Every Pokémon species listed below produces lore items on configured cooldowns 
 | <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/pearl.png" width="24" height="24"> | **Diamonds & Gems** | <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/703.png" width="28" height="28" align="center"> **Carbink**, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/719.png" width="28" height="28" align="center"> **Diancie** | `minecraft:diamond` (x1) |
 | <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/oval-stone.png" width="24" height="24"> | **Amethyst Shards** | <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/302.png" width="28" height="28" align="center"> **Sableye** | `minecraft:amethyst_shard` (x1) |
 | <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/water-stone.png" width="24" height="24"> | **Prismarine** | <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/366.png" width="28" height="28" align="center"> **Clamperl** | `minecraft:prismarine_shard` (x2) |
-| <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/sweet-apple.png" width="24" height="24"> | **Orchard Apples** | <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/357.png" width="28" height="28" align="center"> **Tropius**, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/840.png" width="28" height="28" align="center"> **Applin**, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/841.png" width="28" height="28" align="center"> **Flapple**, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/842.png" width="28" height="28" align="center"> **Appletun** | `minecraft:apple` (x1–x2) |
+| <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/oran-berry.png" width="24" height="24"> | **Orchard Apples** | <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/357.png" width="28" height="28" align="center"> **Tropius**, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/840.png" width="28" height="28" align="center"> **Applin**, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/841.png" width="28" height="28" align="center"> **Flapple**, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/842.png" width="28" height="28" align="center"> **Appletun** | `minecraft:apple` (x1–x2) |
 | <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/cheri-berry.png" width="24" height="24"> | **Sweet Berries** | <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/761.png" width="28" height="28" align="center"> **Bounsweet**, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/762.png" width="28" height="28" align="center"> **Steenee**, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/763.png" width="28" height="28" align="center"> **Tsareena**, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/420.png" width="28" height="28" align="center"> **Cherubi**, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/421.png" width="28" height="28" align="center"> **Cherrim** | `minecraft:sweet_berries` (x1–x3) |
 | <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/lava-cookie.png" width="24" height="24"> | **Bakery Cookies** | <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/225.png" width="28" height="28" align="center"> **Delibird** | `minecraft:cookie` (x2) |
 | <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/sticky-barb.png" width="24" height="24"> | **Slime Balls** | <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/704.png" width="28" height="28" align="center"> **Goomy**, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/705.png" width="28" height="28" align="center"> **Sliggoo**, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/706.png" width="28" height="28" align="center"> **Goodra** | `minecraft:slime_ball` (x1–x3) |
@@ -148,21 +148,23 @@ Each Finder subtype targets a dedicated Cobblemon / Minecraft loot table:
 
 ---
 
-## ⭐ Proficiency Multiplier System (1–5 Stars)
+## <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/stardust.png" width="24" height="24" align="center"> Proficiency Multiplier System (1–5 Stars)
 
-Every Pokémon species possesses individual proficiency ratings (1 to 5 Stars) for each skill:
+In Cobblebase's core engine (`CobblebaseConfig`), action cooldowns scale dynamically with a Pokémon's skill proficiency rating:
 
-| Stars | Level | Cooldown Multiplier | Production Efficiency |
+$$\text{Effective Cooldown Ticks} = \text{Base Cooldown Seconds} \times 20 \times \frac{6 - \text{Proficiency}}{3}$$
+
+| Proficiency Stars | Skill Level | Cooldown Multiplier | Cobblebase Production Efficiency |
 | :---: | :--- | :---: | :--- |
-| ⭐ | **Novice** | `1.67x` | Standard base drop rates. |
-| ⭐⭐ | **Apprentice** | `1.33x` | Faster production cycle. |
-| ⭐⭐⭐ | **Skilled** | `1.00x` | Normal standard rates. |
-| ⭐⭐⭐⭐ | **Expert** | `0.67x` | Fast cooldowns, unlocks higher loot tiers. |
-| ⭐⭐⭐⭐⭐ | **Master** | `0.33x` | 3x faster production, maximum item yield and ultra-rare loot rates. |
+| <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/star-piece.png" width="16" height="16"> | **Novice (Prof 1)** | `1.67x` | Takes 67% longer than base (`5/3`). Entry-level production speed. |
+| <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/star-piece.png" width="16" height="16"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/star-piece.png" width="16" height="16"> | **Apprentice (Prof 2)** | `1.33x` | Takes 33% longer than base (`4/3`). Slightly improved cycle. |
+| <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/star-piece.png" width="16" height="16"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/star-piece.png" width="16" height="16"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/star-piece.png" width="16" height="16"> | **Skilled (Prof 3)** | `1.00x` | **Standard Baseline** (`3/3`). Produces at the exact configured base speed. |
+| <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/star-piece.png" width="16" height="16"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/star-piece.png" width="16" height="16"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/star-piece.png" width="16" height="16"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/star-piece.png" width="16" height="16"> | **Expert (Prof 4)** | `0.67x` | **33% Faster** (`2/3`). Fast cooldowns and unlocks elevated loot tables. |
+| <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/star-piece.png" width="16" height="16"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/star-piece.png" width="16" height="16"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/star-piece.png" width="16" height="16"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/star-piece.png" width="16" height="16"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/star-piece.png" width="16" height="16"> | **Master (Prof 5)** | `0.33x` | **3x Faster Speed** (`1/3`). Rapid production and maximum ultra-rare item yield. |
 
 ---
 
-## 🛠️ How To Use & Setup Automation
+## <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/super-rod.png" width="24" height="24" align="center"> How To Use & Setup Automation
 
 1. **Craft & Place the Virtual Pasture:** Place the block down anywhere in your base.
 2. **Assign Pokémon:** Right-click the block to open the Pasture PC interface and tether your Pokémon.
@@ -172,7 +174,7 @@ Every Pokémon species possesses individual proficiency ratings (1 to 5 Stars) f
 
 ---
 
-## ⚙️ Configuration File
+## <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/storage-key.png" width="24" height="24" align="center"> Configuration File
 
 Located at `config/PastureLoot.json`:
 
@@ -196,7 +198,7 @@ Located at `config/PastureLoot.json`:
 
 ---
 
-## 📜 Legal Notice & Open-Source Compliance
+## <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/old-sea-map.png" width="24" height="24" align="center"> Legal Notice & Open-Source Compliance
 
 This project is a compatibility bridge and open-source contribution combining the architectures of **Cobblemon Virtual Loot** and **Cobblebase**.
 
@@ -209,7 +211,7 @@ This project is a compatibility bridge and open-source contribution combining th
 
 ---
 
-## 👥 Credits & Attributions
+## <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/exp-share.png" width="24" height="24" align="center"> Credits & Attributions
 
 We express our deepest gratitude to the talented creators whose work made this integration possible:
 
