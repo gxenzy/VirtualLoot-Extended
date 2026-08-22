@@ -19,7 +19,7 @@ public class HudConfigManager {
         public int virtualLootOffsetX = 228;
         public int virtualLootOffsetY = -14;
         public int hudBtnOffsetX = 352;
-        public int hudBtnOffsetY = 0;
+        public int hudBtnOffsetY = 4;
     }
 
     public static HudData data = new HudData();
@@ -44,6 +44,11 @@ public class HudConfigManager {
                     HudData loaded = GSON.fromJson(reader, HudData.class);
                     if (loaded != null) {
                         data = loaded;
+                        // Auto-correct old overlapping default coordinates if found
+                        if (data.hudBtnOffsetX <= 300 && data.hudBtnOffsetY < 0) {
+                            data.hudBtnOffsetX = 352;
+                            data.hudBtnOffsetY = 4;
+                        }
                     }
                 }
             } else {
@@ -69,7 +74,7 @@ public class HudConfigManager {
         data.virtualLootOffsetX = 228;
         data.virtualLootOffsetY = -14;
         data.hudBtnOffsetX = 352;
-        data.hudBtnOffsetY = 0;
+        data.hudBtnOffsetY = 4;
         save();
     }
 }
