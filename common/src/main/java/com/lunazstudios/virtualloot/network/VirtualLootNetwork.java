@@ -1,7 +1,5 @@
 package com.lunazstudios.virtualloot.network;
 
-import com.cobblemon.mod.common.api.net.ClientNetworkPacketHandler;
-import com.cobblemon.mod.common.api.net.ServerNetworkPacketHandler;
 import com.cobblemon.mod.common.net.PacketRegisterInfo;
 
 public final class VirtualLootNetwork {
@@ -19,12 +17,9 @@ public final class VirtualLootNetwork {
         null
     );
 
-    private static final ServerNetworkPacketHandler<SyncVirtualPastureVisualsPacket> NOOP_SERVER_HANDLER = (packet, server, player) -> {};
-
     public static final PacketRegisterInfo<SyncVirtualPastureVisualsPacket> SYNC_VISUALS = new PacketRegisterInfo<>(
         SyncVirtualPastureVisualsPacket.ID,
-        SyncVirtualPastureVisualsPacket::new,
-        NOOP_SERVER_HANDLER,
+        SyncVirtualPastureVisualsPacket.STREAM_CODEC,
         SyncVirtualPastureVisualsHandler.INSTANCE
     );
 

@@ -5,6 +5,7 @@ import com.lunazstudios.virtualloot.VirtualLoot;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.ArrayList;
@@ -12,6 +13,12 @@ import java.util.List;
 
 public final class SyncVirtualPastureVisualsPacket implements NetworkPacket<SyncVirtualPastureVisualsPacket> {
     public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath(VirtualLoot.MOD_ID, "sync_virtual_pasture_visuals");
+
+    public static final StreamCodec<RegistryFriendlyByteBuf, SyncVirtualPastureVisualsPacket> STREAM_CODEC = StreamCodec.ofMember(
+        SyncVirtualPastureVisualsPacket::encode,
+        SyncVirtualPastureVisualsPacket::new
+    );
+
     private final BlockPos pos;
     private final int mode;
     private final List<CompoundTag> pokemonTags;
