@@ -10,6 +10,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.LootTable;
@@ -41,7 +42,7 @@ public final class CobblebaseCompat {
 
     /**
      * Executes Cobblebase job logic for all Pokemon in a Virtual Pasture.
-     * Returns true if at least one Pokemon had an active Cobblebase job handled.
+     * Returns true if at least one Pokemon had an active or auto-assigned Cobblebase job handled.
      */
     public static boolean tick(Level world, BlockPos pos, PokemonPastureBlockEntity pasture) {
         if (!(world instanceof ServerLevel serverLevel)) {
@@ -69,42 +70,72 @@ public final class CobblebaseCompat {
             } catch (Throwable ignored) {
             }
 
-            if (assignment == null) {
-                // Pokemon is relaxing / idle - fall back to standard VirtualLoot species drops
-                continue;
-            }
-
-            anyJobHandled = true;
             String speciesName = BaseManager.INSTANCE.resolveSpeciesName(pokemon);
             SpeciesSkills speciesData = SpeciesSkillRegistry.INSTANCE.getSkills(speciesName);
-            if (speciesData == null) {
-                continue;
-            }
 
             SkillEntry skillEntry = null;
-            for (SkillEntry entry : speciesData.getSkills()) {
-                if (entry.getSkillId().equals(assignment)) {
-                    skillEntry = entry;
-                    break;
+            if (assignment != null) {
+                if (speciesData != null) {
+                    for (SkillEntry entry : speciesData.getSkills()) {
+                        if (entry.getSkillId().equals(assignment)) {
+                            skillEntry = entry;
+                            break;
+                        }
+                    }
+                }
+                if (skillEntry == null) {
+                    skillEntry = new SkillEntry(assignment, 3);
+                }
+            } else if (speciesData != null && !speciesData.getSkills().isEmpty()) {
+                // Auto-assign the Pokemon's highest-proficiency available skill so it works automatically
+                skillEntry = pickBestAutoSkill(speciesData.getSkills());
+                if (skillEntry != null) {
+                    assignment = skillEntry.getSkillId();
                 }
             }
-            if (skillEntry == null) {
-                skillEntry = new SkillEntry(assignment, 3);
+
+            if (assignment == null || skillEntry == null) {
+                continue;
             }
 
             SkillDef skillDef = SkillRegistry.INSTANCE.getEffective(assignment);
             if (skillDef == null) {
                 skillDef = SkillRegistry.INSTANCE.get(assignment);
             }
-            if (skillDef == null) {
+            if (skillDef == null || !skillDef.getEnabled()) {
                 continue;
             }
 
-            // Execute virtual job based on executor type
+            anyJobHandled = true;
             handleVirtualJob(serverLevel, pos, pokemon, speciesName, skillDef, skillEntry, inventory, now);
         }
 
         return anyJobHandled;
+    }
+
+    private static SkillEntry pickBestAutoSkill(List<SkillEntry> skills) {
+        SkillEntry best = null;
+        int bestScore = -1;
+        for (SkillEntry entry : skills) {
+            String id = entry.getSkillId();
+            SkillDef def = SkillRegistry.INSTANCE.getEffective(id);
+            if (def == null) def = SkillRegistry.INSTANCE.get(id);
+            if (def == null || !def.getEnabled()) continue;
+
+            // Prioritize Gathering & Production jobs over purely passive ones
+            int priority = 1;
+            String cat = def.getCategory().toLowerCase();
+            if ("gathering".equals(cat)) priority = 3;
+            else if ("generation".equals(cat) || "production".equals(cat)) priority = 3;
+            else if ("combat".equals(cat)) priority = 2;
+
+            int score = (priority * 10) + entry.getProficiency();
+            if (score > bestScore) {
+                bestScore = score;
+                best = entry;
+            }
+        }
+        return best != null ? best : (skills.isEmpty() ? null : skills.get(0));
     }
 
     private static void handleVirtualJob(
@@ -118,25 +149,38 @@ public final class CobblebaseCompat {
         long now
     ) {
         UUID pokemonId = pokemon.getUuid();
+        String skillId = skillDef.getId();
         String executor = skillDef.getExecutor();
 
-        if ("producer".equalsIgnoreCase(executor)) {
-            handleProducerJob(world, pos, pokemon, speciesName, skillDef, skillEntry, inventory, now);
-        } else if ("generic_loot".equalsIgnoreCase(executor) || "finder".equalsIgnoreCase(executor) || "fishing".equalsIgnoreCase(executor)) {
-            handleLootTableJob(world, pos, pokemon, speciesName, skillDef, skillEntry, inventory, now);
-        } else if ("mining".equalsIgnoreCase(executor)) {
-            handleMiningJob(world, pos, pokemon, speciesName, skillDef, skillEntry, inventory, now);
-        } else if ("harvester".equalsIgnoreCase(executor)) {
-            handleHarvesterJob(world, pos, pokemon, speciesName, skillDef, skillEntry, inventory, now);
+        long baseCooldown = skillDef.getCooldownSeconds();
+        long cooldownTicks = CobblebaseConfig.INSTANCE.getEffectiveCooldownTicks(baseCooldown, skillEntry.getProficiency(), skillId);
+
+        Long lastTime = LAST_JOB_EXECUTION.get(pokemonId);
+        if (lastTime == null) {
+            // First tick: give a small initial jitter so they don't all fire at tick 0 but start quickly
+            long initialDelay = Math.min(cooldownTicks, 40L + (Math.abs(pokemonId.hashCode()) % 60L));
+            LAST_JOB_EXECUTION.put(pokemonId, now - (cooldownTicks - initialDelay));
+            return;
+        }
+
+        if (now - lastTime < cooldownTicks) {
+            return;
+        }
+
+        boolean success = false;
+        if ("producer".equalsIgnoreCase(executor) || skillId.contains("producer")) {
+            success = handleProducerJob(world, pos, pokemon, speciesName, skillDef, skillEntry, inventory, now);
         } else {
-            // For other job executors, handle generic produce or loot table if defined
-            if (skillDef.getLootTable() != null) {
-                handleLootTableJob(world, pos, pokemon, speciesName, skillDef, skillEntry, inventory, now);
-            }
+            success = handleLootTierJob(world, pos, pokemon, speciesName, skillDef, skillEntry, inventory, now);
+        }
+
+        if (success) {
+            LAST_JOB_EXECUTION.put(pokemonId, now);
+            BaseManager.INSTANCE.markJobSuccess(pokemonId, now);
         }
     }
 
-    private static void handleProducerJob(
+    private static boolean handleProducerJob(
         ServerLevel world,
         BlockPos pos,
         Pokemon pokemon,
@@ -146,36 +190,20 @@ public final class CobblebaseCompat {
         VirtualPastureInventory inventory,
         long now
     ) {
-        UUID pokemonId = pokemon.getUuid();
         ProducerExecutor.ProduceEntry produceEntry = ProducerOverrides.INSTANCE.getOverride(speciesName);
         if (produceEntry == null) {
             produceEntry = ProducerExecutor.INSTANCE.getProduceEntry(speciesName);
         }
         if (produceEntry == null) {
-            return;
-        }
-
-        long baseCooldown = produceEntry.getCooldownSeconds() != null ? produceEntry.getCooldownSeconds() : skillDef.getCooldownSeconds();
-        long cooldownTicks = CobblebaseConfig.INSTANCE.getEffectiveCooldownTicks(baseCooldown, skillEntry.getProficiency(), skillDef.getId());
-
-        Long lastTime = LAST_JOB_EXECUTION.get(pokemonId);
-        if (lastTime == null) {
-            LAST_JOB_EXECUTION.put(pokemonId, now);
-            return;
-        }
-
-        if (now - lastTime < cooldownTicks) {
-            return;
+            return false;
         }
 
         ItemStack stack = createItemStack(world, produceEntry.getItemId(), produceEntry.getCount());
         if (stack.isEmpty()) {
-            return;
+            return false;
         }
 
         if (inventory.virtualloot$insertGenerated(stack)) {
-            LAST_JOB_EXECUTION.put(pokemonId, now);
-            BaseManager.INSTANCE.markJobSuccess(pokemonId, now);
             LogManager.INSTANCE.log(
                 pos,
                 world.getGameTime(),
@@ -184,10 +212,12 @@ public final class CobblebaseCompat {
                 produceEntry.getDisplayName() + " x" + produceEntry.getCount(),
                 LogManager.Rarity.COMMON
             );
+            return true;
         }
+        return false;
     }
 
-    private static void handleLootTableJob(
+    private static boolean handleLootTierJob(
         ServerLevel world,
         BlockPos pos,
         Pokemon pokemon,
@@ -197,152 +227,98 @@ public final class CobblebaseCompat {
         VirtualPastureInventory inventory,
         long now
     ) {
-        UUID pokemonId = pokemon.getUuid();
-        String lootTablePath = skillDef.getLootTable();
-        if (lootTablePath == null || lootTablePath.isEmpty()) {
-            return;
+        String skillId = skillDef.getId();
+        int prof = skillEntry.getProficiency();
+        
+        // Pick tier based on proficiency
+        int tier = pickLootTier(world, prof);
+        LogManager.Rarity rarity = switch (tier) {
+            case 3 -> LogManager.Rarity.ULTRA_RARE;
+            case 2 -> LogManager.Rarity.RARE;
+            case 1 -> LogManager.Rarity.UNCOMMON;
+            default -> LogManager.Rarity.COMMON;
+        };
+
+        String lootTableId = resolveTieredLootTable(skillId, skillDef, tier);
+        List<ItemStack> generated = rollLootTable(world, pos, lootTableId);
+        if (generated.isEmpty() && tier > 0) {
+            // Fallback to common if specialized tier has no table
+            generated = rollLootTable(world, pos, resolveTieredLootTable(skillId, skillDef, 0));
         }
 
-        long baseCooldown = skillDef.getCooldownSeconds();
-        long cooldownTicks = CobblebaseConfig.INSTANCE.getEffectiveCooldownTicks(baseCooldown, skillEntry.getProficiency(), skillDef.getId());
-
-        Long lastTime = LAST_JOB_EXECUTION.get(pokemonId);
-        if (lastTime == null) {
-            LAST_JOB_EXECUTION.put(pokemonId, now);
-            return;
-        }
-
-        if (now - lastTime < cooldownTicks) {
-            return;
-        }
-
-        List<ItemStack> generated = rollLootTable(world, pos, lootTablePath);
         if (!generated.isEmpty() && inventory.virtualloot$insertGenerated(generated)) {
-            LAST_JOB_EXECUTION.put(pokemonId, now);
-            BaseManager.INSTANCE.markJobSuccess(pokemonId, now);
             ItemStack first = generated.get(0);
+            String itemDesc = first.getHoverName().getString() + (generated.size() == 1 && first.getCount() > 1 ? " x" + first.getCount() : "");
+            if (generated.size() > 1) {
+                itemDesc += " (+" + (generated.size() - 1) + " items)";
+            }
             LogManager.INSTANCE.log(
                 pos,
                 world.getGameTime(),
                 pokemon.getSpecies().getName(),
                 skillDef.getName(),
-                first.getHoverName().getString() + " x" + first.getCount(),
-                LogManager.Rarity.UNCOMMON
+                itemDesc,
+                rarity
             );
+            return true;
         }
+        return false;
     }
 
-    private static void handleMiningJob(
-        ServerLevel world,
-        BlockPos pos,
-        Pokemon pokemon,
-        String speciesName,
-        SkillDef skillDef,
-        SkillEntry skillEntry,
-        VirtualPastureInventory inventory,
-        long now
-    ) {
-        UUID pokemonId = pokemon.getUuid();
-        long baseCooldown = skillDef.getCooldownSeconds();
-        long cooldownTicks = CobblebaseConfig.INSTANCE.getEffectiveCooldownTicks(baseCooldown, skillEntry.getProficiency(), skillDef.getId());
-
-        Long lastTime = LAST_JOB_EXECUTION.get(pokemonId);
-        if (lastTime == null) {
-            LAST_JOB_EXECUTION.put(pokemonId, now);
-            return;
-        }
-
-        if (now - lastTime < cooldownTicks) {
-            return;
-        }
-
-        int proficiency = Math.max(1, skillEntry.getProficiency());
-        String[] ores = new String[]{"cobblestone", "coal", "raw_iron", "raw_copper", "raw_gold", "redstone", "amethyst_shard"};
-        String pickedOre = ores[world.random.nextInt(Math.min(ores.length, proficiency + 2))];
-        int count = 1 + world.random.nextInt(Math.min(4, proficiency));
-
-        ItemStack stack = createItemStack(world, pickedOre, count);
-        if (!stack.isEmpty() && inventory.virtualloot$insertGenerated(stack)) {
-            LAST_JOB_EXECUTION.put(pokemonId, now);
-            BaseManager.INSTANCE.markJobSuccess(pokemonId, now);
-            LogManager.INSTANCE.log(
-                pos,
-                world.getGameTime(),
-                pokemon.getSpecies().getName(),
-                skillDef.getName(),
-                stack.getHoverName().getString() + " x" + count,
-                LogManager.Rarity.COMMON
-            );
-        }
+    private static int pickLootTier(ServerLevel world, int prof) {
+        int roll = world.random.nextInt(100);
+        return switch (prof) {
+            case 5 -> roll < 30 ? 1 : (roll < 75 ? 2 : 3);
+            case 4 -> roll < 20 ? 0 : (roll < 60 ? 1 : (roll < 90 ? 2 : 3));
+            case 3 -> roll < 50 ? 0 : (roll < 85 ? 1 : 2);
+            default -> roll < 80 ? 0 : 1;
+        };
     }
 
-    private static void handleHarvesterJob(
-        ServerLevel world,
-        BlockPos pos,
-        Pokemon pokemon,
-        String speciesName,
-        SkillDef skillDef,
-        SkillEntry skillEntry,
-        VirtualPastureInventory inventory,
-        long now
-    ) {
-        UUID pokemonId = pokemon.getUuid();
-        long baseCooldown = skillDef.getCooldownSeconds();
-        long cooldownTicks = CobblebaseConfig.INSTANCE.getEffectiveCooldownTicks(baseCooldown, skillEntry.getProficiency(), skillDef.getId());
+    private static String resolveTieredLootTable(String skillId, SkillDef skillDef, int tier) {
+        String cleanId = skillId.replace("cobblebase:", "");
+        String suffix = switch (tier) {
+            case 3 -> "_ultra_rare";
+            case 2 -> "_rare";
+            case 1 -> "_uncommon";
+            default -> "_common";
+        };
 
-        Long lastTime = LAST_JOB_EXECUTION.get(pokemonId);
-        if (lastTime == null) {
-            LAST_JOB_EXECUTION.put(pokemonId, now);
-            return;
+        if (cleanId.startsWith("finder_") || cleanId.equals("mining") || cleanId.equals("harvester") || cleanId.equals("fishing") || cleanId.equals("archeologist")) {
+            return "cobblebase:" + cleanId + suffix;
         }
 
-        if (now - lastTime < cooldownTicks) {
-            return;
+        if (skillDef.getLootTable() != null && !skillDef.getLootTable().isEmpty()) {
+            return skillDef.getLootTable();
         }
 
-        int proficiency = Math.max(1, skillEntry.getProficiency());
-        String[] crops = new String[]{"wheat", "carrot", "potato", "beetroot", "sweet_berries", "melon_slice", "pumpkin", "sugar_cane"};
-        String pickedCrop = crops[world.random.nextInt(crops.length)];
-        int count = 1 + world.random.nextInt(Math.min(4, proficiency));
-
-        ItemStack stack = createItemStack(world, pickedCrop, count);
-        if (!stack.isEmpty() && inventory.virtualloot$insertGenerated(stack)) {
-            LAST_JOB_EXECUTION.put(pokemonId, now);
-            BaseManager.INSTANCE.markJobSuccess(pokemonId, now);
-            LogManager.INSTANCE.log(
-                pos,
-                world.getGameTime(),
-                pokemon.getSpecies().getName(),
-                skillDef.getName(),
-                stack.getHoverName().getString() + " x" + count,
-                LogManager.Rarity.COMMON
-            );
-        }
-    }
-
-    private static ItemStack createItemStack(ServerLevel world, String itemId, int count) {
-        ResourceLocation id = itemId.contains(":") ? ResourceLocation.tryParse(itemId) : ResourceLocation.fromNamespaceAndPath("minecraft", itemId);
-        if (id == null) return ItemStack.EMPTY;
-        Item item = world.registryAccess().registryOrThrow(Registries.ITEM).get(id);
-        if (item == null) return ItemStack.EMPTY;
-        return new ItemStack(item, count);
+        return "cobblebase:" + cleanId + suffix;
     }
 
     private static List<ItemStack> rollLootTable(ServerLevel world, BlockPos pos, String lootTableId) {
-        ResourceLocation id = ResourceLocation.tryParse(lootTableId);
-        if (id == null) return List.of();
+        ResourceLocation rl = ResourceLocation.tryParse(lootTableId);
+        if (rl == null) {
+            return List.of();
+        }
+
+        ResourceKey<LootTable> key = ResourceKey.create(Registries.LOOT_TABLE, rl);
+        LootTable table = world.getServer().reloadableRegistries().getLootTable(key);
+        if (table == LootTable.EMPTY) {
+            return List.of();
+        }
 
         LootParams params = new LootParams.Builder(world)
             .withParameter(LootContextParams.ORIGIN, Vec3.atCenterOf(pos))
             .create(LootContextParamSets.CHEST);
 
-        LootTable table = world.getServer().reloadableRegistries().getLootTable(ResourceKey.create(Registries.LOOT_TABLE, id));
-        List<ItemStack> generated = new ArrayList<>();
-        for (ItemStack stack : table.getRandomItems(params)) {
-            if (!stack.isEmpty()) {
-                generated.add(stack);
-            }
-        }
-        return generated;
+        return new ArrayList<>(table.getRandomItems(params));
+    }
+
+    private static ItemStack createItemStack(ServerLevel world, String itemId, int count) {
+        ResourceLocation rl = ResourceLocation.tryParse(itemId);
+        if (rl == null) return ItemStack.EMPTY;
+        Item item = world.registryAccess().registryOrThrow(Registries.ITEM).get(rl);
+        if (item == null || item == Items.AIR) return ItemStack.EMPTY;
+        return new ItemStack(item, Math.max(1, count));
     }
 }
