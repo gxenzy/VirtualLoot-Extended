@@ -14,12 +14,12 @@ public class HudConfigManager {
     private static File configFile;
 
     public static class HudData {
-        public int cobblebaseOffsetX = 0;
-        public int cobblebaseOffsetY = -16;
-        public int virtualLootOffsetX = 228;
-        public int virtualLootOffsetY = -14;
-        public int hudBtnOffsetX = 352;
-        public int hudBtnOffsetY = 4;
+        public int cobblebaseOffsetX = 356;
+        public int cobblebaseOffsetY = 109;
+        public int virtualLootOffsetX = 291;
+        public int virtualLootOffsetY = -10;
+        public int hudBtnOffsetX = 311;
+        public int hudBtnOffsetY = -10;
     }
 
     public static HudData data = new HudData();
@@ -44,11 +44,6 @@ public class HudConfigManager {
                     HudData loaded = GSON.fromJson(reader, HudData.class);
                     if (loaded != null) {
                         data = loaded;
-                        // Auto-correct old overlapping default coordinates if found
-                        if (data.hudBtnOffsetX <= 300 && data.hudBtnOffsetY < 0) {
-                            data.hudBtnOffsetX = 352;
-                            data.hudBtnOffsetY = 4;
-                        }
                     }
                 }
             } else {
@@ -69,12 +64,12 @@ public class HudConfigManager {
     }
 
     public static void resetDefaults() {
-        data.cobblebaseOffsetX = 0;
-        data.cobblebaseOffsetY = -16;
-        data.virtualLootOffsetX = 228;
-        data.virtualLootOffsetY = -14;
-        data.hudBtnOffsetX = 352;
-        data.hudBtnOffsetY = 4;
+        data.cobblebaseOffsetX = 356;
+        data.cobblebaseOffsetY = 109;
+        data.virtualLootOffsetX = 291;
+        data.virtualLootOffsetY = -10;
+        data.hudBtnOffsetX = 311;
+        data.hudBtnOffsetY = -10;
         save();
     }
 }
