@@ -47,7 +47,10 @@ public abstract class CobblebaseAdminStatsMixin {
     @Unique
     private static boolean virtualloot$isOfficialCobblemon(String species) {
         try {
-            return Cobblemon.INSTANCE.getSpeciesRegistry().get(species) != null;
+            Class<?> psClass = Class.forName("com.cobblemon.mod.common.api.pokemon.PokemonSpecies", false, Thread.currentThread().getContextClassLoader());
+            Object inst = psClass.getField("INSTANCE").get(null);
+            java.lang.reflect.Method m = psClass.getMethod("getByName", String.class);
+            return m.invoke(inst, species.toLowerCase()) != null;
         } catch (Throwable ignored) {
             return true;
         }
