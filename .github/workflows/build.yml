@@ -181,7 +181,30 @@ jobs:
           ---
 
           ## Version Changelog
-          ${{ env.CHANGELOG }}
+
+          ### 3D Visual Projection Engine
+          * **3 Projection Modes:** Added **Cyber Wireframe** (cyan vector lattice with transparent faces), **Sci-Fi Hologram** (animated horizontal laser scanlines and fullbright emissive glow), and **Ethereal Ghost** (40% Spectator translucency with soul flame mist).
+          * **Zero-Push Collision:** Injected collision bypass to allow players to walk freely through visual models without physical obstruction or bumping.
+          * **Terrain Elevation Snapping:** Clamped grounded visual entities to Minecraft's native `MOTION_BLOCKING` heightmaps.
+          * **Spawn Effects & Animations:** Added 32-particle rising beam pillars, teleport sound cues, and smooth scale-in materialization vortex curves.
+          * **Nametag Polish:** Delegated nameplate rendering to Cobblemon's native display formatting to eliminate duplicate level labels.
+
+          ### Cobblebase 2.0+ & Palworld Job System
+          * **42+ Virtual Base Jobs:** Background execution for Producer items (Wool, Silk, Milk, Eggs, Honey, Gems, Slime, Fuel, etc.), 12 Finder subtypes, Harvester, Mining, Fishing, Archaeology, and Combat Guards.
+          * **Proficiency Cooldown Scaling:** Dynamic cooldown multiplier formula scaling from 1 to 5 stars (`1.67x` down to `0.33x`).
+          * **Cobblebase Activity Log Sync:** Job completions are recorded directly in Cobblebase's in-game activity history.
+          * **Team Aura Buffs:** Passively ticks party buffs (Speed II, Strength I, Resistance I, Healing, Shiny Charm luck multipliers).
+
+          ### Storage, Breeding & Mod Compatibility
+          * **27-Slot Internal Storage:** All generated resources, crops, ores, and eggs collect inside the block. Access anytime via **Shift + Right Click**.
+          * **Automated Hopper Routing:** Pulls items automatically into chests or sorting networks via hoppers placed underneath.
+          * **Cobbreeding Virtual Egg Bridge:** Virtual egg breeding timers, IV rolls, shiny chances, and Mirror Herb egg move transfers.
+          * **PC GUI Crash Shield:** Intercepts property queries to safely prevent `IllegalArgumentException` crashes when opening PC storage near vanilla blocks.
+          * **Cobbleworkers Tasks:** Automated Pickup, Fishing, Diving, and Archaeology virtual job processing.
+
+          ### User Interface & Controls
+          * **Interactive Draggable HUD:** In-game `[⚙]` button to drag and reposition the Pasture Stats overlay and control buttons to custom screen positions.
+          * **Scrollbar Fix:** Restored mouse clicking and dragging functionality in pasture Pokémon selection scroll lists.
 
           ---
 
