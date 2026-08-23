@@ -1,30 +1,48 @@
-<p align="center">
-  <img src="logo.png" alt="Virtual Loot Extended Banner" width="100%">
-</p>
+<div align="center">
+
+# Virtual Loot: Extended
+### The Complete Virtual Base Automation, 3D Projection & Multi-Mod Integration Engine for Cobblemon
 
 <p align="center">
   <a href="https://minecraft.net"><img src="https://img.shields.io/badge/Minecraft-1.21.1-62B47A?style=for-the-badge&logo=minecraft&logoColor=white" alt="Minecraft 1.21.1"></a>
   <a href="https://cobblemon.com"><img src="https://img.shields.io/badge/Cobblemon-1.7.3+-E8532E?style=for-the-badge" alt="Cobblemon 1.7.3+"></a>
-  <a href="https://fabricmc.net"><img src="https://img.shields.io/badge/Loader-Fabric%20%7C%20NeoForge-3A6EA5?style=for-the-badge" alt="Fabric / NeoForge"></a>
+  <a href="https://fabricmc.net"><img src="https://img.shields.io/badge/Fabric-0.19.3+-3A6EA5?style=for-the-badge&logo=fabric&logoColor=white" alt="Fabric Loader"></a>
+  <a href="https://neoforged.net"><img src="https://img.shields.io/badge/NeoForge-21.1.234+-E65C00?style=for-the-badge" alt="NeoForge"></a>
   <a href="https://adoptium.net"><img src="https://img.shields.io/badge/Java-21%2B-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white" alt="Java 21"></a>
   <a href="LICENSE.txt"><img src="https://img.shields.io/badge/License-MIT%20%2F%20MPL--2.0-588157?style=for-the-badge" alt="License"></a>
 </p>
 
+<p align="center">
+  <a href="#overview">Overview</a> •
+  <a href="#key-features">Key Features</a> •
+  <a href="#3d-visual-projection-engine">3D Projections</a> •
+  <a href="#species-database--job-catalog">Species Job Catalog</a> •
+  <a href="#proficiency-scaling-system">Proficiency Math</a> •
+  <a href="#controls--automation-setup">Controls & Automation</a> •
+  <a href="#configuration-reference">Configuration</a> •
+  <a href="#compatibility-matrix">Compatibility</a> •
+  <a href="#credits--attributions">Credits</a>
+</p>
+
+</div>
+
 ---
 
+<a id="overview"></a>
 ## <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/town-map.png" width="24" height="24" align="center"> Overview
 
-In vanilla Cobblemon pastures, placing multiple Pokémon in pasture blocks causes physical entities to wander the world. On multiplayer servers and expansive player bases, this creates continuous entity ticking, AI navigation loops, collision physics calculations, and pathfinding overhead that rapidly degrade server TPS and client framerates.
+In standard Cobblemon pastures, placing multiple Pokémon in pasture blocks causes physical mob entities to wander the surrounding terrain. On multiplayer servers and expansive player bases, this causes continuous entity ticking, AI navigation loops, collision physics overhead, and pathfinding spikes that rapidly degrade server TPS and client framerates.
 
-**Virtual Loot: Extended** overhauls the Pasture Block into a complete **Virtual Base Automation & 3D Projection System**:
+**Virtual Loot: Extended** overhauls the Pasture Block into an automated **Virtual Base Automation & 3D Projection System**:
 
-* **Zero Server Entity Ticking**: Pokémon exist virtually inside the pasture block entity. They work, harvest, mine, forage, breed, and provide party buffs in the background with **0 physical entities spawned** on the server.
-* **Full Multi-Mod Ecosystem**: Integrates **Cobblebase 2.0+** (42+ Palworld-style jobs across all 1,367+ Pokémon species across Gens 1–9), **Cobbreeding** (virtual egg breeding & Mirror Herb moves), and **Cobbleworkers** (field tasks).
-* **Storage & Automation**: Every generated item, mineral, crop, and egg is collected in a built-in **27-slot internal inventory** that can be drained automatically using **hoppers underneath**.
+* **Zero Server Entity Ticking**: Pokémon exist virtually inside the pasture block entity. They work, harvest crops, mine ores, forage for rare items, breed eggs, and provide party buffs in the background with **0 physical entities spawned** on the server.
+* **Full Multi-Mod Ecosystem**: Native compatibility bridge for **Cobblebase 2.0+** (42+ Palworld-style jobs across all 1,367+ Pokémon species across Gens 1–9), **Cobbreeding** (virtual egg breeding & Mirror Herb move transfers), and **Cobbleworkers** (field worker tasks).
+* **Storage & Automation**: Every generated item, mineral, crop, and egg is collected in a built-in **27-slot internal inventory** that can be extracted automatically using **hoppers underneath**.
 * **Client-Side 3D Projections**: View tethered Pokémon in the world using client-rendered **Cyber Wireframe**, **Sci-Fi Hologram**, or **Ethereal Ghost** visual modes with **zero server performance cost**.
 
 ---
 
+<a id="key-features"></a>
 ## <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/star-piece.png" width="24" height="24" align="center"> Key Features
 
 <table>
@@ -72,22 +90,26 @@ In vanilla Cobblemon pastures, placing multiple Pokémon in pasture blocks cause
 
 ---
 
+<a id="3d-visual-projection-engine"></a>
 ## <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/vs-seeker.png" width="24" height="24" align="center"> 3D Visual Projection Engine
 
-Toggleable directly in the Pasture interface or PC menu:
+The visual projection engine renders client-side holograms and energy lattices of tethered Pokémon without spawning server mobs. Toggle modes directly in the Pasture interface or PC menu:
 
-| Visual Mode | Visual Style | In-Game Behavior & Rendering |
-| :---: | :--- | :--- |
-| **Mode 1** | **Cyber Wireframe** | • Electric cyan vector line lattice outlining model polygon edges.<br>• 100% see-through empty face interiors.<br>• Renders dynamic geometry including Charizard tail flames and wing membranes.<br>• High-performance buffered pipeline at **60–80+ FPS**.<br>• Walks firmly on ground terrain. |
-| **Mode 2** | **Sci-Fi Hologram** | • Glowing electric cyan holographic energy projection.<br>• Real-time animated horizontal laser scanlines.<br>• Fullbright unshaded emissive lighting with zero dark shadows at night.<br>• Walks firmly on ground terrain. |
-| **Mode 3** | **Ethereal Ghost** | • Translucent spirit model (40% Spectator opacity).<br>• Preserves natural Pokémon textures with a see-through spirit effect.<br>• Gentle soul flame particle mist.<br>• Hovers smoothly above the ground. |
-| **Mode 0** | **Disabled** | Projections disabled for maximum client performance. |
+| Visual Mode | Visual Aesthetic | Rendering Pipeline & Shader Specs | Physics & World Behavior |
+| :---: | :--- | :--- | :--- |
+| **Mode 1** | **Cyber Wireframe** | • Vector polygon line lattice (`RenderType.lines()`).<br>• Electric Cyan outline (`#00F5FF`) with transparent empty interiors.<br>• Full dynamic geometry support (Charizard tail flames, wing membranes).<br>• High-performance batch buffering at **60–80+ FPS**. | • Clamped to terrain heightmaps (`MOTION_BLOCKING`).<br>• Zero player collision pushing (`VirtualPokemonNoPushMixin`). |
+| **Mode 2** | **Sci-Fi Hologram** | • Emissive energy projection (`RenderType.entityTranslucentEmissive`).<br>• Electric Cyan base tint with real-time animated horizontal sine scanlines.<br>• Fullbright unshaded lighting (`0x00F000F0`) with zero dark shadows at night. | • Clamped to terrain heightmaps (`MOTION_BLOCKING`).<br>• Zero player collision pushing (`VirtualPokemonNoPushMixin`). |
+| **Mode 3** | **Ethereal Ghost** | • Translucent spirit model (`RenderType.itemEntityTranslucentCull`).<br>• 40% Spectator opacity (`alpha = 105`) preserving natural Pokémon textures.<br>• Gentle soul fire particle mist radiating from the base. | • Hovers smoothly above the ground (+0.75 blocks).<br>• Zero player collision pushing (`VirtualPokemonNoPushMixin`). |
+| **Mode 0** | **Disabled** | • Visual models disabled entirely for maximum client performance. | • Pokémon tick 100% virtually in background. |
 
 ---
 
-## <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/miracle-seed.png" width="24" height="24" align="center"> Universal 1,000+ Pokémon Species Classification Engine
+<a id="species-database--job-catalog"></a>
+## <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/miracle-seed.png" width="24" height="24" align="center"> Species Database & Complete Job Catalog
 
 Every single one of the **1,367+ Pokémon species across Generations 1–9** (including regional forms) is indexed in Cobblebase's `SpeciesSkillRegistry`. Species are classified into production, foraging, gathering, or combat support archetypes based on their **Primary & Secondary Elemental Types**, **Biology & Anatomical Lore**, **Abilities**, **Movepools**, and **Evolution Stages**.
+
+If a Pokémon is tethered without an explicit job assigned, the system evaluates `SpeciesSkillRegistry` and automatically executes their **highest-proficiency skill**.
 
 ```
                            [1,367+ Pokémon Species Database (Gens 1–9)]
@@ -107,7 +129,7 @@ Every single one of the **1,367+ Pokémon species across Generations 1–9** (in
 ### 1. Direct Lore Producer Job Matrix (`cobblebase:producer`)
 Direct producers periodically generate authentic biological and environmental materials directly into the 27-slot pasture storage:
 
-| Category | Output Items | Eligible Pokémon Species Catalog (Gens 1–9 with Sprites) |
+| Production Category | Item Output | Eligible Pokémon Species Catalog (Gens 1–9 with Sprites) |
 | :--- | :--- | :--- |
 | **Wool, Cotton & Fiber** | `minecraft:white_wool` (x1–x2) | <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/831.png" width="24" height="24" align="center"> **Wooloo**, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/832.png" width="24" height="24" align="center"> **Dubwool**, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/179.png" width="24" height="24" align="center"> **Mareep**, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/180.png" width="24" height="24" align="center"> **Flaaffy**, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/181.png" width="24" height="24" align="center"> **Ampharos**, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/546.png" width="24" height="24" align="center"> **Cottonee**, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/547.png" width="24" height="24" align="center"> **Whimsicott**, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/830.png" width="24" height="24" align="center"> **Eldegoss**, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/334.png" width="24" height="24" align="center"> **Altaria**, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/333.png" width="24" height="24" align="center"> **Swablu** |
 | **Silk, String & Webs** | `minecraft:string` (x1–x3) | <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/167.png" width="24" height="24" align="center"> **Spinarak**, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/168.png" width="24" height="24" align="center"> **Ariados**, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/595.png" width="24" height="24" align="center"> **Joltik**, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/596.png" width="24" height="24" align="center"> **Galvantula**, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/540.png" width="24" height="24" align="center"> **Sewaddle**, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/541.png" width="24" height="24" align="center"> **Swadloon**, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/542.png" width="24" height="24" align="center"> **Leavanny**, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/872.png" width="24" height="24" align="center"> **Snom**, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/873.png" width="24" height="24" align="center"> **Frosmoth**, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/917.png" width="24" height="24" align="center"> **Tarountula**, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/918.png" width="24" height="24" align="center"> **Spidops**, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/751.png" width="24" height="24" align="center"> **Dewpider**, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/752.png" width="24" height="24" align="center"> **Araquanid**, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10.png" width="24" height="24" align="center"> **Caterpie**, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/13.png" width="24" height="24" align="center"> **Weedle**, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/265.png" width="24" height="24" align="center"> **Wurmple** |
@@ -167,52 +189,95 @@ Finders forage for specialized items based on their elemental typing, species tr
 
 ---
 
-## <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/stardust.png" width="24" height="24" align="center"> Proficiency Multiplier System (1–5 Stars)
+<a id="proficiency-scaling-system"></a>
+## <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/stardust.png" width="24" height="24" align="center"> Proficiency Scaling System (1–5 Stars)
 
 Production cooldowns scale dynamically with a Pokémon's skill proficiency rating:
 
 $$\text{Effective Cooldown Ticks} = \text{Base Cooldown Seconds} \times 20 \times \frac{6 - \text{Proficiency}}{3}$$
 
-| Proficiency Stars | Skill Level | Cooldown Multiplier | Production Efficiency |
+| Proficiency Rating | Rank Level | Cooldown Multiplier | Production Efficiency & Output |
 | :---: | :--- | :---: | :--- |
-| <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/star-piece.png" width="16" height="16"> | **Novice (1 Star)** | `1.67x` | Takes 67% longer than base (`5/3`). Entry-level speed. |
-| <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/star-piece.png" width="16" height="16"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/star-piece.png" width="16" height="16"> | **Apprentice (2 Stars)** | `1.33x` | Takes 33% longer than base (`4/3`). Moderate speed. |
-| <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/star-piece.png" width="16" height="16"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/star-piece.png" width="16" height="16"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/star-piece.png" width="16" height="16"> | **Skilled (3 Stars)** | `1.00x` | **Standard Baseline** (`3/3`). Configured base speed. |
-| <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/star-piece.png" width="16" height="16"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/star-piece.png" width="16" height="16"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/star-piece.png" width="16" height="16"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/star-piece.png" width="16" height="16"> | **Expert (4 Stars)** | `0.67x` | **33% Faster** (`2/3`). Unlocks elevated loot tables. |
-| <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/star-piece.png" width="16" height="16"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/star-piece.png" width="16" height="16"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/star-piece.png" width="16" height="16"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/star-piece.png" width="16" height="16"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/star-piece.png" width="16" height="16"> | **Master (5 Stars)** | `0.33x` | **3x Faster Speed** (`1/3`). Maximum rare item yields. |
+| <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/star-piece.png" width="16" height="16"> | **Novice (1 Star)** | `1.67x` | Takes 67% longer than base (`5/3`). Entry-level generation speed. |
+| <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/star-piece.png" width="16" height="16"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/star-piece.png" width="16" height="16"> | **Apprentice (2 Stars)** | `1.33x` | Takes 33% longer than base (`4/3`). Moderate generation speed. |
+| <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/star-piece.png" width="16" height="16"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/star-piece.png" width="16" height="16"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/star-piece.png" width="16" height="16"> | **Skilled (3 Stars)** | `1.00x` | **Standard Baseline** (`3/3`). Configured default speed. |
+| <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/star-piece.png" width="16" height="16"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/star-piece.png" width="16" height="16"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/star-piece.png" width="16" height="16"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/star-piece.png" width="16" height="16"> | **Expert (4 Stars)** | `0.67x` | **33% Faster** (`2/3`). Unlocks elevated rare drop tables. |
+| <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/star-piece.png" width="16" height="16"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/star-piece.png" width="16" height="16"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/star-piece.png" width="16" height="16"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/star-piece.png" width="16" height="16"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/star-piece.png" width="16" height="16"> | **Master (5 Stars)** | `0.33x` | **3x Faster Speed** (`1/3`). Maximum rare yields & jackpot chances. |
 
 ---
 
-## <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/super-rod.png" width="24" height="24" align="center"> Quick Start & Automation Setup
+<a id="controls--automation-setup"></a>
+## <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/super-rod.png" width="24" height="24" align="center"> Controls & Automation Setup
 
-1. **Place Pasture**: Craft and place the Virtual Pasture block in your base.
-2. **Assign Pokémon**: Right-click the block to tether your Pokémon.
-3. **Set Visual Mode**: Click the **Visual Mode** button in the Pasture/PC GUI to cycle modes (Wireframe, Hologram, Ghost, Off).
-4. **Assign Jobs**: Click **Cobblebase** in the GUI to assign specific jobs or allow automatic task selection.
-5. **Connect Hoppers**: Place a vanilla or modded **hopper directly underneath** the block to route items into chests and sorting networks.
-6. **Open Storage**: **Shift + Right Click** the pasture block at any time to open its 27-slot inventory.
-7. **Adjust HUD**: Click **`[⚙]`** to drag the Pasture Stats overlay and control buttons to custom screen positions.
+| Step | Action | Description |
+| :---: | :--- | :--- |
+| **1** | **Place Pasture Block** | Craft and place the Virtual Pasture block anywhere in your base. |
+| **2** | **Tether Pokémon** | **Right-Click** the block to open the pasture menu and tether your Pokémon team. |
+| **3** | **Select 3D Visual Mode** | Click the **Visual Mode** button in the GUI to cycle modes: `Cyber Wireframe` -> `Sci-Fi Hologram` -> `Ethereal Ghost` -> `Disabled`. |
+| **4** | **Assign Base Jobs** | Click **Cobblebase** in the GUI to choose specific jobs, or leave unassigned for automatic highest-proficiency execution. |
+| **5** | **Connect Hopper Automation** | Place a vanilla or modded **hopper directly underneath** the pasture block to extract all generated items into chests. |
+| **6** | **Open 27-Slot Internal Storage** | **Shift + Right Click** the pasture block at any time to open the internal container. |
+| **7** | **Interactive Draggable HUD** | Click the **`[⚙]`** button to drag and reposition the Pasture Stats overlay and control buttons on your screen. |
 
 ---
 
-## <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png" width="24" height="24" align="center"> Dependencies & Compatibility
+<a id="configuration-reference"></a>
+## <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/machine-part.png" width="24" height="24" align="center"> Configuration Reference
 
-| Dependency | Required Version | Platform | Role |
+### 1. General Loot & Ticking (`config/PastureLoot.json`)
+```json
+{
+  "tick_per_minute": 60,
+  "drop_chance": 0.1,
+  "item_blacklist": [
+    "minecraft:dirt",
+    "minecraft:cobblestone"
+  ],
+  "flatten_item_quantity": false
+}
+```
+* **`tick_per_minute`** *(int, default: `60`)*: Frequency of virtual pasture loot processing per minute.
+* **`drop_chance`** *(float, default: `0.1`)*: Base drop probability evaluated on each tick cycle.
+* **`item_blacklist`** *(string array)*: Registry IDs of items forbidden from generating.
+* **`flatten_item_quantity`** *(boolean, default: `false`)*: When true, forces all item yields to a single count of 1.
+
+### 2. HUD Positioning (`config/virtualloot_hud.json`)
+```json
+{
+  "cobblebaseOffsetX": 356,
+  "cobblebaseOffsetY": 109,
+  "visualModeOffsetX": 332,
+  "visualModeOffsetY": -10,
+  "virtualLootOffsetX": 291,
+  "virtualLootOffsetY": -10,
+  "hudBtnOffsetX": 311,
+  "hudBtnOffsetY": -10
+}
+```
+* Custom screen offsets saved automatically when moving buttons with the in-game draggable HUD editor `[⚙]`.
+
+---
+
+<a id="compatibility-matrix"></a>
+## <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png" width="24" height="24" align="center"> Compatibility Matrix
+
+| Dependency / Mod | Required Version | Loader Platform | Role / Function |
 | :--- | :--- | :--- | :--- |
-| **Minecraft** | `1.21.1` | Fabric / NeoForge | Base Game |
+| **Minecraft** | `1.21.1` | Fabric / NeoForge | Base Game Engine |
 | **Cobblemon** | `>=1.7.3` | Fabric / NeoForge | Core Pokémon Framework |
 | **Architectury API** | `>=13.0.8` | Fabric / NeoForge | Cross-Loader Runtime Abstraction |
 | **Fabric API** | `>=0.116.12` | Fabric | Required for Fabric Loader |
 | **NeoForge** | `>=21.1.234` | NeoForge | Required for NeoForge Loader |
-| **[Cobblebase](https://modrinth.com/mod/cobblebase)** | `>=2.0.0` | Supported Addon | Virtual base jobs, auras, and activity log |
-| **[Cobbreeding](https://modrinth.com/mod/cobbreeding)** | `>=2.2.1` | Supported Addon | Virtual egg breeding and genetics |
-| **[Cobbleworkers](https://modrinth.com/mod/cobbleworkers)** | `>=2.0.4` | Supported Addon | Field worker loot tasks |
+| **[Cobblebase](https://modrinth.com/mod/cobblebase)** | `>=2.0.0` | Supported Addon | 42+ Virtual Palworld jobs, auras & activity log |
+| **[Cobbreeding](https://modrinth.com/mod/cobbreeding)** | `>=2.2.1` | Supported Addon | Virtual egg breeding, timers & Mirror Herb moves |
+| **[Cobbleworkers](https://modrinth.com/mod/cobbleworkers)** | `>=2.0.4` | Supported Addon | Automated worker tasks (Pickup, Fishing, Diving, Archaeology) |
 | **[Cloth Config API](https://modrinth.com/mod/cloth-config)** | `>=15.0.140` | Supported Addon | In-game configuration screen helper |
-| **[Iris / Sodium](https://modrinth.com/mod/iris)** | `>=1.7.0` | Supported Addon | Shader and performance rendering compatibility |
+| **[Iris / Sodium](https://modrinth.com/mod/iris)** | `>=1.7.0` | Supported Addon | Shader and high-performance rendering engines |
 
 ---
 
-## <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/exp-share.png" width="24" height="24" align="center"> Open Source Credits & Attributions
+<a id="credits--attributions"></a>
+## <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/exp-share.png" width="24" height="24" align="center"> Credits & Attributions
 
 * **[LunazStudios](https://github.com/LunazStudios)** — Original creator of **[Cobblemon Virtual Loot](https://github.com/LunazStudios/VirtualLoot)**.
 * **[notlown](https://github.com/notlown)** — Creator of **[Cobblebase](https://github.com/notlown/cobblebase)**.
