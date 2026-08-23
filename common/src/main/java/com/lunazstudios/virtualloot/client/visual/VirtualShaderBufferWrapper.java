@@ -1,6 +1,7 @@
 package com.lunazstudios.virtualloot.client.visual;
 
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
@@ -22,9 +23,10 @@ public class VirtualShaderBufferWrapper implements MultiBufferSource {
     @Override
     public VertexConsumer getBuffer(RenderType renderType) {
         if (mode == 1) {
-            // Mode 1: PURE 3D VECTOR WIREFRAME (CS2 Style vector lattice, empty interior)
+            // Mode 1: PURE 3D VECTOR WIREFRAME (CS2 Style vector lattice, empty interior, supporting Quads/Triangles/Lines)
             VertexConsumer linesConsumer = delegate.getBuffer(RenderType.lines());
-            return new WireframeVertexConsumer(linesConsumer);
+            VertexFormat.Mode drawMode = (renderType != null) ? renderType.mode() : VertexFormat.Mode.QUADS;
+            return new WireframeVertexConsumer(linesConsumer, drawMode);
         } else if (mode == 2) {
             // Mode 2: VIBRANT LUMINOUS HOLOGRAM (Electric Cyan Energy Silhouette with scanlines)
             RenderType targetType = (texture != null) ? RenderType.entityTranslucentEmissive(texture) : renderType;
@@ -42,37 +44,65 @@ public class VirtualShaderBufferWrapper implements MultiBufferSource {
     /**
      * Mode 1: Pure 3D Vector Wireframe.
      * Captures polygon vertices and renders vector edge lines to RenderType.lines().
+     * Fully handles Quads, Triangles (flames/wings), and Lines.
      * Faces are 100% empty and transparent.
      */
     private static class WireframeVertexConsumer implements VertexConsumer {
         private final VertexConsumer lines;
+        private final VertexFormat.Mode drawMode;
         private final float[] x = new float[4];
         private final float[] y = new float[4];
         private final float[] z = new float[4];
         private int count = 0;
 
-        public WireframeVertexConsumer(VertexConsumer lines) {
+        public WireframeVertexConsumer(VertexConsumer lines, VertexFormat.Mode drawMode) {
             this.lines = lines;
+            this.drawMode = (drawMode != null) ? drawMode : VertexFormat.Mode.QUADS;
         }
 
         @Override
         public VertexConsumer addVertex(float vx, float vy, float vz) {
-            int idx = count % 4;
-            x[idx] = vx;
-            y[idx] = vy;
-            z[idx] = vz;
-            count++;
+            int r = 0;
+            int g = 235;
+            int b = 255;
+            int a = 255;
 
-            if (idx == 3) {
-                int r = 0;
-                int g = 235;
-                int b = 255;
-                int a = 255;
+            if (drawMode == VertexFormat.Mode.TRIANGLES) {
+                int idx = count % 3;
+                x[idx] = vx;
+                y[idx] = vy;
+                z[idx] = vz;
+                count++;
 
-                drawLine(x[0], y[0], z[0], x[1], y[1], z[1], r, g, b, a);
-                drawLine(x[1], y[1], z[1], x[2], y[2], z[2], r, g, b, a);
-                drawLine(x[2], y[2], z[2], x[3], y[3], z[3], r, g, b, a);
-                drawLine(x[3], y[3], z[3], x[0], y[0], z[0], r, g, b, a);
+                if (idx == 2) {
+                    drawLine(x[0], y[0], z[0], x[1], y[1], z[1], r, g, b, a);
+                    drawLine(x[1], y[1], z[1], x[2], y[2], z[2], r, g, b, a);
+                    drawLine(x[2], y[2], z[2], x[0], y[0], z[0], r, g, b, a);
+                }
+            } else if (drawMode == VertexFormat.Mode.LINES || drawMode == VertexFormat.Mode.DEBUG_LINES) {
+                int idx = count % 2;
+                x[idx] = vx;
+                y[idx] = vy;
+                z[idx] = vz;
+                count++;
+
+                if (idx == 1) {
+                    drawLine(x[0], y[0], z[0], x[1], y[1], z[1], r, g, b, a);
+                }
+            } else {
+                // Default / QUADS / TRIANGLE_FAN / TRIANGLE_STRIP
+                int idx = count % 4;
+                x[idx] = vx;
+                y[idx] = vy;
+                z[idx] = vz;
+                count++;
+
+                if (idx == 3) {
+                    drawLine(x[0], y[0], z[0], x[1], y[1], z[1], r, g, b, a);
+                    drawLine(x[1], y[1], z[1], x[2], y[2], z[2], r, g, b, a);
+                    drawLine(x[2], y[2], z[2], x[3], y[3], z[3], r, g, b, a);
+                    drawLine(x[3], y[3], z[3], x[0], y[0], z[0], r, g, b, a);
+                }
             }
             return this;
         }

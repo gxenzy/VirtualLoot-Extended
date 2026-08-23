@@ -8,6 +8,7 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.Vec3;
@@ -78,14 +79,57 @@ public class VirtualPastureVisualizer {
             double spawnY = (mode == 3) ? (groundY + 0.75) : groundY;
 
             if (existing == null) {
-                PokemonEntity visualEntity = new PokemonEntity(world, pkmn, CobblemonEntities.POKEMON);
+                // Non-physical virtual entity that cannot push or collide with players
+                PokemonEntity visualEntity = new PokemonEntity(world, pkmn, CobblemonEntities.POKEMON) {
+                    @Override
+                    public boolean isPushable() {
+                        return false;
+                    }
+
+                    @Override
+                    public boolean canCollideWith(Entity other) {
+                        return false;
+                    }
+
+                    @Override
+                    public boolean canBeCollidedWith() {
+                        return false;
+                    }
+
+                    @Override
+                    public void push(Entity entity) {
+                        // Virtual hologram/visual has zero physical push on player
+                    }
+
+                    @Override
+                    protected void doPush(Entity entity) {
+                        // Virtual hologram/visual has zero physical push on player
+                    }
+
+                    @Override
+                    protected void pushEntities() {
+                        // Virtual hologram/visual has zero physical push on player
+                    }
+
+                    @Override
+                    public boolean isPickable() {
+                        return false;
+                    }
+
+                    @Override
+                    public boolean isAttackable() {
+                        return false;
+                    }
+                };
+
                 visualEntity.setPokemon(pkmn);
                 visualEntity.setId(ENTITY_COUNTER.incrementAndGet());
                 visualEntity.setNoAi(false);
                 visualEntity.setInvulnerable(true);
                 visualEntity.setSilent(true);
                 
-                visualEntity.noPhysics = (mode == 3);
+                visualEntity.noPhysics = true;
+                visualEntity.blocksBuilding = false;
                 visualEntity.setOnGround(mode != 3);
 
                 try {
@@ -132,7 +176,8 @@ public class VirtualPastureVisualizer {
                 existing.entity.removeTag("virtualloot_visual_mode_2");
                 existing.entity.removeTag("virtualloot_visual_mode_3");
                 existing.entity.addTag("virtualloot_visual_mode_" + mode);
-                existing.entity.noPhysics = (mode == 3);
+                existing.entity.noPhysics = true;
+                existing.entity.blocksBuilding = false;
                 existing.entity.setOnGround(mode != 3);
             }
         }
