@@ -19,7 +19,7 @@ public final class VirtualLootFabricClient implements ClientModInitializer {
 
         ClientPlayNetworking.registerGlobalReceiver(SyncVirtualPastureVisualPacket.TYPE, (payload, context) -> {
             context.client().execute(() -> {
-                VirtualPastureVisualizer.handleServerSync(payload.pos(), payload.mode(), payload.pokemonTags());
+                VirtualPastureVisualizer.handleServerSync(payload.pos(), payload.mode(), payload.pokemonList());
             });
         });
 

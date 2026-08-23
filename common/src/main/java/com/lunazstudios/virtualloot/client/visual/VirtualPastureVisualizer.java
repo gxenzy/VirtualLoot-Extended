@@ -7,7 +7,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.nbt.CompoundTag;
 
 import java.util.*;
 
@@ -31,14 +30,14 @@ public class VirtualPastureVisualizer {
     private static final Map<BlockPos, List<VisualPokemonHolder>> ACTIVE_PASTURE_VISUALS = new HashMap<>();
     private static final java.util.concurrent.atomic.AtomicInteger ENTITY_COUNTER = new java.util.concurrent.atomic.AtomicInteger(500000);
 
-    public static void handleServerSync(BlockPos pos, int mode, List<CompoundTag> pokemonTags) {
+    public static void handleServerSync(BlockPos pos, int mode, List<Pokemon> pokemonList) {
         Minecraft mc = Minecraft.getInstance();
         ClientLevel world = mc.level;
         if (world == null) return;
 
         List<VisualPokemonHolder> currentHolders = ACTIVE_PASTURE_VISUALS.computeIfAbsent(pos, k -> new ArrayList<>());
 
-        if (mode == 0 || pokemonTags == null || pokemonTags.isEmpty()) {
+        if (mode == 0 || pokemonList == null || pokemonList.isEmpty()) {
             for (VisualPokemonHolder h : currentHolders) {
                 h.entity.discard();
             }
@@ -49,8 +48,7 @@ public class VirtualPastureVisualizer {
 
         Set<UUID> syncedUuids = new HashSet<>();
 
-        for (CompoundTag tag : pokemonTags) {
-            Pokemon pkmn = PokemonSyncHelper.deserializePokemon(tag);
+        for (Pokemon pkmn : pokemonList) {
             if (pkmn == null) continue;
 
             UUID id = pkmn.getUuid();
@@ -102,6 +100,7 @@ public class VirtualPastureVisualizer {
                 currentHolders.add(newHolder);
             } else {
                 existing.mode = mode;
+                existing.entity.setPokemon(pkmn);
                 existing.entity.removeTag("virtualloot_visual_mode_1");
                 existing.entity.removeTag("virtualloot_visual_mode_2");
                 existing.entity.removeTag("virtualloot_visual_mode_3");

@@ -26,7 +26,7 @@ public final class VirtualLootNeoForge {
             SyncVirtualPastureVisualPacket.STREAM_CODEC,
             (payload, context) -> {
                 context.enqueueWork(() -> {
-                    VirtualPastureVisualizer.handleServerSync(payload.pos(), payload.mode(), payload.pokemonTags());
+                    VirtualPastureVisualizer.handleServerSync(payload.pos(), payload.mode(), payload.pokemonList());
                 });
             }
         );

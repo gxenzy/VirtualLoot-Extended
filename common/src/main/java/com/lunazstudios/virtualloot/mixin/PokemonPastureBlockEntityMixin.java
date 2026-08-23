@@ -6,7 +6,6 @@ import com.cobblemon.mod.common.net.messages.client.pasture.OpenPasturePacket;
 import com.cobblemon.mod.common.net.messages.client.pasture.PokemonPasturedPacket;
 import com.cobblemon.mod.common.pokemon.Pokemon;
 import com.lunazstudios.virtualloot.block.VirtualPastureBlock;
-import com.lunazstudios.virtualloot.client.visual.PokemonSyncHelper;
 import com.lunazstudios.virtualloot.integration.VirtualPastureInventory;
 import com.lunazstudios.virtualloot.integration.VirtualLootCompat;
 import com.lunazstudios.virtualloot.integration.cobbreeding.CobbreedingPastureInventoryBridge;
@@ -231,8 +230,13 @@ public abstract class PokemonPastureBlockEntityMixin implements VirtualPastureIn
         cir.setReturnValue(true);
     }
 
-    @Inject(method = "untether", at = @At("RETURN"), remap = false, require = 0)
-    private void virtualloot$onUntether(CallbackInfo ci) {
+    @Inject(method = "releasePokemon", at = @At("RETURN"), remap = false, require = 0)
+    private void virtualloot$onReleasePokemon(UUID pokemonId, CallbackInfo ci) {
+        virtualloot$broadcastVisualSync();
+    }
+
+    @Inject(method = "releaseAllPokemon", at = @At("RETURN"), remap = false, require = 0)
+    private void virtualloot$onReleaseAllPokemon(UUID playerId, CallbackInfoReturnable<List<UUID>> cir) {
         virtualloot$broadcastVisualSync();
     }
 
@@ -242,18 +246,17 @@ public abstract class PokemonPastureBlockEntityMixin implements VirtualPastureIn
         if (!virtualloot$isVirtualPasture()) return;
         int visualMode = VirtualPastureBlock.getVisualMode(pasture.getBlockState());
         if (pasture.getLevel() instanceof ServerLevel serverLevel) {
-            List<CompoundTag> tags = new ArrayList<>();
+            List<Pokemon> pokemonList = new ArrayList<>();
             if (visualMode > 0) {
                 for (PokemonPastureBlockEntity.Tethering t : getTetheredPokemon()) {
                     Pokemon pkmn = t.getPokemon();
                     if (pkmn != null) {
-                        CompoundTag tag = PokemonSyncHelper.serializePokemon(pkmn, serverLevel.registryAccess());
-                        if (!tag.isEmpty()) tags.add(tag);
+                        pokemonList.add(pkmn);
                     }
                 }
             }
             BlockPos basePos = pasture.getBlockPos();
-            SyncVirtualPastureVisualPacket syncPacket = new SyncVirtualPastureVisualPacket(basePos, visualMode, tags);
+            SyncVirtualPastureVisualPacket syncPacket = new SyncVirtualPastureVisualPacket(basePos, visualMode, pokemonList);
             for (ServerPlayer p : serverLevel.players()) {
                 if (p.distanceToSqr(basePos.getX() + 0.5D, basePos.getY() + 0.5D, basePos.getZ() + 0.5D) <= 64.0D * 64.0D) {
                     syncPacket.sendToPlayer(p);

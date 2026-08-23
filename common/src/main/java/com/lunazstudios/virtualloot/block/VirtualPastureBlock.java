@@ -423,17 +423,14 @@ public final class VirtualPastureBlock extends BaseEntityBlock implements Simple
 
         int visualMode = getVisualMode(state);
         if (visualMode > 0) {
-            List<CompoundTag> tags = new ArrayList<>();
+            List<Pokemon> pokemonList = new ArrayList<>();
             for (PokemonPastureBlockEntity.Tethering t : pasture.getTetheredPokemon()) {
                 Pokemon pkmn = t.getPokemon();
                 if (pkmn != null) {
-                    CompoundTag tag = PokemonSyncHelper.serializePokemon(pkmn, world.registryAccess());
-                    if (!tag.isEmpty()) {
-                        tags.add(tag);
-                    }
+                    pokemonList.add(pkmn);
                 }
             }
-            new SyncVirtualPastureVisualPacket(basePos, visualMode, tags).sendToPlayer(serverPlayer);
+            new SyncVirtualPastureVisualPacket(basePos, visualMode, pokemonList).sendToPlayer(serverPlayer);
         }
 
         world.playSound(null, pos, CobblemonSounds.PC_ON, SoundSource.BLOCKS, 0.5F, 1.0F);

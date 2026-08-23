@@ -5,10 +5,8 @@ import com.cobblemon.mod.common.block.PastureBlock;
 import com.cobblemon.mod.common.block.entity.PokemonPastureBlockEntity;
 import com.cobblemon.mod.common.pokemon.Pokemon;
 import com.lunazstudios.virtualloot.block.VirtualPastureBlock;
-import com.lunazstudios.virtualloot.client.visual.PokemonSyncHelper;
 import com.lunazstudios.virtualloot.registry.VirtualLootBlocks;
 import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -45,23 +43,20 @@ public final class SetVirtualPastureVisualModeHandler implements ServerNetworkPa
         }
         VirtualPastureBlock.setVisualMode(world, basePos, state, packet.mode());
 
-        List<CompoundTag> tags = new ArrayList<>();
+        List<Pokemon> pokemonList = new ArrayList<>();
         if (packet.mode() > 0) {
             BlockEntity be = world.getBlockEntity(basePos);
             if (be instanceof PokemonPastureBlockEntity pasture) {
                 for (PokemonPastureBlockEntity.Tethering t : pasture.getTetheredPokemon()) {
                     Pokemon pkmn = t.getPokemon();
                     if (pkmn != null) {
-                        CompoundTag tag = PokemonSyncHelper.serializePokemon(pkmn, world.registryAccess());
-                        if (!tag.isEmpty()) {
-                            tags.add(tag);
-                        }
+                        pokemonList.add(pkmn);
                     }
                 }
             }
         }
 
-        SyncVirtualPastureVisualPacket syncPacket = new SyncVirtualPastureVisualPacket(basePos, packet.mode(), tags);
+        SyncVirtualPastureVisualPacket syncPacket = new SyncVirtualPastureVisualPacket(basePos, packet.mode(), pokemonList);
         if (world instanceof ServerLevel serverLevel) {
             for (ServerPlayer p : serverLevel.players()) {
                 if (p.distanceToSqr(basePos.getX() + 0.5D, basePos.getY() + 0.5D, basePos.getZ() + 0.5D) <= 64.0D * 64.0D) {
