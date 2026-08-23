@@ -37,9 +37,11 @@ public abstract class PokemonEntityRendererMixin<T extends LivingEntity, M exten
             }
 
             // Smooth teleport spawn materialization scale
-            float spawnScale = VirtualPastureVisualizer.getSpawnScale(pkmn.getUuid(), partialTicks);
-            if (spawnScale < 0.999f) {
-                poseStack.scale(spawnScale, spawnScale, spawnScale);
+            if (pkmn.getPokemon() != null) {
+                float spawnScale = VirtualPastureVisualizer.getSpawnScale(pkmn.getPokemon().getUuid(), partialTicks);
+                if (spawnScale < 0.999f) {
+                    poseStack.scale(spawnScale, spawnScale, spawnScale);
+                }
             }
         }
     }

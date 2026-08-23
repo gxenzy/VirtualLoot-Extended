@@ -7,9 +7,9 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.Vec3;
@@ -41,6 +41,7 @@ public class VirtualPastureVisualizer {
     private static final java.util.concurrent.atomic.AtomicInteger ENTITY_COUNTER = new java.util.concurrent.atomic.AtomicInteger(500000);
 
     public static float getSpawnScale(UUID pokemonId, float partialTicks) {
+        if (pokemonId == null) return 1.0f;
         for (List<VisualPokemonHolder> holders : ACTIVE_PASTURE_VISUALS.values()) {
             for (VisualPokemonHolder h : holders) {
                 if (h.pokemonId.equals(pokemonId)) {
@@ -96,18 +97,7 @@ public class VirtualPastureVisualizer {
             double spawnY = (mode == 3) ? (groundY + 0.75) : groundY;
 
             if (existing == null) {
-                // Non-physical virtual entity that cannot push or collide with players
-                PokemonEntity visualEntity = new PokemonEntity(world, pkmn, CobblemonEntities.POKEMON) {
-                    @Override public boolean isPushable() { return false; }
-                    @Override public boolean canCollideWith(Entity other) { return false; }
-                    @Override public boolean canBeCollidedWith() { return false; }
-                    @Override public void push(Entity entity) {}
-                    @Override protected void doPush(Entity entity) {}
-                    @Override protected void pushEntities() {}
-                    @Override public boolean isPickable() { return false; }
-                    @Override public boolean isAttackable() { return false; }
-                };
-
+                PokemonEntity visualEntity = new PokemonEntity(world, pkmn, CobblemonEntities.POKEMON);
                 visualEntity.setPokemon(pkmn);
                 visualEntity.setId(ENTITY_COUNTER.incrementAndGet());
                 visualEntity.setNoAi(false);
