@@ -98,7 +98,7 @@ public class VirtualPastureVisualizer {
     private static boolean hasLineOfSight(ClientLevel world, BlockPos start, BlockPos end) {
         Vec3 from = new Vec3(start.getX() + 0.5, start.getY() + 1.2, start.getZ() + 0.5);
         Vec3 to = new Vec3(end.getX() + 0.5, end.getY() + 0.5, end.getZ() + 0.5);
-        ClipContext ctx = new ClipContext(from, to, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, null);
+        ClipContext ctx = new ClipContext(from, to, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, (net.minecraft.world.entity.Entity) null);
         BlockHitResult hit = world.clip(ctx);
         if (hit.getType() == HitResult.Type.MISS) {
             return true;
