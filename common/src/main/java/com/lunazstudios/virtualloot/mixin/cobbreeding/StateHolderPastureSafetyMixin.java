@@ -13,11 +13,14 @@ public abstract class StateHolderPastureSafetyMixin {
 
     @Inject(method = "getValue", at = @At("HEAD"), cancellable = true)
     private <T extends Comparable<T>> void virtualloot$preventPasturePropertyCrash(Property<T> property, CallbackInfoReturnable<T> cir) {
-        if (property == PastureBlock.Companion.getPART()) {
-            StateHolder<?, ?> self = (StateHolder<?, ?>) (Object) this;
-            if (!self.hasProperty(property)) {
-                // Return default BOTTOM part instead of crashing when third-party mods query non-pasture blocks
+        StateHolder<?, ?> self = (StateHolder<?, ?>) (Object) this;
+        if (!self.hasProperty(property)) {
+            // Prevent crash when Cobbreeding or third-party GUI mods query properties (like breeding_activated or PART)
+            // on non-pasture blocks (e.g. grass_block or air when opening PC GUI)
+            if (property == PastureBlock.Companion.getPART()) {
                 cir.setReturnValue((T) PastureBlock.PasturePart.BOTTOM);
+            } else if (property != null && property.getPossibleValues() != null && !property.getPossibleValues().isEmpty()) {
+                cir.setReturnValue(property.getPossibleValues().iterator().next());
             }
         }
     }
