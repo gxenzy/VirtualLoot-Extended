@@ -251,13 +251,10 @@ public final class VirtualPastureBlock extends BaseEntityBlock implements Simple
             });
 
         if (isLootEnabled(state)) {
-            boolean handledByCobblebase = false;
             if (VirtualLootCompat.isCobblebaseLoaded()) {
-                handledByCobblebase = CobblebaseCompat.tick(world, pos, pasture);
+                CobblebaseCompat.tick(world, pos, pasture);
             }
-            if (!handledByCobblebase) {
-                PastureLootGenerator.tick(world, pos, pasture);
-            }
+            PastureLootGenerator.tick(world, pos, pasture);
             if (VirtualLootCompat.isCobbleworkersLoaded()) {
                 CobbleworkersCompat.tick(world, pos, pasture);
             }

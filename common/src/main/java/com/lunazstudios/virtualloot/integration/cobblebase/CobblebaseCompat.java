@@ -218,6 +218,14 @@ public final class CobblebaseCompat {
         }
     }
 
+    private static String formatGameTime(ServerLevel world) {
+        long day = (world.getDayTime() / 24000L) + 1;
+        long timeOfDay = world.getDayTime() % 24000L;
+        long hours = (timeOfDay / 1000L + 6) % 24;
+        long minutes = (timeOfDay % 1000L) * 60 / 1000;
+        return String.format("[Day %d, %02d:%02d] ", day, hours, minutes);
+    }
+
     private static boolean handleProducerJob(
         ServerLevel world,
         BlockPos pos,
@@ -242,12 +250,13 @@ public final class CobblebaseCompat {
         }
 
         if (inventory.virtualloot$insertGenerated(stack)) {
+            String timePrefix = formatGameTime(world);
             LogManager.INSTANCE.log(
                 pos,
                 world.getGameTime(),
                 pokemon.getSpecies().getName(),
                 skillDef.getName(),
-                produceEntry.getDisplayName() + " x" + produceEntry.getCount(),
+                timePrefix + produceEntry.getDisplayName() + " x" + produceEntry.getCount(),
                 LogManager.Rarity.COMMON
             );
             return true;
@@ -280,8 +289,12 @@ public final class CobblebaseCompat {
         String lootTableId = resolveTieredLootTable(skillId, skillDef, tier);
         List<ItemStack> generated = rollLootTable(world, pos, lootTableId);
         if (generated.isEmpty() && tier > 0) {
-            // Fallback to common if specialized tier has no table
             generated = rollLootTable(world, pos, resolveTieredLootTable(skillId, skillDef, 0));
+        }
+
+        // Thematic fallback if loot table JSON is not present in registry
+        if (generated.isEmpty()) {
+            generated = getFallbackThematicLoot(world, skillId, tier, pokemon);
         }
 
         if (!generated.isEmpty() && inventory.virtualloot$insertGenerated(generated)) {
@@ -290,17 +303,107 @@ public final class CobblebaseCompat {
             if (generated.size() > 1) {
                 itemDesc += " (+" + (generated.size() - 1) + " items)";
             }
+            String timePrefix = formatGameTime(world);
             LogManager.INSTANCE.log(
                 pos,
                 world.getGameTime(),
                 pokemon.getSpecies().getName(),
                 skillDef.getName(),
-                itemDesc,
+                timePrefix + itemDesc,
                 rarity
             );
             return true;
         }
         return false;
+    }
+
+    private static List<ItemStack> getFallbackThematicLoot(ServerLevel world, String skillId, int tier, Pokemon pokemon) {
+        String clean = skillId.toLowerCase().replace("cobblebase:", "");
+        List<ItemStack> items = new ArrayList<>();
+        net.minecraft.util.RandomSource rand = world.random;
+
+        if (clean.contains("mining") || clean.contains("prospector") || clean.contains("excavator")) {
+            Item[] ores = switch (tier) {
+                case 3 -> new Item[]{Items.DIAMOND, Items.EMERALD, Items.ANCIENT_DEBRIS, Items.RAW_GOLD};
+                case 2 -> new Item[]{Items.RAW_GOLD, Items.LAPIS_LAZULI, Items.REDSTONE, Items.AMETHYST_SHARD};
+                case 1 -> new Item[]{Items.RAW_IRON, Items.RAW_COPPER, Items.COAL};
+                default -> new Item[]{Items.COBBLESTONE, Items.COAL, Items.RAW_IRON};
+            };
+            Item chosen = ores[rand.nextInt(ores.length)];
+            int count = (tier == 3) ? (1 + rand.nextInt(2)) : (1 + rand.nextInt(3 + tier));
+            items.add(new ItemStack(chosen, count));
+        } else if (clean.contains("smith") || clean.contains("armorer") || clean.contains("craftsman")) {
+            Item[] smithItems = switch (tier) {
+                case 3 -> new Item[]{Items.NETHERITE_SCRAP, Items.DIAMOND, Items.ANVIL};
+                case 2 -> new Item[]{Items.GOLD_INGOT, Items.SHIELD, Items.IRON_BLOCK};
+                case 1 -> new Item[]{Items.IRON_INGOT, Items.COPPER_INGOT, Items.CHAIN};
+                default -> new Item[]{Items.IRON_NUGGET, Items.COPPER_INGOT, Items.IRON_INGOT};
+            };
+            Item chosen = smithItems[rand.nextInt(smithItems.length)];
+            items.add(new ItemStack(chosen, 1 + rand.nextInt(2 + tier)));
+        } else if (clean.contains("harvester") || clean.contains("forager") || clean.contains("botanist") || clean.contains("irrigator")) {
+            Item[] crops = switch (tier) {
+                case 3 -> new Item[]{Items.GOLDEN_CARROT, Items.GLISTERING_MELON_SLICE, Items.ENCHANTED_GOLDEN_APPLE};
+                case 2 -> new Item[]{Items.PUMPKIN, Items.MELON_SLICE, Items.SWEET_BERRIES, Items.APPLE};
+                case 1 -> new Item[]{Items.CARROT, Items.POTATO, Items.BEETROOT};
+                default -> new Item[]{Items.WHEAT, Items.WHEAT_SEEDS, Items.APPLE};
+            };
+            Item chosen = crops[rand.nextInt(crops.length)];
+            items.add(new ItemStack(chosen, (tier == 3 && chosen == Items.ENCHANTED_GOLDEN_APPLE) ? 1 : (1 + rand.nextInt(3 + tier))));
+        } else if (clean.contains("alchemist") || clean.contains("pharmacist")) {
+            Item[] alch = switch (tier) {
+                case 3 -> new Item[]{Items.GHAST_TEAR, Items.BLAZE_ROD, Items.DRAGON_BREATH};
+                case 2 -> new Item[]{Items.GLOWSTONE_DUST, Items.MAGMA_CREAM, Items.FERMENTED_SPIDER_EYE};
+                case 1 -> new Item[]{Items.REDSTONE, Items.SPIDER_EYE, Items.SUGAR};
+                default -> new Item[]{Items.GLASS_BOTTLE, Items.REDSTONE, Items.GUNPOWDER};
+            };
+            Item chosen = alch[rand.nextInt(alch.length)];
+            items.add(new ItemStack(chosen, 1 + rand.nextInt(2 + tier)));
+        } else if (clean.contains("fishing") || clean.contains("diving")) {
+            Item[] fish = switch (tier) {
+                case 3 -> new Item[]{Items.NAUTILUS_SHELL, Items.HEART_OF_THE_SEA, Items.PRISMARINE_CRYSTALS};
+                case 2 -> new Item[]{Items.PUFFERFISH, Items.TROPICAL_FISH, Items.PRISMARINE_SHARD};
+                case 1 -> new Item[]{Items.SALMON, Items.COD, Items.DRIED_KELP};
+                default -> new Item[]{Items.COD, Items.KELP};
+            };
+            Item chosen = fish[rand.nextInt(fish.length)];
+            items.add(new ItemStack(chosen, 1 + rand.nextInt(2 + tier)));
+        } else if (clean.contains("scholar") || clean.contains("mentor") || clean.contains("trainer")) {
+            Item[] expItems = switch (tier) {
+                case 3 -> new Item[]{Items.ENCHANTED_BOOK, Items.EXPERIENCE_BOTTLE};
+                case 2 -> new Item[]{Items.EXPERIENCE_BOTTLE, Items.BOOK, Items.LAPIS_LAZULI};
+                case 1 -> new Item[]{Items.BOOK, Items.PAPER, Items.LAPIS_LAZULI};
+                default -> new Item[]{Items.PAPER, Items.FEATHER};
+            };
+            Item chosen = expItems[rand.nextInt(expItems.length)];
+            items.add(new ItemStack(chosen, 1 + rand.nextInt(2 + tier)));
+        } else if (clean.contains("fuel") || clean.contains("lava")) {
+            Item[] fuelItems = (tier >= 2) ? new Item[]{Items.BLAZE_POWDER, Items.MAGMA_CREAM, Items.COAL_BLOCK} : new Item[]{Items.CHARCOAL, Items.COAL};
+            Item chosen = fuelItems[rand.nextInt(fuelItems.length)];
+            items.add(new ItemStack(chosen, 1 + rand.nextInt(2 + tier)));
+        } else if (clean.contains("guard") || clean.contains("combat") || clean.contains("scout")) {
+            Item[] combatItems = (tier >= 2) ? new Item[]{Items.IRON_SWORD, Items.SHIELD, Items.ARROW, Items.SPECTRAL_ARROW} : new Item[]{Items.ARROW, Items.BONE, Items.STRING};
+            Item chosen = combatItems[rand.nextInt(combatItems.length)];
+            items.add(new ItemStack(chosen, 1 + rand.nextInt(3 + tier)));
+        }
+
+        if (items.isEmpty() && pokemon != null) {
+            try {
+                com.cobblemon.mod.common.api.drop.DropTable dt = pokemon.getForm().getDrops();
+                List<com.cobblemon.mod.common.api.drop.DropEntry> drops = dt.getDrops(dt.getAmount(), pokemon);
+                for (com.cobblemon.mod.common.api.drop.DropEntry d : drops) {
+                    if (d instanceof com.cobblemon.mod.common.api.drop.ItemDropEntry ide) {
+                        Item item = world.registryAccess().registryOrThrow(Registries.ITEM).get(ide.getItem());
+                        if (item != null && item != Items.AIR) {
+                            items.add(new ItemStack(item, Math.max(1, ide.getQuantity())));
+                            break;
+                        }
+                    }
+                }
+            } catch (Throwable ignored) {}
+        }
+
+        return items;
     }
 
     private static int pickLootTier(ServerLevel world, int prof) {
