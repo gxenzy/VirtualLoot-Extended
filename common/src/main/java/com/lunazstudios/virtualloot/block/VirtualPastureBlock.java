@@ -265,19 +265,15 @@ public final class VirtualPastureBlock extends BaseEntityBlock implements Simple
         }
 
         int visualMode = getVisualMode(state);
-        if (world instanceof ServerLevel serverLevel) {
+        if (world instanceof ServerLevel serverLevel && serverLevel.getGameTime() % 20L == 0L) {
+            List<Pokemon> pokemonList = new ArrayList<>();
             for (PokemonPastureBlockEntity.Tethering tethering : pasture.getTetheredPokemon()) {
                 Pokemon pokemon = tethering.getPokemon();
-                if (pokemon != null && pokemon.getEntity() != null) {
-                    PokemonEntity entity = pokemon.getEntity();
-                    entity.removeTag("virtualloot_visual_mode_1");
-                    entity.removeTag("virtualloot_visual_mode_2");
-                    entity.removeTag("virtualloot_visual_mode_3");
-                    if (visualMode > 0) {
-                        entity.addTag("virtualloot_visual_mode_" + visualMode);
-                    }
+                if (pokemon != null) {
+                    pokemonList.add(pokemon);
                 }
             }
+            new SyncVirtualPastureVisualPacket(pos, visualMode, pokemonList).sendToPlayersAround(serverLevel, pos, 48.0);
         }
 
         setOnState(world, pos, state, hasLinkedViewer(world, pos));
@@ -430,16 +426,14 @@ public final class VirtualPastureBlock extends BaseEntityBlock implements Simple
         );
 
         int visualMode = getVisualMode(state);
-        if (visualMode > 0) {
-            List<Pokemon> pokemonList = new ArrayList<>();
-            for (PokemonPastureBlockEntity.Tethering t : pasture.getTetheredPokemon()) {
-                Pokemon pkmn = t.getPokemon();
-                if (pkmn != null) {
-                    pokemonList.add(pkmn);
-                }
+        List<Pokemon> pokemonList = new ArrayList<>();
+        for (PokemonPastureBlockEntity.Tethering t : pasture.getTetheredPokemon()) {
+            Pokemon pkmn = t.getPokemon();
+            if (pkmn != null) {
+                pokemonList.add(pkmn);
             }
-            new SyncVirtualPastureVisualPacket(basePos, visualMode, pokemonList).sendToPlayer(serverPlayer);
         }
+        new SyncVirtualPastureVisualPacket(basePos, visualMode, pokemonList).sendToPlayer(serverPlayer);
 
         world.playSound(null, pos, CobblemonSounds.PC_ON, SoundSource.BLOCKS, 0.5F, 1.0F);
         world.gameEvent(serverPlayer, GameEvent.BLOCK_OPEN, pos);

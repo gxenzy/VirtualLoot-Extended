@@ -75,4 +75,20 @@ public final class SyncVirtualPastureVisualPacket implements NetworkPacket<SyncV
             Pokemon.Companion.getS2C_CODEC().encode(buffer, pkmn);
         }
     }
+
+    public void sendToPlayer(net.minecraft.server.level.ServerPlayer player) {
+        if (player != null) {
+            com.cobblemon.mod.common.CobblemonNetwork.INSTANCE.sendPacketToPlayer(player, this);
+        }
+    }
+
+    public void sendToPlayersAround(net.minecraft.server.level.ServerLevel world, BlockPos pos, double radius) {
+        if (world == null || pos == null) return;
+        double rSq = radius * radius;
+        for (net.minecraft.server.level.ServerPlayer player : world.players()) {
+            if (player.distanceToSqr(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5) <= rSq) {
+                sendToPlayer(player);
+            }
+        }
+    }
 }
