@@ -26,22 +26,39 @@ public abstract class PokemonEntityRendererMixin<T extends LivingEntity, M exten
         super(context);
     }
 
-    @Inject(method = "render(Lnet/minecraft/world/entity/LivingEntity;FFLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V", at = @At("HEAD"))
+    @Inject(method = "render(Lnet/minecraft/world/entity/LivingEntity;FFLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V", at = @At("HEAD"), cancellable = true)
     private void virtualloot$applyVisualTransformations(T entity, float entityYaw, float partialTicks, PoseStack poseStack, MultiBufferSource buffer, int packedLight, CallbackInfo ci) {
         if (entity instanceof PokemonEntity pkmn) {
-            int mode = VirtualRenderShaderHelper.getVisualMode(pkmn);
-            // ONLY Ghost (mode 3) levitates in the air. Wireframe and Hologram stand normally on the ground.
-            if (mode == 3) {
-                double hover = 0.35D + 0.12D * Math.sin((entity.tickCount + partialTicks) * 0.09D);
-                poseStack.translate(0.0D, hover, 0.0D);
-            }
-
-            // Smooth teleport spawn materialization scale
-            if (pkmn.getPokemon() != null) {
-                float spawnScale = VirtualPastureVisualizer.getSpawnScale(pkmn.getPokemon().getUuid(), partialTicks);
-                if (spawnScale < 0.999f) {
-                    poseStack.scale(spawnScale, spawnScale, spawnScale);
+            if (VirtualRenderShaderHelper.isVirtualPasturePokemon(pkmn)) {
+                int mode = VirtualRenderShaderHelper.getVisualMode(pkmn);
+                if (mode == 0) {
+                    // MODE 0 = VISUALS OFF / COMPLETELY INVISIBLE!
+                    ci.cancel();
+                    return;
                 }
+
+                // ONLY Ghost (mode 3) levitates in the air. Wireframe and Hologram stand normally on the ground.
+                if (mode == 3) {
+                    double hover = 0.35D + 0.12D * Math.sin((entity.tickCount + partialTicks) * 0.09D);
+                    poseStack.translate(0.0D, hover, 0.0D);
+                }
+
+                // Smooth teleport spawn materialization scale
+                if (pkmn.getPokemon() != null) {
+                    float spawnScale = VirtualPastureVisualizer.getSpawnScale(pkmn.getPokemon().getUuid(), partialTicks);
+                    if (spawnScale < 0.999f) {
+                        poseStack.scale(spawnScale, spawnScale, spawnScale);
+                    }
+                }
+            }
+        }
+    }
+
+    @Inject(method = "shouldShowName(Lnet/minecraft/world/entity/LivingEntity;)Z", at = @At("HEAD"), cancellable = true)
+    private void virtualloot$hideNameWhenVisualOff(T entity, org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable<Boolean> cir) {
+        if (entity instanceof PokemonEntity pkmn && VirtualRenderShaderHelper.isVirtualPasturePokemon(pkmn)) {
+            if (VirtualRenderShaderHelper.getVisualMode(pkmn) == 0) {
+                cir.setReturnValue(false);
             }
         }
     }
