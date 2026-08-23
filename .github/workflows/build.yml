@@ -2,6 +2,8 @@ name: Build & Release Virtual Loot (Extended Edition)
 
 on:
   push:
+    branches:
+      - main
     tags:
       - 'v*'
   workflow_dispatch:
@@ -16,9 +18,9 @@ on:
           - Beta
           - Alpha
       custom_title:
-        description: 'Custom Version Subtitle (e.g. Cobblebase & Universal Integration)'
+        description: 'Custom Version Title (e.g. 3D Visual Projections & Universal Cobblebase Integration)'
         required: false
-        default: 'Cobblebase & Universal Integration'
+        default: '3D Visual Projections & Universal Cobblebase Integration'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref_name }}
@@ -61,13 +63,12 @@ jobs:
           echo "Cleaned production jars:"
           ls -la release_jars/
 
-      - name: Extract Metadata & Changelog
+      - name: Extract Metadata & Configuration
         id: meta
         run: |
           MOD_VER=$(grep "mod_version=" gradle.properties | cut -d'=' -f2 | tr -d '\r')
           MC_VER=$(grep "minecraft_version=" gradle.properties | cut -d'=' -f2 | tr -d '\r')
           
-          # Determine Version Type
           VER_TYPE="${{ github.event.inputs.version_type }}"
           if [ -z "$VER_TYPE" ]; then
             if [[ "$GITHUB_REF" == *"alpha"* ]]; then
@@ -81,7 +82,7 @@ jobs:
           
           SUBTITLE="${{ github.event.inputs.custom_title }}"
           if [ -z "$SUBTITLE" ]; then
-            SUBTITLE="Cobblebase & Universal Integration"
+            SUBTITLE="3D Visual Projections & Universal Cobblebase Integration"
           fi
           
           TAG="v${MOD_VER}"
@@ -108,23 +109,26 @@ jobs:
           WORKERS_VER=$(grep "cobbleworkers_version=" gradle.properties | cut -d'=' -f2 | tr -d '\r')
           REPO_URL="https://github.com/${{ github.repository }}"
 
-          # 2. Determine git range for dynamic changelog
+          # 2. Determine git range for full or incremental changelog
           git fetch --tags --force 2>/dev/null || true
           PREV_TAG=$(git tag --sort=-creatordate | grep -v "^${RELEASE_TAG}$" | head -n 1)
-          if [ -n "$PREV_TAG" ]; then
+          
+          if [ -n "$PREV_TAG" ] && [ "${RELEASE_TAG}" != "v1.0.0" ]; then
             RANGE="${PREV_TAG}..HEAD"
             RANGE_TITLE="Changes since ${PREV_TAG}"
-            COMPARE_LINK="[Full Changelog & Diff](${REPO_URL}/compare/${PREV_TAG}...${RELEASE_TAG})"
+            COMPARE_LINK="[Full Diff View](${REPO_URL}/compare/${PREV_TAG}...${RELEASE_TAG})"
           else
-            RANGE="HEAD~15..HEAD"
-            RANGE_TITLE="Recent Changes"
+            RANGE="$(git rev-list --max-parents=0 HEAD)..HEAD"
+            RANGE_TITLE="Complete Version Changelog (All Project Commits)"
             COMPARE_LINK="[Repository Tree](${REPO_URL}/tree/${RELEASE_TAG})"
           fi
 
           # 3. Categorize commits dynamically
           FEAT_LOG=""
-          FIX_LOG=""
           VISUAL_LOG=""
+          COBBLEBASE_LOG=""
+          COMPAT_LOG=""
+          ROAM_LOG=""
           PERF_LOG=""
           DOCS_LOG=""
           CHORE_LOG=""
@@ -134,40 +138,34 @@ jobs:
           while IFS='|' read -r hash author title; do
             [ -z "$hash" ] && continue
             COMMIT_COUNT=$((COMMIT_COUNT + 1))
-            LINE="* ${title} ([${hash}](${REPO_URL}/commit/${hash})) - @${author}"
+            LINE="* ${title} ([${hash}](${REPO_URL}/commit/${hash}))"
             case "${title,,}" in
-              *feat\(visual*|*fix\(visual*|*feat*visual*|*fix*visual*|*shader*|*wireframe*|*hologram*|*ghost*)
+              *feat\(visual*|*fix\(visual*|*feat*visual*|*fix*visual*|*shader*|*wireframe*|*hologram*|*ghost*|*particle*|*beam*)
                 VISUAL_LOG="${VISUAL_LOG}"$'\n'"${LINE}"
                 ;;
-              *feat*|*feature*)
-                FEAT_LOG="${FEAT_LOG}"$'\n'"${LINE}"
+              *cobblebase*|*job*|*produce*|*aura*|*admin*screen*)
+                COBBLEBASE_LOG="${COBBLEBASE_LOG}"$'\n'"${LINE}"
                 ;;
-              *fix*|*crash*|*compat*|*safety*)
-                FIX_LOG="${FIX_LOG}"$'\n'"${LINE}"
+              *compat*|*cobbreeding*|*cobbleworker*|*safety*|*crash*)
+                COMPAT_LOG="${COMPAT_LOG}"$'\n'"${LINE}"
                 ;;
-              *perf*|*optimi*|*deadlock*|*freeze*)
+              *roam*|*pasture*|*entity*|*wander*|*collision*|*raycast*|*floor*)
+                ROAM_LOG="${ROAM_LOG}"$'\n'"${LINE}"
+                ;;
+              *perf*|*optimi*|*deadlock*|*freeze*|*zero-lag*|*sync*)
                 PERF_LOG="${PERF_LOG}"$'\n'"${LINE}"
                 ;;
-              *doc*|*readme*|*audit*|*changelog*)
+              *doc*|*readme*|*sprite*|*taxonom*|*database*|*audit*)
                 DOCS_LOG="${DOCS_LOG}"$'\n'"${LINE}"
                 ;;
-              *chore*|*ci*|*build*|*gradle*|*config*)
+              *chore*|*ci*|*build*|*gradle*|*workflow*|*release*)
                 CHORE_LOG="${CHORE_LOG}"$'\n'"${LINE}"
                 ;;
               *)
                 OTHER_LOG="${OTHER_LOG}"$'\n'"${LINE}"
                 ;;
             esac
-          done < <(git log ${RANGE} --pretty=format:"%h|%an|%s" 2>/dev/null || git log -n 15 --pretty=format:"%h|%an|%s")
-
-          # Fallback if range was empty
-          if [ "$COMMIT_COUNT" -eq 0 ]; then
-            while IFS='|' read -r hash author title; do
-              [ -z "$hash" ] && continue
-              LINE="* ${title} ([${hash}](${REPO_URL}/commit/${hash})) - @${author}"
-              OTHER_LOG="${OTHER_LOG}"$'\n'"${LINE}"
-            done < <(git log -n 15 --pretty=format:"%h|%an|%s")
-          fi
+          done < <(git log ${RANGE} --pretty=format:"%h|%an|%s" 2>/dev/null || git log --pretty=format:"%h|%an|%s")
 
           # 4. Generate dynamic file checksum table
           JAR_TABLE="| Filename | File Size | SHA-256 Checksum |"$'\n'"| :--- | :---: | :--- |"
@@ -182,114 +180,127 @@ jobs:
 
           # 5. Assemble dynamic release_body.md
           cat << EOF > release_body.md
-          > **Release Status:** **${{ env.VERSION_TYPE }}** (${{ env.VERSION_TYPE == 'Release' && 'Production Build' || 'Testing Build' }})  
-          > **Target Minecraft:** \`${MC_VER}\`  
-          > **Required On:** **Client & Server**  
-          > **Supported Platforms:** Fabric, NeoForge  
+> **Release Status:** **${{ env.VERSION_TYPE }}** (${{ env.VERSION_TYPE == 'Release' && 'Production Stable Build' || 'Development Build' }})  
+> **Target Minecraft:** \`${MC_VER}\`  
+> **Installation Scope:** **Client & Server**  
+> **Supported Mod Loaders:** Fabric, NeoForge  
 
-          ---
+---
 
-          ## Production Release Artifacts
-          ${JAR_TABLE}
+## Production Release Artifacts
+${JAR_TABLE}
 
-          ---
+---
 
-          ## Automated Version Changelog (${RANGE_TITLE})
-          ${COMPARE_LINK}
-          EOF
+## Executive Feature Summary
+* **True Zero-Lag Virtual Pastures**: Full background automation of Cobblebase Palworld jobs, Cobbreeding egg incubation, and Cobbleworkers field tasks with 0 physical entity tick overhead in Mode 0 (OFF).
+* **3D Visual Projection Engine**: Switch between 3 client-side projection modes at the touch of a button:
+  * **Mode 1 (Cyber Wireframe)**: 3D vector-edge mesh projection.
+  * **Mode 2 (Sci-Fi Hologram)**: Translucent cyan energy silhouette with scanlines.
+  * **Mode 3 (Ethereal Ghost)**: Translucent spirit form with levitation drift and soul flame particles.
+  * **Teleport Materialization**: Spiral particle beams and dimensional teleport sounds on spawn and mode toggle.
+* **Strict Pasture Isolation**: Normal wooden Cobblemon pastures are completely isolated and render 100% authentic physical models and textures.
+* **Integrated 27-Slot Automation Container**: Built-in block storage collecting all harvested crops, ores, mob drops, and eggs with vanilla hopper, pipe, and chute compatibility.
+* **Interactive Draggable HUD**: In-game customizable overlay editor with coordinate persistence.
 
-          if [ -n "$FEAT_LOG" ]; then
-            cat << EOF >> release_body.md
+---
 
-          ### New Features & Subsystems
-          ${FEAT_LOG}
-          EOF
-          fi
+## Automated Version Changelog (${RANGE_TITLE})
+${COMPARE_LINK}
+EOF
 
           if [ -n "$VISUAL_LOG" ]; then
             cat << EOF >> release_body.md
 
-          ### 3D Projection Engine & Visuals
-          ${VISUAL_LOG}
-          EOF
+### 3D Projection Engine & Visual Shaders
+${VISUAL_LOG}
+EOF
           fi
 
-          if [ -n "$FIX_LOG" ]; then
+          if [ -n "$COBBLEBASE_LOG" ]; then
             cat << EOF >> release_body.md
 
-          ### Bug Fixes & Crash Shields
-          ${FIX_LOG}
-          EOF
+### Cobblebase & Virtual Job Simulation
+${COBBLEBASE_LOG}
+EOF
+          fi
+
+          if [ -n "$COMPAT_LOG" ]; then
+            cat << EOF >> release_body.md
+
+### Cross-Mod Compatibility & Crash Shields
+${COMPAT_LOG}
+EOF
+          fi
+
+          if [ -n "$ROAM_LOG" ]; then
+            cat << EOF >> release_body.md
+
+### Pasture Roaming, Physics & Entity AI
+${ROAM_LOG}
+EOF
           fi
 
           if [ -n "$PERF_LOG" ]; then
             cat << EOF >> release_body.md
 
-          ### Performance & Memory Optimizations
-          ${PERF_LOG}
-          EOF
+### Performance, Networking & Zero-Lag Architecture
+${PERF_LOG}
+EOF
           fi
 
           if [ -n "$DOCS_LOG" ]; then
             cat << EOF >> release_body.md
 
-          ### Documentation & Configuration
-          ${DOCS_LOG}
-          EOF
+### Documentation, Item Sprites & Species Classification
+${DOCS_LOG}
+EOF
           fi
 
           if [ -n "$CHORE_LOG" ]; then
             cat << EOF >> release_body.md
 
-          ### Build & CI/CD Pipelines
-          ${CHORE_LOG}
-          EOF
+### Build, Packaging & CI/CD Pipelines
+${CHORE_LOG}
+EOF
           fi
 
           if [ -n "$OTHER_LOG" ]; then
             cat << EOF >> release_body.md
 
-          ### Additional Updates
-          ${OTHER_LOG}
-          EOF
+### Additional Updates
+${OTHER_LOG}
+EOF
           fi
 
           cat << EOF >> release_body.md
 
-          ---
+---
 
-          ## Verified Compatibility Matrix
-          | Dependency / Mod | Configured Target Version | Loader | Notes |
-          | :--- | :--- | :--- | :--- |
-          | **Minecraft** | \`${MC_VER}\` | Fabric / NeoForge | Base game engine |
-          | **Cobblemon** | \`${COBBLEMON_VER}\` | Fabric / NeoForge | Core Pokémon framework |
-          | **Architectury API** | \`${ARCH_VER}\` | Fabric / NeoForge | Cross-loader abstraction |
-          | **Fabric API** | \`${FABRIC_VER}\` | Fabric | Fabric event and registry bus |
-          | **NeoForge** | \`${NEO_VER}\` | NeoForge | NeoForge mod platform |
-          | **Cobblebase** | \`>=2.0.0\` | Fabric / NeoForge | 42+ Virtual Palworld jobs & team auras |
-          | **Cobbreeding** | \`${BREEDING_VER}\` | Fabric / NeoForge | Virtual egg incubation & Mirror Herb moves |
-          | **Cobbleworkers** | \`${WORKERS_VER}\` | Fabric / NeoForge | Field tasks (Pickup, Fishing, Diving, Archaeology) |
+## Verified Compatibility Matrix
+| Dependency / Mod | Target Version | Loader | Notes |
+| :--- | :--- | :--- | :--- |
+| **Minecraft** | \`${MC_VER}\` | Fabric / NeoForge | Base game engine |
+| **Cobblemon** | \`${COBBLEMON_VER}\` | Fabric / NeoForge | Core Pokémon framework |
+| **Architectury API** | \`${ARCH_VER}\` | Fabric / NeoForge | Cross-loader abstraction |
+| **Fabric API** | \`${FABRIC_VER}\` | Fabric | Fabric event and registry bus |
+| **NeoForge** | \`${NEO_VER}\` | NeoForge | NeoForge mod platform |
+| **Cobblebase** | \`>=2.0.0\` | Fabric / NeoForge | 42+ Virtual Palworld jobs & team auras |
+| **Cobbreeding** | \`${BREEDING_VER}\` | Fabric / NeoForge | Virtual egg incubation & Mirror Herb moves |
+| **Cobbleworkers** | \`${WORKERS_VER}\` | Fabric / NeoForge | Field tasks (Pickup, Fishing, Diving, Archaeology) |
 
-          ---
+---
 
-          ## Core System Summary
-          * **Zero Server Lag**: Virtualizes Pokémon jobs inside pasture blocks with 0 physical entities spawned.
-          * **3D Visual Projections**: Client-side Cyber Wireframe, Sci-Fi Hologram, and Ethereal Ghost modes with zero player push collision and native heightmap snapping.
-          * **27-Slot Storage**: Built-in container collecting all crops, mined minerals, items, and eggs with automated hopper extraction.
-          * **Draggable HUD**: In-game \`[⚙]\` editor to reposition overlay coordinates.
+## Open Source Credits & Attributions
+* **[LunazStudios](https://github.com/LunazStudios)** — Creator of the original *Cobblemon Virtual Loot*.
+* **[notlown](https://github.com/notlown)** — Creator of *Cobblebase*.
+* **[The Cobblemon Team](https://cobblemon.com/)** — Creators of Cobblemon.
+* **[ludichat](https://github.com/ludichat)** — Creator of *Cobbreeding*.
+* **[Accieo](https://github.com/Accieo)** — Creator of *Cobbleworkers*.
+* **gxenzy & Contributors** — Extended edition compatibility bridge, 3D visual projection engine, zero-push physics, draggable HUD editor, and automated release workflows.
 
-          ---
-
-          ## Open Source Credits & Attributions
-          * **[LunazStudios](https://github.com/LunazStudios)** — Creator of the original *Cobblemon Virtual Loot*.
-          * **[notlown](https://github.com/notlown)** — Creator of *Cobblebase*.
-          * **[The Cobblemon Team](https://cobblemon.com/)** — Creators of Cobblemon.
-          * **[ludichat](https://github.com/ludichat)** — Creator of *Cobbreeding*.
-          * **[Accieo](https://github.com/Accieo)** — Creator of *Cobbleworkers*.
-          * **gxenzy & Contributors** — Extended edition compatibility bridge, 3D visual projection engine, zero-push physics, draggable HUD editor, and automated release workflows.
-
-          *Licensed under the [MIT License](LICENSE.txt).*
-          EOF
+*Licensed under the [MIT License](LICENSE.txt).*
+EOF
 
       - name: Upload Mod Artifacts to GitHub Run
         uses: actions/upload-artifact@v4
@@ -298,13 +309,15 @@ jobs:
           path: release_jars/*.jar
 
       - name: Publish Versioned GitHub Release
-        if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch'
+        if: startsWith(github.ref, 'refs/tags/v') || github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ env.RELEASE_TAG }}
           name: "Virtual Loot: Extended [${{ env.MC_VERSION }}] ${{ env.RELEASE_TAG }} - ${{ env.VERSION_SUBTITLE }}"
           body_path: release_body.md
           prerelease: ${{ env.VERSION_TYPE != 'Release' }}
+          make_latest: true
           files: release_jars/*.jar
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
