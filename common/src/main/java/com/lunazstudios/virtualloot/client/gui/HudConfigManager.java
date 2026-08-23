@@ -16,7 +16,7 @@ public class HudConfigManager {
     public static class HudData {
         public int cobblebaseOffsetX = 356;
         public int cobblebaseOffsetY = 109;
-        public int visualModeOffsetX = 331;
+        public int visualModeOffsetX = 332;
         public int visualModeOffsetY = -10;
         public int virtualLootOffsetX = 291;
         public int virtualLootOffsetY = -10;
@@ -68,7 +68,7 @@ public class HudConfigManager {
     public static void resetDefaults() {
         data.cobblebaseOffsetX = 356;
         data.cobblebaseOffsetY = 109;
-        data.visualModeOffsetX = 331;
+        data.visualModeOffsetX = 332;
         data.visualModeOffsetY = -10;
         data.virtualLootOffsetX = 291;
         data.virtualLootOffsetY = -10;

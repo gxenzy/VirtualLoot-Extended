@@ -101,19 +101,20 @@ jobs:
       - name: Generate Comprehensive Release Notes Body
         run: |
           cat << 'EOF' > release_body.md
-          # 🌌 Virtual Loot: Extended [${{ env.MC_VERSION }}] v${{ env.MOD_VERSION }} - ${{ env.VERSION_SUBTITLE }}
+          # Virtual Loot: Extended [${{ env.MC_VERSION }}] v${{ env.MOD_VERSION }} - ${{ env.VERSION_SUBTITLE }}
 
-          > **Version Type:** 🟢 **${{ env.VERSION_TYPE }}** (${{ env.VERSION_TYPE == 'Release' && 'Stable Production' || 'Experimental / Testing' }})  
+          > **Version Type:** **${{ env.VERSION_TYPE }}** (${{ env.VERSION_TYPE == 'Release' && 'Stable Production' || 'Experimental / Testing' }})  
           > **Target Minecraft:** `1.21.1`  
-          > **Environment:** 💻 **Client & Server: Required on both** (Works on Singleplayer & Dedicated Servers)  
+          > **Environment:** **Client & Server: Required on both** (Works on Singleplayer & Dedicated Servers)  
           > **Supported Loaders:** Fabric, NeoForge  
 
           ---
 
-          ## 📌 Metadata & Environment Information
-          * **Mod Name:** Virtual Loot: Extended
+          ## Metadata & Environment Information
+          * **Mod Name:** Virtual Loot: Extended (`virtualloot`)
           * **Mod Loaders:** Fabric (>=0.19.3), NeoForge (>=21.1.234)
           * **Minecraft Version:** 1.21.1
+          * **Cobblemon Version:** 1.7.3+ (also compatible with 1.7.0+)
           * **Java Runtime:** Java 21 (JDK 21+)
           * **Environment Compatibility:**
             * **Client & Server (Required on Both):** Adds custom Virtual Pasture blocks, models, textures, GUI buttons, network sync packets, and server-side virtual ticking logic.
@@ -122,9 +123,9 @@ jobs:
 
           ---
 
-          ## 📦 Dependencies & Compatibility Matrix
+          ## Dependencies & Compatibility Matrix
 
-          ### 🟢 Required Dependencies:
+          ### Required Dependencies
           | Dependency | Required Version | Loader | Notes |
           | :--- | :--- | :--- | :--- |
           | **Minecraft** | `1.21.1` | Both | Base Game |
@@ -133,37 +134,65 @@ jobs:
           | **Fabric API** | `>=0.116.12` | Fabric | Required for Fabric Loader |
           | **NeoForge** | `>=21.1.234` | NeoForge | Required for NeoForge Loader |
 
-          ### 🌟 Supported Optional Integrations & Related Addons:
+          ### Supported Integrations & Related Addons
           | Mod | Recommended Version | Role / Feature | Notes |
           | :--- | :--- | :--- | :--- |
-          | **Cobblebase** | `>=2.0.0` | 🏗️ Palworld-style Virtual Base Jobs | Executes Producer, Mining, Harvester, Finder, Auras & Buffs virtually |
-          | **Cobbreeding** | `>=2.2.1` | 🥚 Virtual Egg Breeding & Ticking | Generates eggs directly into the 27-slot pasture inventory |
-          | **Cobbleworkers** | `>=2.0.4` | ⛏️ Automated Worker Jobs | Pickup, Fishing, Diving, Archaeology virtual jobs |
-          | **Cloth Config API** | `>=15.0.140` | ⚙️ Config screen helper | Required by Cobblebase / VirtualLoot config |
-          | **Xaero's Minimap** | `>=24.7.0` | 🗺️ Minimap Base Waypoints | Integrates with Cobblebase base tracking |
+          | **Cobblebase** | `>=2.0.0` | Palworld-style Virtual Base Jobs | Executes Producer, Mining, Harvester, Finder, Auras & Buffs virtually |
+          | **Cobbreeding** | `>=2.2.1` | Virtual Egg Breeding & Ticking | Generates eggs directly into pasture storage with PC GUI crash protection |
+          | **Cobbleworkers** | `>=2.0.4` | Automated Worker Jobs | Pickup, Fishing, Diving, Archaeology virtual jobs |
+          | **Cloth Config API** | `>=15.0.140` | Config screen helper | Required by Cobblebase / VirtualLoot config |
+          | **Xaero's Minimap** | `>=24.7.0` | Minimap Base Waypoints | Integrates with Cobblebase base tracking |
+          | **Iris / Sodium** | `>=1.7.0` | Shader & Performance Engines | Fully compatible with 3D visual projection shaders |
 
           ---
 
-          ## ✨ What This Mod Solves & Features:
-          * **⚡ Zero-Lag Pastures:** Keeps Pokémon virtually assigned inside the block with **0 physical entities spawned**, completely eliminating FPS/TPS drops from dozens of walking Pokémon.
-          * **🏗️ Native Cobblebase Integration:** Pokémon assigned to Producer, Mining, Harvester, or Finder jobs produce items directly inside the Virtual Pasture on lore-based cooldowns.
-          * **📦 27-Slot Internal Storage:** All generated produce, mined ores, and drops are collected inside the block.
-          * **🔄 Hopper & Automation Support:** Place a hopper underneath the Virtual Pasture to automatically pipe items into chests or storage pipes!
-          * **📊 Activity Log Sync:** Production is recorded in Cobblebase's activity log GUI.
-          * **💤 Standard Species Drops:** Unassigned / relaxing Pokémon roll standard Cobblemon defeat drop tables.
+          ## Key Features & Improvements
+
+          ### 1. Server Performance & Virtual Automation
+          * **Zero Server Entity Lag:** Manage up to 16+ Pokémon per pasture block with **0 physical entities spawned**, eliminating server TPS drops, pathfinding spikes, and world entity clutter.
+          * **27-Slot Internal Storage:** All generated produce, mined ores, crops, and drops are collected inside the block. Access anytime with **Shift + Right Click**.
+          * **Hopper Automation:** Place vanilla or modded hoppers directly beneath the Virtual Pasture block to automatically drain all collected items into chests, barrels, or sorting systems.
+          * **Relaxing / Idle Drops:** Pokémon set to Relax / Idle automatically generate their standard Cobblemon species defeat drop tables.
+
+          ### 2. Client-Side 3D Visual Projection Engine
+          * **Mode 1 (Cyber Wireframe):** Electric cyan 3D vector wireframe outlining all polygon edges (Quads, Triangles, Lines) with transparent interiors at high framerates (60-80+ FPS). Full support for dynamic geometry including Charizard tail flames and wing membranes.
+          * **Mode 2 (Sci-Fi Hologram):** Glowing electric cyan holographic energy projection with real-time animated horizontal laser scanlines and fullbright emissive lighting without dark shadows.
+          * **Mode 3 (Ethereal Ghost):** Natural Pokémon textures with 40% Spectator translucency, subtle soul flame mist, and hovering elevation.
+          * **Mode 0 (Disabled):** Disables visual entities for maximum client performance.
+          * **Zero-Push Physics:** Players can walk freely through visual Pokémon without being bumped or physically pushed.
+          * **Terrain Alignment:** Clamps grounded visual models firmly to Minecraft's native terrain heightmaps and distributes spawns across non-overlapping radial angle slots.
+          * **Spawn Effects:** High-density rising particle beam pillar, teleport audio cues, and smooth scale-in materialization vortex.
+
+          ### 3. Cobblebase 2.0+ Full Palworld Jobs Bridge
+          * **42+ Unique Jobs:** Virtual execution for Producer, 12 specialized Finder subtypes (Alchemist, Pharmacist, Architect, Excavator, Botanist, Collector, Scholar, Chef, Trainer, Armorer, Prospector, Smith), Mining, Harvester, Guard, Support Healers/Mentors, and Team Auras.
+          * **Proficiency Cooldown Scaling:** Action cooldowns scale dynamically based on Pokémon skill proficiency rating (1 to 5 stars).
+          * **Activity Log Sync:** Production history is logged directly to Cobblebase's in-game activity history GUI.
+          * **Passive Team Buffs:** Passively ticks party aura buffs (Speed, Strength, Resistance, Healing, Shiny Charm) without requiring physical world mobs.
+
+          ### 4. Cobbreeding & Cobbleworkers Integration
+          * **Virtual Egg Breeding:** Ticks breeding timers, rolls IVs and shinies, and transfers Mirror Herb egg moves directly into pasture inventory.
+          * **PC GUI Crash Protection:** Built-in safety shield prevents unhandled property query crashes when opening storage menus near vanilla blocks.
+          * **Cobbleworkers Tasks:** Automated Pickup, Fishing, Diving, and Archaeology virtual job processing.
+
+          ### 5. Interactive Draggable HUD Editor
+          * Click the in-game `[⚙]` button to drag and reposition pasture overlays and control buttons anywhere on your screen.
+          * Restored mouse clicking and dragging functionality to Pokémon selection list scrollbars.
 
           ---
 
-          ## 📝 Version Changelog
+          ## Version Changelog
           ${{ env.CHANGELOG }}
 
           ---
 
-          ## 👥 Open Source Credits & Attributions:
+          ## Open Source Credits & Attributions
           * **[LunazStudios](https://github.com/LunazStudios)** — Creator of the original *Cobblemon Virtual Loot*.
           * **[notlown](https://github.com/notlown)** — Creator of *Cobblebase*.
           * **[The Cobblemon Team](https://cobblemon.com/)** — Creators of Cobblemon.
-          * **gxenzy & Contributors** — Extended edition compatibility bridge, virtual job executor, and automation.
+          * **[ludichat](https://github.com/ludichat)** — Creator of *Cobbreeding*.
+          * **[Accieo](https://github.com/Accieo)** — Creator of *Cobbleworkers*.
+          * **[The SVCMC Team](https://github.com/the-svcmc-team)** — Creators of *svc-holograms* for the holographic shader pipeline.
+          * **gxenzy & Contributors** — Extended edition compatibility bridge, 3D visual projection engine, zero-push physics, draggable HUD editor, and automated release workflows.
 
           *Licensed under the [MIT License](LICENSE.txt).*
           EOF
