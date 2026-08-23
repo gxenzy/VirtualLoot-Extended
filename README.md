@@ -16,6 +16,7 @@
   <a href="#overview">Overview</a> •
   <a href="#key-features">Key Features</a> •
   <a href="#3d-visual-projection-engine">3D Projections</a> •
+  <a href="#all-43-cobblebase-jobs-catalog">All 43 Base Jobs</a> •
   <a href="#species-database--job-catalog">1,000+ Species Catalog</a> •
   <a href="#proficiency-scaling-system">Proficiency Math</a> •
   <a href="#controls--automation-setup">Controls & Automation</a> •
@@ -36,7 +37,7 @@ In standard Cobblemon pastures, placing multiple Pokémon in pasture blocks caus
 **Virtual Loot: Extended** overhauls the Pasture Block into an automated **Virtual Base Automation & 3D Projection System**:
 
 * **Zero Server Entity Ticking**: Pokémon exist virtually inside the pasture block entity. They work, harvest crops, mine ores, forage for rare items, breed eggs, and provide party buffs in the background with **0 physical entities spawned** on the server.
-* **Full Multi-Mod Ecosystem**: Native compatibility bridge for **Cobblebase 2.0+** (42+ Palworld-style jobs across all 1,367+ Pokémon species across Gens 1–9), **Cobbreeding** (virtual egg breeding & Mirror Herb move transfers), and **Cobbleworkers** (field worker tasks).
+* **Full Multi-Mod Ecosystem**: Native compatibility bridge for **Cobblebase 2.0+** (all 43 Palworld-style jobs across 1,367+ Pokémon species across Gens 1–9), **Cobbreeding** (virtual egg breeding & Mirror Herb move transfers), and **Cobbleworkers** (field worker tasks).
 * **Storage & Automation**: Every generated item, mineral, crop, and egg is collected in a built-in **27-slot internal inventory** that can be extracted automatically using **hoppers underneath**.
 * **Client-Side 3D Projections**: View tethered Pokémon in the world using client-rendered **Cyber Wireframe**, **Sci-Fi Hologram**, or **Ethereal Ghost** visual modes with **zero server performance cost**.
 
@@ -70,7 +71,7 @@ In standard Cobblemon pastures, placing multiple Pokémon in pasture blocks caus
     <td width="50%" valign="top">
       <h4><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/miracle-seed.png" width="20" height="20" align="absmiddle"> Cobblebase 2.0+ Automation</h4>
       <ul>
-        <li><b>42+ Palworld Jobs</b>: Complete coverage for all 1,367+ species across Gens 1–9.</li>
+        <li><b>All 43 Base Jobs</b>: Complete coverage for all 1,367+ species across Gens 1–9.</li>
         <li><b>12 Finder Subtypes</b>: Targeted foraging for stones, candies, held items, relics, and more.</li>
         <li><b>Proficiency Scaling</b>: Dynamic cooldowns scaled by 1–5 star ratings.</li>
         <li><b>Team Aura Buffs</b>: Passive speed, strength, resistance, healing, and shiny luck buffs.</li>
@@ -91,7 +92,7 @@ In standard Cobblemon pastures, placing multiple Pokémon in pasture blocks caus
 ---
 
 <a id="3d-visual-projection-engine"></a>
-## <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/vs-seeker.png" width="24" height="24" align="absmiddle"> 3D Visual Projection Engine
+## <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/devon-scope.png" width="24" height="24" align="absmiddle"> 3D Visual Projection Engine
 
 The visual projection engine renders client-side holograms and energy lattices of tethered Pokémon without spawning server mobs. Toggle modes directly in the Pasture interface or PC menu:
 
@@ -99,35 +100,139 @@ The visual projection engine renders client-side holograms and energy lattices o
   <thead>
     <tr>
       <th width="15%" align="center">Visual Mode</th>
-      <th width="20%" align="left">Aesthetic Style</th>
-      <th width="40%" align="left">Rendering Pipeline & Shader Specs</th>
+      <th width="22%" align="left">Aesthetic Style</th>
+      <th width="38%" align="left">Rendering Pipeline & Shader Specs</th>
       <th width="25%" align="left">World Physics</th>
     </tr>
   </thead>
   <tbody>
     <tr>
       <td align="center"><b>Mode 1</b></td>
-      <td><b>Cyber Wireframe</b></td>
+      <td><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/devon-scope.png" width="18" height="18" align="absmiddle"> <b>Cyber Wireframe</b></td>
       <td>• Vector polygon line lattice (<code>RenderType.lines()</code>)<br>• Electric Cyan outline (<code>#00F5FF</code>) with empty interiors<br>• Dynamic geometry support (Charizard tail flames, wing membranes)<br>• High-performance batch buffering at <b>60–80+ FPS</b></td>
       <td>• Heightmap clamped<br>• Zero-push collision bypass</td>
     </tr>
     <tr>
       <td align="center"><b>Mode 2</b></td>
-      <td><b>Sci-Fi Hologram</b></td>
+      <td><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/silph-scope.png" width="18" height="18" align="absmiddle"> <b>Sci-Fi Hologram</b></td>
       <td>• Emissive energy projection (<code>RenderType.entityTranslucentEmissive</code>)<br>• Cyan base tint with real-time animated sine scanlines<br>• Fullbright unshaded lighting (<code>0x00F000F0</code>)</td>
       <td>• Heightmap clamped<br>• Zero-push collision bypass</td>
     </tr>
     <tr>
       <td align="center"><b>Mode 3</b></td>
-      <td><b>Ethereal Ghost</b></td>
+      <td><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/spell-tag.png" width="18" height="18" align="absmiddle"> <b>Ethereal Ghost</b></td>
       <td>• Translucent spirit model (<code>RenderType.itemEntityTranslucentCull</code>)<br>• 40% Spectator opacity (<code>alpha = 105</code>)<br>• Soul fire particle mist radiating from the base</td>
       <td>• Smooth hover (+0.75 blocks)<br>• Zero-push collision bypass</td>
     </tr>
     <tr>
       <td align="center"><b>Mode 0</b></td>
-      <td><b>Disabled</b></td>
+      <td><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/smoke-ball.png" width="18" height="18" align="absmiddle"> <b>Disabled</b></td>
       <td>• Visual models disabled entirely for maximum client performance</td>
       <td>• 100% background ticking</td>
+    </tr>
+  </tbody>
+</table>
+
+---
+
+<a id="all-43-cobblebase-jobs-catalog"></a>
+## <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png" width="24" height="24" align="absmiddle"> All 43 Cobblebase Base Automation Jobs
+
+All 43 Cobblebase automation jobs are organized into **7 functional categories**, matching the in-game Cobblebase Admin GUI:
+
+<table width="100%">
+  <thead>
+    <tr>
+      <th width="20%" align="left">Category</th>
+      <th width="10%" align="center">Count</th>
+      <th width="70%" align="left">Registered Jobs (With Official In-Game Icons)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><b>Combat</b></td>
+      <td align="center"><code>1</code></td>
+      <td>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/muscle-band.png" width="16" height="16" align="absmiddle"> <b>Guard</b> (Base border defense & combat loot)
+      </td>
+    </tr>
+    <tr>
+      <td><b>Gathering</b></td>
+      <td align="center"><code>17</code></td>
+      <td>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/fire-stone.png" width="16" height="16" align="absmiddle"> <b>Alchemist</b> &nbsp;
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/hard-stone.png" width="16" height="16" align="absmiddle"> <b>Architect</b> &nbsp;
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/metal-coat.png" width="16" height="16" align="absmiddle"> <b>Armorer</b> &nbsp;
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/miracle-seed.png" width="16" height="16" align="absmiddle"> <b>Botanist</b> &nbsp;
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png" width="16" height="16" align="absmiddle"> <b>Collector</b> &nbsp;
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/dive-ball.png" width="16" height="16" align="absmiddle"> <b>Diving</b> &nbsp;
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/iron.png" width="16" height="16" align="absmiddle"> <b>Excavator</b> &nbsp;
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/super-rod.png" width="16" height="16" align="absmiddle"> <b>Fishing</b> &nbsp;
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/lava-cookie.png" width="16" height="16" align="absmiddle"> <b>Forager</b> &nbsp;
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/lum-berry.png" width="16" height="16" align="absmiddle"> <b>Harvester</b> &nbsp;
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/everstone.png" width="16" height="16" align="absmiddle"> <b>Mining</b> &nbsp;
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/max-potion.png" width="16" height="16" align="absmiddle"> <b>Pharmacist</b> &nbsp;
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/lucky-egg.png" width="16" height="16" align="absmiddle"> <b>Producer</b> &nbsp;
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/relic-gold.png" width="16" height="16" align="absmiddle"> <b>Prospector</b> &nbsp;
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/rare-candy.png" width="16" height="16" align="absmiddle"> <b>Scholar</b> &nbsp;
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/protector.png" width="16" height="16" align="absmiddle"> <b>Smith</b> &nbsp;
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/protein.png" width="16" height="16" align="absmiddle"> <b>Trainer</b>
+      </td>
+    </tr>
+    <tr>
+      <td><b>Generation</b></td>
+      <td align="center"><code>5</code></td>
+      <td>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/magmarizer.png" width="16" height="16" align="absmiddle"> <b>Brewing Fuel</b> &nbsp;
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/charcoal.png" width="16" height="16" align="absmiddle"> <b>Furnace Fuel</b> &nbsp;
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/flame-orb.png" width="16" height="16" align="absmiddle"> <b>Lava Fill</b> &nbsp;
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/never-melt-ice.png" width="16" height="16" align="absmiddle"> <b>Snow Fill</b> &nbsp;
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/mystic-water.png" width="16" height="16" align="absmiddle"> <b>Water Fill</b>
+      </td>
+    </tr>
+    <tr>
+      <td><b>Legendary</b></td>
+      <td align="center"><code>3</code></td>
+      <td>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/light-clay.png" width="16" height="16" align="absmiddle"> <b>Aura Boost</b> &nbsp;
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/energy-powder.png" width="16" height="16" align="absmiddle"> <b>Growth Aura</b> &nbsp;
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/shiny-charm.png" width="16" height="16" align="absmiddle"> <b>Lucky Charm</b> (Shiny Multiplier)
+      </td>
+    </tr>
+    <tr>
+      <td><b>Social</b></td>
+      <td align="center"><code>1</code></td>
+      <td>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/soothe-bell.png" width="16" height="16" align="absmiddle"> <b>Friend Recruiter</b> (Pasture friendship & affinity generation)
+      </td>
+    </tr>
+    <tr>
+      <td><b>Support</b></td>
+      <td align="center"><code>11</code></td>
+      <td>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/oval-stone.png" width="16" height="16" align="absmiddle"> <b>Egg Hatcher</b> &nbsp;
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/quick-claw.png" width="16" height="16" align="absmiddle"> <b>Haste Boost</b> &nbsp;
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/full-restore.png" width="16" height="16" align="absmiddle"> <b>Healer</b> &nbsp;
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/sticky-barb.png" width="16" height="16" align="absmiddle"> <b>Jump Boost</b> &nbsp;
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/exp-share.png" width="16" height="16" align="absmiddle"> <b>Mentor</b> &nbsp;
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/black-glasses.png" width="16" height="16" align="absmiddle"> <b>Night Vision</b> &nbsp;
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/iron.png" width="16" height="16" align="absmiddle"> <b>Resistance Boost</b> &nbsp;
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/leftovers.png" width="16" height="16" align="absmiddle"> <b>Saturation Boost</b> &nbsp;
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/carbos.png" width="16" height="16" align="absmiddle"> <b>Speed Boost</b> &nbsp;
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/protein.png" width="16" height="16" align="absmiddle"> <b>Strength Boost</b> &nbsp;
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/prism-scale.png" width="16" height="16" align="absmiddle"> <b>Water Breathing</b>
+      </td>
+    </tr>
+    <tr>
+      <td><b>Utility</b></td>
+      <td align="center"><code>5</code></td>
+      <td>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/up-grade.png" width="16" height="16" align="absmiddle"> <b>Craftsman</b> &nbsp;
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/damp-rock.png" width="16" height="16" align="absmiddle"> <b>Extinguisher</b> &nbsp;
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/squirt-bottle.png" width="16" height="16" align="absmiddle"> <b>Irrigator</b> &nbsp;
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/amulet-coin.png" width="16" height="16" align="absmiddle"> <b>Item Gatherer</b> &nbsp;
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/scope-lens.png" width="16" height="16" align="absmiddle"> <b>Scout</b>
+      </td>
     </tr>
   </tbody>
 </table>
@@ -162,101 +267,259 @@ Every single Pokémon in the game maps to work aptitudes through its elemental t
 <table width="100%">
   <thead>
     <tr>
-      <th width="15%" align="left">Elemental Type</th>
-      <th width="35%" align="left">Primary Work Aptitudes</th>
-      <th width="50%" align="left">Compatible Specialized Finder & Support Roles</th>
+      <th width="18%" align="left">Elemental Type</th>
+      <th width="37%" align="left">Primary Work Aptitudes (With Icons)</th>
+      <th width="45%" align="left">Compatible Specialized Finder & Support Roles</th>
     </tr>
   </thead>
   <tbody>
     <tr>
-      <td><b>Grass</b></td>
-      <td><b>Harvester</b> (Crops, Apricorns, Berries, Mints)</td>
-      <td><b>Botanist</b> (<code>finder_see</code>), <b>Pharmacist</b> (<code>finder_hea</code>)</td>
+      <td>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/types/generation-viii/sword-shield/12.png" width="36" height="16" align="absmiddle">
+        <b>Grass</b>
+      </td>
+      <td>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/lum-berry.png" width="16" height="16" align="absmiddle"> <b>Harvester</b> (Crops, Apricorns, Berries, Mints)
+      </td>
+      <td>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/miracle-seed.png" width="16" height="16" align="absmiddle"> <b>Botanist</b> (<code>finder_see</code>)<br>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/max-potion.png" width="16" height="16" align="absmiddle"> <b>Pharmacist</b> (<code>finder_hea</code>)
+      </td>
     </tr>
     <tr>
-      <td><b>Bug</b></td>
-      <td><b>Harvester</b> (Vegetation), <b>Silk Producer</b></td>
-      <td><b>Botanist</b> (<code>finder_see</code>), <b>Collector</b> (<code>finder_bal</code>)</td>
+      <td>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/types/generation-viii/sword-shield/7.png" width="36" height="16" align="absmiddle">
+        <b>Bug</b>
+      </td>
+      <td>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/lum-berry.png" width="16" height="16" align="absmiddle"> <b>Harvester</b> &nbsp;
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/silver-powder.png" width="16" height="16" align="absmiddle"> <b>Silk Producer</b>
+      </td>
+      <td>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/miracle-seed.png" width="16" height="16" align="absmiddle"> <b>Botanist</b> (<code>finder_see</code>)<br>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png" width="16" height="16" align="absmiddle"> <b>Collector</b> (<code>finder_bal</code>)
+      </td>
     </tr>
     <tr>
-      <td><b>Rock</b></td>
-      <td><b>Mining</b> (Ores, Stone, Amethyst, Quartz)</td>
-      <td><b>Excavator</b> (<code>finder_ore</code>), <b>Architect</b> (<code>finder_bui</code>)</td>
+      <td>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/types/generation-viii/sword-shield/6.png" width="36" height="16" align="absmiddle">
+        <b>Rock</b>
+      </td>
+      <td>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/everstone.png" width="16" height="16" align="absmiddle"> <b>Mining</b> (Ores, Stone, Amethyst, Quartz)
+      </td>
+      <td>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/iron.png" width="16" height="16" align="absmiddle"> <b>Excavator</b> (<code>finder_ore</code>)<br>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/hard-stone.png" width="16" height="16" align="absmiddle"> <b>Architect</b> (<code>finder_bui</code>)
+      </td>
     </tr>
     <tr>
-      <td><b>Ground</b></td>
-      <td><b>Mining</b> (Ores), <b>Archeologist</b> (Fossils & Pottery)</td>
-      <td><b>Excavator</b> (<code>finder_ore</code>), <b>Prospector</b> (<code>finder_treasure</code>)</td>
+      <td>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/types/generation-viii/sword-shield/5.png" width="36" height="16" align="absmiddle">
+        <b>Ground</b>
+      </td>
+      <td>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/everstone.png" width="16" height="16" align="absmiddle"> <b>Mining</b> &nbsp;
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/helix-fossil.png" width="16" height="16" align="absmiddle"> <b>Archeologist</b>
+      </td>
+      <td>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/iron.png" width="16" height="16" align="absmiddle"> <b>Excavator</b> (<code>finder_ore</code>)<br>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/relic-gold.png" width="16" height="16" align="absmiddle"> <b>Prospector</b> (<code>finder_treasure</code>)
+      </td>
     </tr>
     <tr>
-      <td><b>Steel</b></td>
-      <td><b>Mining</b> (Metals), <b>Smith</b> (Templates & Trims)</td>
-      <td><b>Architect</b> (<code>finder_bui</code>), <b>Armorer</b> (<code>finder_held</code>)</td>
+      <td>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/types/generation-viii/sword-shield/9.png" width="36" height="16" align="absmiddle">
+        <b>Steel</b>
+      </td>
+      <td>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/everstone.png" width="16" height="16" align="absmiddle"> <b>Mining</b> &nbsp;
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/protector.png" width="16" height="16" align="absmiddle"> <b>Smith</b> (Templates & Trims)
+      </td>
+      <td>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/hard-stone.png" width="16" height="16" align="absmiddle"> <b>Architect</b> (<code>finder_bui</code>)<br>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/metal-coat.png" width="16" height="16" align="absmiddle"> <b>Armorer</b> (<code>finder_held</code>)
+      </td>
     </tr>
     <tr>
-      <td><b>Water</b></td>
-      <td><b>Fishing</b> (Aquatic Loot), <b>Dive Looter</b></td>
-      <td><b>Pharmacist</b> (<code>finder_hea</code>), <b>Collector</b> (<code>finder_bal</code>)</td>
+      <td>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/types/generation-viii/sword-shield/11.png" width="36" height="16" align="absmiddle">
+        <b>Water</b>
+      </td>
+      <td>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/super-rod.png" width="16" height="16" align="absmiddle"> <b>Fishing</b> &nbsp;
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/dive-ball.png" width="16" height="16" align="absmiddle"> <b>Dive Looter</b>
+      </td>
+      <td>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/max-potion.png" width="16" height="16" align="absmiddle"> <b>Pharmacist</b> (<code>finder_hea</code>)<br>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png" width="16" height="16" align="absmiddle"> <b>Collector</b> (<code>finder_bal</code>)
+      </td>
     </tr>
     <tr>
-      <td><b>Fire</b></td>
-      <td><b>Thermal Producer</b> (Charcoal, Blaze Powder, Magma)</td>
-      <td><b>Alchemist</b> (<code>finder_evo</code>), <b>Smith</b> (<code>finder_smith</code>)</td>
+      <td>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/types/generation-viii/sword-shield/10.png" width="36" height="16" align="absmiddle">
+        <b>Fire</b>
+      </td>
+      <td>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/charcoal.png" width="16" height="16" align="absmiddle"> <b>Thermal Producer</b> (Charcoal, Blaze, Magma)
+      </td>
+      <td>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/fire-stone.png" width="16" height="16" align="absmiddle"> <b>Alchemist</b> (<code>finder_evo</code>)<br>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/protector.png" width="16" height="16" align="absmiddle"> <b>Smith</b> (<code>finder_smith</code>)
+      </td>
     </tr>
     <tr>
-      <td><b>Electric</b></td>
-      <td><b>Power Generation</b>, <b>Speed II Aura</b></td>
-      <td><b>Collector</b> (<code>finder_bal</code>), <b>Architect</b> (<code>finder_bui</code>)</td>
+      <td>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/types/generation-viii/sword-shield/13.png" width="36" height="16" align="absmiddle">
+        <b>Electric</b>
+      </td>
+      <td>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/magnet.png" width="16" height="16" align="absmiddle"> <b>Power Generation</b> &nbsp;
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/carbos.png" width="16" height="16" align="absmiddle"> <b>Speed II Aura</b>
+      </td>
+      <td>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png" width="16" height="16" align="absmiddle"> <b>Collector</b> (<code>finder_bal</code>)<br>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/hard-stone.png" width="16" height="16" align="absmiddle"> <b>Architect</b> (<code>finder_bui</code>)
+      </td>
     </tr>
     <tr>
-      <td><b>Psychic</b></td>
-      <td><b>Mentor</b> (Pasture XP), <b>Alchemist</b> (Evolution Items)</td>
-      <td><b>Scholar</b> (<code>finder_exp</code>), <b>Healer</b> (<code>healer</code>)</td>
+      <td>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/types/generation-viii/sword-shield/14.png" width="36" height="16" align="absmiddle">
+        <b>Psychic</b>
+      </td>
+      <td>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/exp-share.png" width="16" height="16" align="absmiddle"> <b>Mentor</b> (Pasture XP) &nbsp;
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/fire-stone.png" width="16" height="16" align="absmiddle"> <b>Alchemist</b>
+      </td>
+      <td>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/rare-candy.png" width="16" height="16" align="absmiddle"> <b>Scholar</b> (<code>finder_exp</code>)<br>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/full-restore.png" width="16" height="16" align="absmiddle"> <b>Healer</b> (<code>healer</code>)
+      </td>
     </tr>
     <tr>
-      <td><b>Fairy</b></td>
-      <td><b>Healer</b> (Party HP & Status Cures)</td>
-      <td><b>Pharmacist</b> (<code>finder_hea</code>), <b>Chef / Forager</b> (<code>finder_food</code>)</td>
+      <td>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/types/generation-viii/sword-shield/18.png" width="36" height="16" align="absmiddle">
+        <b>Fairy</b>
+      </td>
+      <td>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/full-restore.png" width="16" height="16" align="absmiddle"> <b>Healer</b> (Party HP & Status Cures)
+      </td>
+      <td>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/max-potion.png" width="16" height="16" align="absmiddle"> <b>Pharmacist</b> (<code>finder_hea</code>)<br>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/lava-cookie.png" width="16" height="16" align="absmiddle"> <b>Chef / Forager</b> (<code>finder_food</code>)
+      </td>
     </tr>
     <tr>
-      <td><b>Fighting</b></td>
-      <td><b>Guard</b> (Base Defense), <b>Strength I Aura</b></td>
-      <td><b>Trainer</b> (<code>finder_stat</code>), <b>Armorer</b> (<code>finder_held</code>)</td>
+      <td>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/types/generation-viii/sword-shield/2.png" width="36" height="16" align="absmiddle">
+        <b>Fighting</b>
+      </td>
+      <td>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/muscle-band.png" width="16" height="16" align="absmiddle"> <b>Guard</b> (Base Defense) &nbsp;
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/protein.png" width="16" height="16" align="absmiddle"> <b>Strength I Aura</b>
+      </td>
+      <td>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/protein.png" width="16" height="16" align="absmiddle"> <b>Trainer</b> (<code>finder_stat</code>)<br>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/metal-coat.png" width="16" height="16" align="absmiddle"> <b>Armorer</b> (<code>finder_held</code>)
+      </td>
     </tr>
     <tr>
-      <td><b>Dark</b></td>
-      <td><b>Guard</b> (Night Patrol), <b>Prospector</b> (Relics)</td>
-      <td><b>Armorer</b> (<code>finder_held</code>), <b>Prospector</b> (<code>finder_treasure</code>)</td>
+      <td>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/types/generation-viii/sword-shield/17.png" width="36" height="16" align="absmiddle">
+        <b>Dark</b>
+      </td>
+      <td>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/muscle-band.png" width="16" height="16" align="absmiddle"> <b>Guard</b> (Night Patrol) &nbsp;
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/relic-gold.png" width="16" height="16" align="absmiddle"> <b>Prospector</b>
+      </td>
+      <td>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/metal-coat.png" width="16" height="16" align="absmiddle"> <b>Armorer</b> (<code>finder_held</code>)<br>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/relic-gold.png" width="16" height="16" align="absmiddle"> <b>Prospector</b> (<code>finder_treasure</code>)
+      </td>
     </tr>
     <tr>
-      <td><b>Ghost</b></td>
-      <td><b>Archeologist</b> (Ancient Relics), <b>Prospector</b></td>
-      <td><b>Scholar</b> (<code>finder_exp</code>), <b>Alchemist</b> (<code>finder_evo</code>)</td>
+      <td>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/types/generation-viii/sword-shield/8.png" width="36" height="16" align="absmiddle">
+        <b>Ghost</b>
+      </td>
+      <td>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/helix-fossil.png" width="16" height="16" align="absmiddle"> <b>Archeologist</b> &nbsp;
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/relic-gold.png" width="16" height="16" align="absmiddle"> <b>Prospector</b>
+      </td>
+      <td>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/rare-candy.png" width="16" height="16" align="absmiddle"> <b>Scholar</b> (<code>finder_exp</code>)<br>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/fire-stone.png" width="16" height="16" align="absmiddle"> <b>Alchemist</b> (<code>finder_evo</code>)
+      </td>
     </tr>
     <tr>
-      <td><b>Normal</b></td>
-      <td><b>Direct Producer</b> (Wool, Milk, Eggs), <b>Collector</b></td>
-      <td><b>Chef / Forager</b> (<code>finder_food</code>), <b>Collector</b> (<code>finder_bal</code>)</td>
+      <td>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/types/generation-viii/sword-shield/1.png" width="36" height="16" align="absmiddle">
+        <b>Normal</b>
+      </td>
+      <td>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/lucky-egg.png" width="16" height="16" align="absmiddle"> <b>Direct Producer</b> (Wool, Milk, Eggs) &nbsp;
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png" width="16" height="16" align="absmiddle"> <b>Collector</b>
+      </td>
+      <td>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/lava-cookie.png" width="16" height="16" align="absmiddle"> <b>Chef / Forager</b> (<code>finder_food</code>)<br>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png" width="16" height="16" align="absmiddle"> <b>Collector</b> (<code>finder_bal</code>)
+      </td>
     </tr>
     <tr>
-      <td><b>Flying</b></td>
-      <td><b>Poultry Producer</b> (Eggs), <b>Pickup Scout</b></td>
-      <td><b>Collector</b> (<code>finder_bal</code>), <b>Speed Aura</b></td>
+      <td>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/types/generation-viii/sword-shield/3.png" width="36" height="16" align="absmiddle">
+        <b>Flying</b>
+      </td>
+      <td>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/lucky-egg.png" width="16" height="16" align="absmiddle"> <b>Poultry Producer</b> (Eggs) &nbsp;
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/scope-lens.png" width="16" height="16" align="absmiddle"> <b>Pickup Scout</b>
+      </td>
+      <td>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png" width="16" height="16" align="absmiddle"> <b>Collector</b> (<code>finder_bal</code>)<br>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/carbos.png" width="16" height="16" align="absmiddle"> <b>Speed Aura</b>
+      </td>
     </tr>
     <tr>
-      <td><b>Dragon</b></td>
-      <td><b>Apex Guard</b> (Base Defense), <b>Strength Aura</b></td>
-      <td><b>Scholar</b> (<code>finder_exp</code>), <b>Armorer</b> (<code>finder_held</code>)</td>
+      <td>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/types/generation-viii/sword-shield/16.png" width="36" height="16" align="absmiddle">
+        <b>Dragon</b>
+      </td>
+      <td>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/muscle-band.png" width="16" height="16" align="absmiddle"> <b>Apex Guard</b> (Base Defense) &nbsp;
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/protein.png" width="16" height="16" align="absmiddle"> <b>Strength Aura</b>
+      </td>
+      <td>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/rare-candy.png" width="16" height="16" align="absmiddle"> <b>Scholar</b> (<code>finder_exp</code>)<br>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/metal-coat.png" width="16" height="16" align="absmiddle"> <b>Armorer</b> (<code>finder_held</code>)
+      </td>
     </tr>
     <tr>
-      <td><b>Ice</b></td>
-      <td><b>Preservation</b>, <b>Resistance I Aura</b></td>
-      <td><b>Architect</b> (<code>finder_bui</code>), <b>Excavator</b> (<code>finder_ore</code>)</td>
+      <td>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/types/generation-viii/sword-shield/15.png" width="36" height="16" align="absmiddle">
+        <b>Ice</b>
+      </td>
+      <td>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/never-melt-ice.png" width="16" height="16" align="absmiddle"> <b>Preservation</b> &nbsp;
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/iron.png" width="16" height="16" align="absmiddle"> <b>Resistance I Aura</b>
+      </td>
+      <td>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/hard-stone.png" width="16" height="16" align="absmiddle"> <b>Architect</b> (<code>finder_bui</code>)<br>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/iron.png" width="16" height="16" align="absmiddle"> <b>Excavator</b> (<code>finder_ore</code>)
+      </td>
     </tr>
     <tr>
-      <td><b>Poison</b></td>
-      <td><b>Slime & Viscosity Producer</b>, <b>Alchemist</b></td>
-      <td><b>Pharmacist</b> (<code>finder_hea</code>), <b>Prospector</b> (<code>finder_treasure</code>)</td>
+      <td>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/types/generation-viii/sword-shield/4.png" width="36" height="16" align="absmiddle">
+        <b>Poison</b>
+      </td>
+      <td>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/sticky-barb.png" width="16" height="16" align="absmiddle"> <b>Slime & Viscosity Producer</b> &nbsp;
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/fire-stone.png" width="16" height="16" align="absmiddle"> <b>Alchemist</b>
+      </td>
+      <td>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/max-potion.png" width="16" height="16" align="absmiddle"> <b>Pharmacist</b> (<code>finder_hea</code>)<br>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/relic-gold.png" width="16" height="16" align="absmiddle"> <b>Prospector</b> (<code>finder_treasure</code>)
+      </td>
     </tr>
   </tbody>
 </table>
@@ -855,7 +1118,7 @@ Finders forage for specialized loot tables based on their elemental typing, spec
   </thead>
   <tbody>
     <tr>
-      <td><b>Harvester</b><br><code>cobblebase:harvester</code></td>
+      <td><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/lum-berry.png" width="18" height="18" align="absmiddle"> <b>Harvester</b><br><code>cobblebase:harvester</code></td>
       <td><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/miracle-seed.png" width="18" height="18" align="absmiddle"> 250+ Grass & Bug species harvest mature crops, apricorns, berries, and mints.</td>
       <td>
         <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/3.png" width="22" height="22" align="absmiddle"> Venusaur
@@ -869,7 +1132,7 @@ Finders forage for specialized loot tables based on their elemental typing, spec
       </td>
     </tr>
     <tr>
-      <td><b>Mining</b><br><code>cobblebase:mining</code></td>
+      <td><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/everstone.png" width="18" height="18" align="absmiddle"> <b>Mining</b><br><code>cobblebase:mining</code></td>
       <td><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/hard-stone.png" width="18" height="18" align="absmiddle"> 200+ Rock, Ground & Steel species dig for regional ores scaled by proficiency.</td>
       <td>
         <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/208.png" width="22" height="22" align="absmiddle"> Steelix
@@ -882,7 +1145,7 @@ Finders forage for specialized loot tables based on their elemental typing, spec
       </td>
     </tr>
     <tr>
-      <td><b>Fishing & Diving</b><br><code>cobblebase:fishing</code></td>
+      <td><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/super-rod.png" width="18" height="18" align="absmiddle"> <b>Fishing & Diving</b><br><code>cobblebase:fishing</code></td>
       <td><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/super-rod.png" width="18" height="18" align="absmiddle"> 180+ Water species catch fish, marine treasures, and submerged artifacts.</td>
       <td>
         <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/9.png" width="22" height="22" align="absmiddle"> Blastoise
@@ -895,7 +1158,7 @@ Finders forage for specialized loot tables based on their elemental typing, spec
       </td>
     </tr>
     <tr>
-      <td><b>Archeologist</b><br><code>cobblebase:archeologist</code></td>
+      <td><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/helix-fossil.png" width="18" height="18" align="absmiddle"> <b>Archeologist</b><br><code>cobblebase:archeologist</code></td>
       <td><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/helix-fossil.png" width="18" height="18" align="absmiddle"> 120+ Fossil & Ancient species excavate relics, fossils, and sherds.</td>
       <td>
         <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/31.png" width="22" height="22" align="absmiddle"> Nidoqueen
@@ -908,7 +1171,7 @@ Finders forage for specialized loot tables based on their elemental typing, spec
       </td>
     </tr>
     <tr>
-      <td><b>Healer</b><br><code>cobblebase:healer</code></td>
+      <td><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/full-restore.png" width="18" height="18" align="absmiddle"> <b>Healer</b><br><code>cobblebase:healer</code></td>
       <td><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/full-restore.png" width="18" height="18" align="absmiddle"> Passively restores party HP and revives fainted team members over time.</td>
       <td>
         <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/113.png" width="22" height="22" align="absmiddle"> Chansey
@@ -919,7 +1182,7 @@ Finders forage for specialized loot tables based on their elemental typing, spec
       </td>
     </tr>
     <tr>
-      <td><b>Mentor</b><br><code>cobblebase:mentor</code></td>
+      <td><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/exp-share.png" width="18" height="18" align="absmiddle"> <b>Mentor</b><br><code>cobblebase:mentor</code></td>
       <td><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/exp-share.png" width="18" height="18" align="absmiddle"> Channels continuous passive XP to all pastured Pokémon.</td>
       <td>
         <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/65.png" width="22" height="22" align="absmiddle"> Alakazam
@@ -930,7 +1193,7 @@ Finders forage for specialized loot tables based on their elemental typing, spec
       </td>
     </tr>
     <tr>
-      <td><b>Guard</b><br><code>cobblebase:guard</code></td>
+      <td><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/muscle-band.png" width="18" height="18" align="absmiddle"> <b>Guard</b><br><code>cobblebase:guard</code></td>
       <td><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/muscle-band.png" width="18" height="18" align="absmiddle"> Patrols base borders and repels wild aggressive spawns for combat XP and loot.</td>
       <td>
         <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/212.png" width="22" height="22" align="absmiddle"> Scizor
@@ -941,7 +1204,7 @@ Finders forage for specialized loot tables based on their elemental typing, spec
       </td>
     </tr>
     <tr>
-      <td><b>Global Team Auras</b></td>
+      <td><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/light-clay.png" width="18" height="18" align="absmiddle"> <b>Global Team Auras</b></td>
       <td>
         • <b>Speed II</b>: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/carbos.png" width="16" height="16" align="absmiddle"><br>
         • <b>Strength I</b>: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/protein.png" width="16" height="16" align="absmiddle"><br>
@@ -1158,7 +1421,7 @@ $$\text{Effective Cooldown Ticks} = \text{Base Cooldown Seconds} \times 20 \time
       <td><b><a href="https://modrinth.com/mod/cobblebase">Cobblebase</a></b></td>
       <td><code>>=2.0.0</code></td>
       <td>Supported Addon</td>
-      <td>42+ Virtual Palworld jobs, auras & activity log</td>
+      <td>All 43 Virtual Palworld jobs, auras & activity log</td>
     </tr>
     <tr>
       <td><b><a href="https://modrinth.com/mod/cobbreeding">Cobbreeding</a></b></td>
