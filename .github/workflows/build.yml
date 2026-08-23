@@ -104,7 +104,7 @@ jobs:
       - name: Generate Dynamic Release Notes Body
         shell: python
         run: |
-          import os, subprocess, hashlib, glob
+          import os, subprocess, hashlib, glob, re
 
           def get_prop(k):
               with open('gradle.properties', 'r', encoding='utf-8') as f:
@@ -170,6 +170,7 @@ jobs:
                   continue
               h, _, title = c.split('|', 2)
               clean_title = title.strip()
+              clean_title = re.sub(r'(?<!`)@([a-zA-Z0-9_-]+)(?!`)', r'`@\1`', clean_title)
               line = f"* {clean_title} ([{h}]({repo_url}/commit/{h}))"
               low = clean_title.lower()
 
