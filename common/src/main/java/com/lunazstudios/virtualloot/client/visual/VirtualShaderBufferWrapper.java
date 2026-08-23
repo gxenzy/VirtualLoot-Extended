@@ -50,39 +50,37 @@ public class VirtualShaderBufferWrapper implements MultiBufferSource {
         @Override
         public VertexConsumer setColor(int red, int green, int blue, int alpha) {
             if (mode == 1) {
-                // 1. WIREFRAME MESH: Cyber Neon Matrix with transparent grid polygons
-                float gridY = (float) Math.abs(Math.sin((lastY * 20.0) + (time * 0.003)));
-                float gridXZ = (float) Math.abs(Math.sin(lastX * 16.0) * Math.sin(lastZ * 16.0));
-                float gridUV = (float) Math.abs(Math.sin(lastU * 32.0) * Math.sin(lastV * 32.0));
+                // 1. WIREFRAME MESH:
+                // Wireframe renders bright neon green on polygon edges and completely transparent on interior faces
+                float uFrac = Math.abs((lastU * 16.0f) % 1.0f);
+                float vFrac = Math.abs((lastV * 16.0f) % 1.0f);
+                boolean isEdge = (uFrac < 0.12f || uFrac > 0.88f || vFrac < 0.12f || vFrac > 0.88f);
 
-                boolean isGridLine = (gridY > 0.60f || gridXZ > 0.55f || gridUV > 0.65f);
-
-                if (isGridLine) {
-                    // Glowing Neon Matrix Green wireframe line
-                    parent.setColor(0, 255, 136, 255);
+                if (isEdge) {
+                    parent.setColor(0, 255, 140, 255); // Glowing neon green line
                 } else {
-                    // Transparent interior polygon so you can see right through the wireframe mesh
-                    parent.setColor(0, 40, 20, 25);
+                    parent.setColor(0, 40, 20, 20); // See-through dark mesh interior
                 }
             } else if (mode == 2) {
-                // 2. HOLOGRAM: Electric Cyan with moving scanlines, frequency waves, and micro-flicker
-                float scanline = (float) (Math.sin((lastY * 30.0) - (time * 0.008)) * 0.35 + 0.65);
-                float flicker = (float) (0.88 + 0.12 * Math.sin(time * 0.04) * Math.cos(time * 0.023));
-                float wave = (float) (Math.sin((lastX + lastZ) * 8.0 + (time * 0.005)) * 0.15 + 0.85);
+                // 2. HOLOGRAM:
+                // Luminous translucent holographic projection with moving cyan scanlines over authentic Pokemon skin
+                float scanline = (float) (Math.sin((lastY * 25.0) - (time * 0.007)) * 0.35 + 0.65);
+                float wave = (float) (Math.sin((lastX + lastZ) * 6.0 + (time * 0.004)) * 0.15 + 0.85);
+                float intensity = scanline * wave;
 
-                float intensity = scanline * flicker * wave;
-                int r = (int) (10 * intensity);
-                int g = (int) (225 * intensity);
-                int b = (int) (255 * intensity);
-                int a = Math.max(30, Math.min(230, (int) (150 * intensity)));
+                int r = Math.min(255, (int) (red * 0.35f + 15 * intensity));
+                int g = Math.min(255, (int) (green * 0.70f + 180 * intensity));
+                int b = Math.min(255, (int) (blue * 0.70f + 255 * intensity));
+                int a = Math.max(50, Math.min(220, (int) (140 + 70 * intensity)));
 
                 parent.setColor(r, g, b, a);
             } else if (mode == 3) {
-                // 3. GHOST: Spectral Ethereal Spirit with undulating ghostly fade
-                float pulse = (float) (Math.sin((time * 0.0025) + (lastY * 3.0)) * 0.3 + 0.7);
-                int r = (int) (190 * pulse);
-                int g = (int) (125 * pulse);
-                int b = 255;
+                // 3. GHOST:
+                // Spectral undulating spirit with soft see-through purple/white alpha
+                float pulse = (float) (Math.sin((time * 0.003) + (lastY * 2.5)) * 0.25 + 0.75);
+                int r = Math.min(255, (int) (red * 0.75f + 50 * pulse));
+                int g = Math.min(255, (int) (green * 0.60f + 20 * pulse));
+                int b = Math.min(255, (int) (blue * 0.90f + 70 * pulse));
                 int a = Math.max(40, Math.min(180, (int) (110 * pulse)));
 
                 parent.setColor(r, g, b, a);
@@ -118,7 +116,6 @@ public class VirtualShaderBufferWrapper implements MultiBufferSource {
         @Override
         public VertexConsumer setUv2(int u, int v) {
             if (mode == 1 || mode == 2) {
-                // Emissive fullbright lighting for Wireframe and Hologram
                 parent.setUv2(0x00F0, 0x00F0);
             } else {
                 parent.setUv2(u, v);

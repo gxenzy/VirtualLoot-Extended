@@ -7,6 +7,9 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.MoverType;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.*;
 
@@ -48,7 +51,8 @@ public class VirtualPastureVisualizer {
 
         Set<UUID> syncedUuids = new HashSet<>();
 
-        for (Pokemon pkmn : pokemonList) {
+        for (int i = 0; i < pokemonList.size(); i++) {
+            Pokemon pkmn = pokemonList.get(i);
             if (pkmn == null) continue;
 
             UUID id = pkmn.getUuid();
@@ -69,21 +73,34 @@ public class VirtualPastureVisualizer {
                 visualEntity.noPhysics = (mode == 3);
                 visualEntity.setOnGround(mode != 3);
 
+                // Set authentic Level and Label on Cobblemon entity data
+                try {
+                    visualEntity.getEntityData().set(PokemonEntity.getLABEL_LEVEL(), pkmn.getLevel());
+                    visualEntity.getEntityData().set(PokemonEntity.getHIDE_LABEL(), false);
+                    visualEntity.getEntityData().set(PokemonEntity.getUNBATTLEABLE(), true);
+                } catch (Throwable ignored) {}
+
+                visualEntity.setCustomName(Component.literal(pkmn.getDisplayName().getString() + " Lv. " + pkmn.getLevel()));
+                visualEntity.setCustomNameVisible(true);
                 visualEntity.setGlowingTag(mode == 1 || mode == 2);
 
-                Random rand = new Random(id.hashCode());
-                double ox = (rand.nextDouble() - 0.5) * 4.0;
-                double oz = (rand.nextDouble() - 0.5) * 4.0;
-                double initialY = pos.getY() + 1.0 + (mode == 3 ? 0.5 : 0.0);
-                visualEntity.setPos(pos.getX() + 0.5 + ox, initialY, pos.getZ() + 0.5 + oz);
-                visualEntity.xo = visualEntity.getX();
-                visualEntity.yo = visualEntity.getY();
-                visualEntity.zo = visualEntity.getZ();
-                visualEntity.xOld = visualEntity.getX();
-                visualEntity.yOld = visualEntity.getY();
-                visualEntity.zOld = visualEntity.getZ();
+                // Spread Pokémon around pasture radius so they don't stack on each other
+                double baseRadius = 3.5;
+                double angle = (2.0 * Math.PI / Math.max(1, pokemonList.size())) * i + (id.hashCode() % 100) * 0.005;
+                double dist = baseRadius + (i % 3) * 1.5;
+                double spawnX = pos.getX() + 0.5 + Math.cos(angle) * dist;
+                double spawnZ = pos.getZ() + 0.5 + Math.sin(angle) * dist;
+                double spawnY = pos.getY() + 1.0 + (mode == 3 ? 0.5 : 0.0);
 
-                float yaw = rand.nextFloat() * 360f;
+                visualEntity.setPos(spawnX, spawnY, spawnZ);
+                visualEntity.xo = spawnX;
+                visualEntity.yo = spawnY;
+                visualEntity.zo = spawnZ;
+                visualEntity.xOld = spawnX;
+                visualEntity.yOld = spawnY;
+                visualEntity.zOld = spawnZ;
+
+                float yaw = (float) (angle * (180.0 / Math.PI)) + 90f;
                 visualEntity.setYRot(yaw);
                 visualEntity.yHeadRot = yaw;
                 visualEntity.yBodyRot = yaw;
@@ -95,12 +112,16 @@ public class VirtualPastureVisualizer {
                 world.addEntity(visualEntity);
 
                 VisualPokemonHolder newHolder = new VisualPokemonHolder(id, visualEntity, mode);
-                newHolder.targetX = visualEntity.getX();
-                newHolder.targetZ = visualEntity.getZ();
+                newHolder.targetX = spawnX;
+                newHolder.targetZ = spawnZ;
                 currentHolders.add(newHolder);
             } else {
                 existing.mode = mode;
                 existing.entity.setPokemon(pkmn);
+                try {
+                    existing.entity.getEntityData().set(PokemonEntity.getLABEL_LEVEL(), pkmn.getLevel());
+                } catch (Throwable ignored) {}
+                existing.entity.setCustomName(Component.literal(pkmn.getDisplayName().getString() + " Lv. " + pkmn.getLevel()));
                 existing.entity.removeTag("virtualloot_visual_mode_1");
                 existing.entity.removeTag("virtualloot_visual_mode_2");
                 existing.entity.removeTag("virtualloot_visual_mode_3");
@@ -177,32 +198,41 @@ public class VirtualPastureVisualizer {
             }
         }
 
-        // Roaming behavior
+        // Roaming behavior within a wide 8-block pasture boundary
         if (holder.roamCooldown-- <= 0) {
-            holder.roamCooldown = 80 + rand.nextInt(100);
+            holder.roamCooldown = 100 + rand.nextInt(120);
 
-            double ox = (rand.nextDouble() - 0.5) * 5.0;
-            double oz = (rand.nextDouble() - 0.5) * 5.0;
-            holder.targetX = pasturePos.getX() + 0.5 + ox;
-            holder.targetZ = pasturePos.getZ() + 0.5 + oz;
+            double angle = rand.nextDouble() * Math.PI * 2.0;
+            double dist = 2.5 + rand.nextDouble() * 5.5;
+            holder.targetX = pasturePos.getX() + 0.5 + Math.cos(angle) * dist;
+            holder.targetZ = pasturePos.getZ() + 0.5 + Math.sin(angle) * dist;
         }
 
         double dx = holder.targetX - entity.getX();
         double dz = holder.targetZ - entity.getZ();
         double distSq = dx * dx + dz * dz;
 
-        if (distSq > 0.3) {
+        // Maintain previous positions for smooth lerping (no visual lag/stutter)
+        entity.xo = entity.getX();
+        entity.yo = entity.getY();
+        entity.zo = entity.getZ();
+        entity.yRotO = entity.getYRot();
+        entity.yHeadRotO = entity.yHeadRot;
+        entity.yBodyRotO = entity.yBodyRot;
+
+        if (distSq > 0.4) {
             double angle = Math.atan2(dz, dx);
             float targetYaw = (float) (angle * (180 / Math.PI)) - 90f;
             entity.setYRot(targetYaw);
             entity.yHeadRot = targetYaw;
             entity.yBodyRot = targetYaw;
 
-            double speed = (mode == 3) ? 0.025 : 0.035;
+            double speed = (mode == 3) ? 0.03 : 0.045;
             double vx = Math.cos(angle) * speed;
             double vz = Math.sin(angle) * speed;
             double vy = (mode == 3) ? Math.sin(entity.tickCount * 0.1) * 0.015 : 0.0;
-            entity.setPos(entity.getX() + vx, entity.getY() + vy, entity.getZ() + vz);
+            
+            entity.move(MoverType.SELF, new Vec3(vx, vy, vz));
         }
     }
 
