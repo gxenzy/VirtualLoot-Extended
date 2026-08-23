@@ -18,6 +18,7 @@ public class VirtualPastureVisualizer {
     public static final int MAX_SPAWN_TICKS = 30; // 1.5s materialization duration
     private static final Map<UUID, Integer> SPAWN_TICKS = new ConcurrentHashMap<>();
     private static final Map<UUID, Integer> LAST_MODES = new ConcurrentHashMap<>();
+    private static final Map<BlockPos, java.util.Set<UUID>> PASTURE_POKEMON_MAP = new ConcurrentHashMap<>();
 
     public static float getSpawnScale(UUID pokemonId, float partialTicks) {
         if (pokemonId == null) return 1.0f;
@@ -32,10 +33,12 @@ public class VirtualPastureVisualizer {
         Minecraft mc = Minecraft.getInstance();
         ClientLevel world = mc.level;
 
+        java.util.Set<UUID> newUuids = ConcurrentHashMap.newKeySet();
         if (pokemonList != null) {
             for (Pokemon pkmn : pokemonList) {
                 if (pkmn == null) continue;
                 UUID id = pkmn.getUuid();
+                newUuids.add(id);
                 Integer lastMode = LAST_MODES.get(id);
 
                 VirtualRenderShaderHelper.setPokemonVisualMode(id, mode);
@@ -58,6 +61,18 @@ public class VirtualPastureVisualizer {
                 } else if (mode == 0) {
                     LAST_MODES.put(id, 0);
                     SPAWN_TICKS.remove(id);
+                }
+            }
+        }
+
+        // Clean up any pokemon that were removed from this virtual pasture
+        java.util.Set<UUID> oldUuids = PASTURE_POKEMON_MAP.put(pos, newUuids);
+        if (oldUuids != null) {
+            for (UUID oldId : oldUuids) {
+                if (!newUuids.contains(oldId)) {
+                    VirtualRenderShaderHelper.removePokemon(oldId);
+                    SPAWN_TICKS.remove(oldId);
+                    LAST_MODES.remove(oldId);
                 }
             }
         }
