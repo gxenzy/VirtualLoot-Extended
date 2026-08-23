@@ -7,7 +7,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.network.chat.Component;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.level.levelgen.Heightmap;
@@ -18,6 +19,7 @@ import java.util.*;
 public class VirtualPastureVisualizer {
 
     public static class VisualPokemonHolder {
+        public static final int MAX_SPAWN_TICKS = 20;
         public final UUID pokemonId;
         public final PokemonEntity entity;
         public double targetX;
@@ -25,6 +27,7 @@ public class VirtualPastureVisualizer {
         public int roamCooldown = 0;
         public int mode;
         public int slotIndex;
+        public int spawnTicks = MAX_SPAWN_TICKS;
 
         public VisualPokemonHolder(UUID pokemonId, PokemonEntity entity, int mode, int slotIndex) {
             this.pokemonId = pokemonId;
@@ -36,6 +39,20 @@ public class VirtualPastureVisualizer {
 
     private static final Map<BlockPos, List<VisualPokemonHolder>> ACTIVE_PASTURE_VISUALS = new HashMap<>();
     private static final java.util.concurrent.atomic.AtomicInteger ENTITY_COUNTER = new java.util.concurrent.atomic.AtomicInteger(500000);
+
+    public static float getSpawnScale(UUID pokemonId, float partialTicks) {
+        for (List<VisualPokemonHolder> holders : ACTIVE_PASTURE_VISUALS.values()) {
+            for (VisualPokemonHolder h : holders) {
+                if (h.pokemonId.equals(pokemonId)) {
+                    if (h.spawnTicks <= 0) return 1.0f;
+                    float progress = 1.0f - ((h.spawnTicks - partialTicks) / (float) VisualPokemonHolder.MAX_SPAWN_TICKS);
+                    progress = Math.max(0.01f, Math.min(1.0f, progress));
+                    return (float) Math.sin(progress * Math.PI * 0.5);
+                }
+            }
+        }
+        return 1.0f;
+    }
 
     public static void handleServerSync(BlockPos pos, int mode, List<Pokemon> pokemonList) {
         Minecraft mc = Minecraft.getInstance();
@@ -81,45 +98,14 @@ public class VirtualPastureVisualizer {
             if (existing == null) {
                 // Non-physical virtual entity that cannot push or collide with players
                 PokemonEntity visualEntity = new PokemonEntity(world, pkmn, CobblemonEntities.POKEMON) {
-                    @Override
-                    public boolean isPushable() {
-                        return false;
-                    }
-
-                    @Override
-                    public boolean canCollideWith(Entity other) {
-                        return false;
-                    }
-
-                    @Override
-                    public boolean canBeCollidedWith() {
-                        return false;
-                    }
-
-                    @Override
-                    public void push(Entity entity) {
-                        // Virtual hologram/visual has zero physical push on player
-                    }
-
-                    @Override
-                    protected void doPush(Entity entity) {
-                        // Virtual hologram/visual has zero physical push on player
-                    }
-
-                    @Override
-                    protected void pushEntities() {
-                        // Virtual hologram/visual has zero physical push on player
-                    }
-
-                    @Override
-                    public boolean isPickable() {
-                        return false;
-                    }
-
-                    @Override
-                    public boolean isAttackable() {
-                        return false;
-                    }
+                    @Override public boolean isPushable() { return false; }
+                    @Override public boolean canCollideWith(Entity other) { return false; }
+                    @Override public boolean canBeCollidedWith() { return false; }
+                    @Override public void push(Entity entity) {}
+                    @Override protected void doPush(Entity entity) {}
+                    @Override protected void pushEntities() {}
+                    @Override public boolean isPickable() { return false; }
+                    @Override public boolean isAttackable() { return false; }
                 };
 
                 visualEntity.setPokemon(pkmn);
@@ -159,6 +145,18 @@ public class VirtualPastureVisualizer {
 
                 visualEntity.addTag("virtualloot_visual_mode_" + mode);
                 world.addEntity(visualEntity);
+
+                // Play teleport spawn sound & particle burst
+                try {
+                    world.playLocalSound(spawnX, spawnY, spawnZ, SoundEvents.CHORUS_FRUIT_TELEPORT, SoundSource.BLOCKS, 0.6f, 1.4f, false);
+                } catch (Throwable ignored) {}
+
+                for (int p = 0; p < 16; p++) {
+                    double pAngle = (2.0 * Math.PI / 16) * p;
+                    double px = spawnX + Math.cos(pAngle) * 0.6;
+                    double pz = spawnZ + Math.sin(pAngle) * 0.6;
+                    world.addParticle(ParticleTypes.REVERSE_PORTAL, px, spawnY + 0.1, pz, Math.cos(pAngle) * 0.05, 0.12, Math.sin(pAngle) * 0.05);
+                }
 
                 VisualPokemonHolder newHolder = new VisualPokemonHolder(id, visualEntity, mode, i);
                 newHolder.targetX = spawnX;
@@ -218,6 +216,24 @@ public class VirtualPastureVisualizer {
         double ex = entity.getX();
         double ey = entity.getY() + entity.getBbHeight() * 0.5;
         double ez = entity.getZ();
+
+        // Teleportation materialization particles
+        if (holder.spawnTicks > 0) {
+            holder.spawnTicks--;
+            double pAngle = rand.nextDouble() * Math.PI * 2.0;
+            double pDist = 0.3 + rand.nextDouble() * 0.4;
+            double px = ex + Math.cos(pAngle) * pDist;
+            double pz = ez + Math.sin(pAngle) * pDist;
+            double py = entity.getY() + rand.nextDouble() * Math.max(0.6, entity.getBbHeight());
+
+            if (mode == 1) {
+                world.addParticle(ParticleTypes.END_ROD, px, py, pz, 0, 0.05, 0);
+            } else if (mode == 2) {
+                world.addParticle(ParticleTypes.REVERSE_PORTAL, px, py, pz, 0, 0.08, 0);
+            } else if (mode == 3) {
+                world.addParticle(ParticleTypes.PORTAL, px, py, pz, (rand.nextDouble() - 0.5) * 0.2, 0.1, (rand.nextDouble() - 0.5) * 0.2);
+            }
+        }
 
         // ONLY Ghost (mode 3) has subtle spirit particles
         if (mode == 3) {

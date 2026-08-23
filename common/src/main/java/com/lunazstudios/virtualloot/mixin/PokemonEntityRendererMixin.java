@@ -1,6 +1,7 @@
 package com.lunazstudios.virtualloot.mixin;
 
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity;
+import com.lunazstudios.virtualloot.client.visual.VirtualPastureVisualizer;
 import com.lunazstudios.virtualloot.client.visual.VirtualRenderShaderHelper;
 import com.lunazstudios.virtualloot.client.visual.VirtualShaderBufferWrapper;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -33,6 +34,12 @@ public abstract class PokemonEntityRendererMixin<T extends LivingEntity, M exten
             if (mode == 3) {
                 double hover = 0.35D + 0.12D * Math.sin((entity.tickCount + partialTicks) * 0.09D);
                 poseStack.translate(0.0D, hover, 0.0D);
+            }
+
+            // Smooth teleport spawn materialization scale
+            float spawnScale = VirtualPastureVisualizer.getSpawnScale(pkmn.getUuid(), partialTicks);
+            if (spawnScale < 0.999f) {
+                poseStack.scale(spawnScale, spawnScale, spawnScale);
             }
         }
     }
