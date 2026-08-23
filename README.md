@@ -19,7 +19,7 @@ In standard Cobblemon pastures, placing multiple Pokémon in pasture blocks caus
 **Virtual Loot: Extended** overhauls the Pasture Block into an automated **Virtual Base Automation & 3D Projection System**:
 
 * **Zero Server Entity Ticking**: Pokémon exist virtually inside the pasture block entity. They work, harvest, mine, forage, breed, and provide party buffs in the background with **0 physical entities spawned** on the server.
-* **Full Multi-Mod Ecosystem**: Seamlessly integrates **Cobblebase 2.0+** (42+ Palworld-style jobs), **Cobbreeding** (virtual egg incubation & Mirror Herb moves), and **Cobbleworkers** (field tasks).
+* **Full Multi-Mod Ecosystem**: Seamlessly integrates **Cobblebase 2.0+** (42+ Palworld-style jobs across all 1,000+ Pokémon species), **Cobbreeding** (virtual egg incubation & Mirror Herb moves), and **Cobbleworkers** (field tasks).
 * **Storage & Automation**: Every generated item, ore, crop, and egg is collected in a built-in **27-slot internal inventory** that can be extracted automatically using **hoppers underneath**.
 * **Client-Side 3D Projections**: View tethered Pokémon in the world using client-rendered **Cyber Wireframe**, **Sci-Fi Hologram**, or **Ethereal Ghost** visual modes with **zero server performance cost**.
 
@@ -52,7 +52,7 @@ In standard Cobblemon pastures, placing multiple Pokémon in pasture blocks caus
     <td width="50%" valign="top">
       <h4><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/miracle-seed.png" width="20" height="20" align="center"> Cobblebase 2.0+ Automation</h4>
       <ul>
-        <li><b>42+ Palworld Jobs</b>: Virtual execution of Producer, Finder, Harvester, Mining, and Guard tasks.</li>
+        <li><b>42+ Palworld Jobs</b>: Full coverage for all 1,367+ species across Gens 1–9.</li>
         <li><b>12 Finder Subtypes</b>: Targeted foraging for stones, candies, held items, relics, and more.</li>
         <li><b>Proficiency Scaling</b>: Dynamic cooldowns scaled by 1–5 star ratings.</li>
         <li><b>Team Aura Buffs</b>: Passive speed, strength, resistance, healing, and shiny luck buffs.</li>
@@ -85,55 +85,82 @@ Toggleable directly in the Pasture interface or PC menu:
 
 ---
 
-## <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/miracle-seed.png" width="24" height="24" align="center"> Complete Job Catalog & Pokémon Assignments
+## <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/miracle-seed.png" width="24" height="24" align="center"> 1,000+ Species Database & Job Classification Engine
 
-### 1. Producer Job Map (`cobblebase:producer`)
-Every Pokémon species listed below produces lore materials on configured cooldowns directly into pasture storage:
+Cobblebase automatically maps every single one of the **1,367+ Pokémon species across Generations 1–9** into specialized work archetypes using elemental typings, biology, lore, natural abilities, movepools, and evolutionary stage.
 
-| Category | Example Pokémon (with Sprites) | Produced Item Output |
+If a Pokémon is tethered without an explicit job assigned, the system evaluates `SpeciesSkillRegistry` and automatically executes their **highest-proficiency skill**.
+
+```
+                           [1,367+ Pokémon Species Database]
+                                          │
+            ┌─────────────────────────────┼─────────────────────────────┐
+            ▼                             ▼                             ▼
+   [Direct Producers]            [12 Finder Subtypes]        [Gathering & Field Tasks]
+   • Wool/Silk/Cotton            • Alchemist (Evo Items)     • Harvester (Crops/Mints)
+   • Dairy Milk & Eggs           • Pharmacist (Medicine)     • Mining (Ores & Gems)
+   • Honey & Comb                • Excavator (Deep Ores)     • Fishing (Marine Loot)
+   • Gold/Iron Nuggets           • Botanist (Seeds/Apricorn) • Archeologist (Fossils)
+   • Gems & Crystals             • Collector (Poké Balls)    • Guard (Base Defense)
+   • Fruit & Charcoal            • Scholar (Exp Candies)     • Healer (Party HP Restore)
+   • Slime & Magma               • Smith (Upgrade Templates) • Mentor (Passive Pasture Exp)
+```
+
+---
+
+### 1. Direct Lore Producer Matrix (`cobblebase:producer`)
+Direct producers generate authentic materials based on species biology:
+
+| Production Category | Species Archetypes & Eligible Pokémon Examples | Generated Items |
 | :--- | :--- | :--- |
-| **Wool & Textiles** | <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/831.png" width="28" height="28" align="center"> **Wooloo**, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/832.png" width="28" height="28" align="center"> **Dubwool**, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/179.png" width="28" height="28" align="center"> **Mareep**, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/180.png" width="28" height="28" align="center"> **Flaaffy** | `minecraft:white_wool` (x1–x2) |
-| **String & Silk** | <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/546.png" width="28" height="28" align="center"> **Cottonee**, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/547.png" width="28" height="28" align="center"> **Whimsicott**, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/167.png" width="28" height="28" align="center"> **Spinarak**, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/595.png" width="28" height="28" align="center"> **Joltik**, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/872.png" width="28" height="28" align="center"> **Snom** | `minecraft:string` (x1–x3) |
-| **Dairy Milk** | <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/241.png" width="28" height="28" align="center"> **Miltank**, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/673.png" width="28" height="28" align="center"> **Gogoat**, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/672.png" width="28" height="28" align="center"> **Skiddo** | `cobblemon:moomoo_milk` (x1–x2) |
-| **Poultry Eggs** | <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/113.png" width="28" height="28" align="center"> **Chansey**, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/242.png" width="28" height="28" align="center"> **Blissey**, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/440.png" width="28" height="28" align="center"> **Happiny**, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/255.png" width="28" height="28" align="center"> **Torchic** | `minecraft:egg` (x1–x2) |
-| **Honey & Comb** | <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/415.png" width="28" height="28" align="center"> **Combee**, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/416.png" width="28" height="28" align="center"> **Vespiquen**, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/743.png" width="28" height="28" align="center"> **Ribombee** | `minecraft:honeycomb` & `honey_bottle` |
-| **Precious Metals** | <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/52.png" width="28" height="28" align="center"> **Meowth**, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/53.png" width="28" height="28" align="center"> **Persian**, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1000.png" width="28" height="28" align="center"> **Gholdengo**, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/863.png" width="28" height="28" align="center"> **Perrserker** | `minecraft:gold_nugget` & `iron_nugget` |
-| **Gems & Crystals** | <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/703.png" width="28" height="28" align="center"> **Carbink**, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/719.png" width="28" height="28" align="center"> **Diancie**, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/302.png" width="28" height="28" align="center"> **Sableye** | `minecraft:diamond` & `amethyst_shard` |
-| **Orchard Fruits** | <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/357.png" width="28" height="28" align="center"> **Tropius**, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/840.png" width="28" height="28" align="center"> **Applin**, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/761.png" width="28" height="28" align="center"> **Bounsweet**, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/420.png" width="28" height="28" align="center"> **Cherubi** | `minecraft:apple` & `sweet_berries` |
-| **Slime & Magma** | <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/704.png" width="28" height="28" align="center"> **Goomy**, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/706.png" width="28" height="28" align="center"> **Goodra**, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/218.png" width="28" height="28" align="center"> **Slugma**, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/219.png" width="28" height="28" align="center"> **Magcargo** | `minecraft:slime_ball` & `magma_cream` |
-| **Fuel & Juice** | <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/324.png" width="28" height="28" align="center"> **Torkoal**, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/839.png" width="28" height="28" align="center"> **Coalossal**, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/213.png" width="28" height="28" align="center"> **Shuckle** | `minecraft:charcoal` & `berry_juice` |
+| **Wool, Cotton & Fiber** | **All Ovine & Fluffy Species**: Wooloo, Dubwool, Mareep, Flaaffy, Ampharos, Cottonee, Whimsicott, Eldegoss, Altaria, Swablu | `minecraft:white_wool` (x1–x2) |
+| **Silk & Webs** | **All Arachnid & Lepidopteran Species**: Spinarak, Ariados, Joltik, Galvantula, Sewaddle, Swadloon, Leavanny, Snom, Frosmoth, Tarountula, Spidops, Dewpider, Araquanid, Wurmple line, Caterpie line, Weedle line | `minecraft:string` (x1–x3) |
+| **Dairy Milk** | **All Bovine & Caprine Species**: Miltank, Skiddo, Gogoat, Tauros, Bouffalant | `cobblemon:moomoo_milk` (x1–x2) |
+| **Poultry & Eggs** | **All Avian, Reptilian & Oviparous Species**: Chansey, Blissey, Happiny, Exeggcute, Torchic, Combusken, Blaziken, Fletchling, Talonflame, Pidgey line, Spearow line, Rowlet line, Wattrel line, Kilowattrel | `minecraft:egg` (x1–x2) |
+| **Honey & Comb** | **All Apian & Nectar Collectors**: Combee, Vespiquen, Cutiefly, Ribombee, Beedrill | `minecraft:honeycomb` & `honey_bottle` |
+| **Precious Nuggets** | **All Feline, Thief & Coin Bearers**: Meowth, Persian, Alolan Meowth, Galarian Meowth, Perrserker, Gimmighoul, Gholdengo | `minecraft:gold_nugget` & `iron_nugget` |
+| **Gems & Crystals** | **All Geode, Jewel & Crystalline Species**: Carbink, Diancie, Sableye, Roggenrola, Boldore, Gigalith, Nacli, Naclstack, Garganacl | `minecraft:diamond` & `amethyst_shard` |
+| **Orchard Fruits** | **All Arboreal & Fruit-Bearing Species**: Tropius, Applin, Flapple, Appletun, Dipplin, Hydrapple, Bounsweet, Steenee, Tsareena, Cherubi, Cherrim, Smoliv, Dolliv, Arboliva | `minecraft:apple` & `sweet_berries` |
+| **Slime & Viscosity** | **All Amorphous & Gastropod Species**: Goomy, Sliggoo, Goodra, Hisuian Goodra, Gulpin, Swalot, Grimer, Muk, Alolan Muk, Shellos, Gastrodon | `minecraft:slime_ball` & `magma_cream` |
+| **Fuel & Volcanics** | **All Thermal, Furnace & Magma Species**: Torkoal, Rolycoly, Carkol, Coalossal, Slugma, Magcargo, Magby, Magmar, Magmortar, Camerupt, Numel | `minecraft:charcoal` & `blaze_powder` |
+| **Ocean Pearls** | **All Bivalve, Clam & Mollusk Species**: Shellder, Cloyster, Clamperl, Huntail, Gorebyss, Binacle, Barbaracle, Dwebble, Crustle | `minecraft:pearl` & `prismarine_shard` |
+| **Fermented Nectar** | **All Berry-Juice & Beverage Hosts**: Shuckle, Polteageist, Sinistea, Poltchageist, Sinistcha | `cobblemon:berry_juice` (x1) |
 
 ---
 
-### 2. 12 Specialized Finder Subtypes (`cobblebase:finder_*`)
-Finders forage for specialized loot tables based on their skill focus:
+### 2. The 12 Specialized Finder Subtypes (`cobblebase:finder_*`)
+Finder jobs allow hundreds of Pokémon to forage for specialized loot tables:
 
-| Finder Subtype | Role | Example Pokémon (with Sprites) | Focus Loot Category |
-| :--- | :--- | :--- | :--- |
-| **Alchemist** (`finder_evo`) | Evolution Materials | <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/65.png" width="28" height="28" align="center"> **Alakazam**, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/429.png" width="28" height="28" align="center"> **Mismagius** | Fire/Water/Thunder Stones, Linking Cords, Patches |
-| **Pharmacist** (`finder_hea`) | Medical Supplies | <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/531.png" width="28" height="28" align="center"> **Audino**, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/683.png" width="28" height="28" align="center"> **Aromatisse** | Max Potions, Full Restores, Revives, Sacred Ash |
-| **Architect** (`finder_bui`) | Construction | <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/137.png" width="28" height="28" align="center"> **Porygon**, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/557.png" width="28" height="28" align="center"> **Dwebble** | Prismarine, Sea Lanterns, Crying Obsidian, Quartz |
-| **Excavator** (`finder_ore`) | Minerals | <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/444.png" width="28" height="28" align="center"> **Gabite**, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/529.png" width="28" height="28" align="center"> **Drilbur** | Raw Ores, Diamonds, Emeralds, Ancient Debris |
-| **Botanist** (`finder_see`) | Agriculture | <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/407.png" width="28" height="28" align="center"> **Roserade**, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/182.png" width="28" height="28" align="center"> **Bellossom** | Apricorn Seeds, Mint Seeds, Fertilizers, Mulch |
-| **Collector** (`finder_bal`) | Poké Balls | <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/820.png" width="28" height="28" align="center"> **Greedent**, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/263.png" width="28" height="28" align="center"> **Zigzagoon** | Ultra Balls, Apricorn Balls, Cherish Balls, Master Balls |
-| **Scholar** (`finder_exp`) | Training | <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/199.png" width="28" height="28" align="center"> **Slowking**, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/826.png" width="28" height="28" align="center"> **Orbeetle** | Exp Candies XS–XL, Rare Candies |
-| **Chef / Forager** (`finder_food`) | Food Supplies | <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/685.png" width="28" height="28" align="center"> **Slurpuff**, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/869.png" width="28" height="28" align="center"> **Alcremie** | Ponigiri, Lava Cookies, Rare Berries, Golden Apples |
-| **Trainer** (`finder_stat`) | EV Vitamins | <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/68.png" width="28" height="28" align="center"> **Machamp**, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/297.png" width="28" height="28" align="center"> **Hariyama** | HP Up, Protein, Iron, Carbos, Calcium, Zinc |
-| **Armorer** (`finder_held`) | Battle Gear | <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/448.png" width="28" height="28" align="center"> **Lucario**, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/625.png" width="28" height="28" align="center"> **Bisharp** | Choice Items, Life Orb, Focus Sash, Leftovers |
-| **Prospector** (`finder_treasure`) | Valuables | <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1000.png" width="28" height="28" align="center"> **Gholdengo**, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/302.png" width="28" height="28" align="center"> **Sableye** | Relic Coins, Gold Ingots, Netherite Scrap |
-| **Smith** (`finder_smith`) | Upgrades | <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/959.png" width="28" height="28" align="center"> **Tinkaton**, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/601.png" width="28" height="28" align="center"> **Klinklang** | Armor Trims, Netherite Upgrade Templates |
+| Finder Subtype | Eligible Species Archetypes (All Generations) | Primary Target Loot |
+| :--- | :--- | :--- |
+| **Alchemist** (`finder_evo`) | **Psychic, Fairy & Mystical**: Alakazam, Mismagius, Delphox, Gardevoir, Hatterene, Reuniclus, Sigilyph, Chimecho, Xatu, Gothitelle, Slowking, Claydol, Beheeyem | Evolution Stones, Linking Cords, Ability Patches, King's Rocks |
+| **Pharmacist** (`finder_hea`) | **Healers & Empaths**: Audino, Chansey, Blissey, Aromatisse, Meganium, Florges, Togekiss, Alomomola, Indeedee, Comfey, Eldegoss, Swanna | Max Potions, Full Restores, Revives, Sacred Ash, Full Heals |
+| **Architect** (`finder_bui`) | **Synthetic, Builder & Matrix**: Porygon, Porygon2, Porygon-Z, Dwebble, Crustle, Conkeldurr, Timburr, Gurdurr, Bronzong, Magneton, Magnezone, Rotom | Prismarine, Sea Lanterns, Crying Obsidian, Quartz, Smooth Stone |
+| **Excavator** (`finder_ore`) | **Ground, Steel & Burrowers**: Drilbur, Excadrill, Gabite, Garchomp, Diglett, Dugtrio, Sandshrew, Sandslash, Onix, Steelix, Donphan, Great Tusk, Ting-Lu, Hippowdon | Raw Iron/Copper/Gold, Diamonds, Emeralds, Ancient Debris |
+| **Botanist** (`finder_see`) | **Grass, Flora & Forest**: Roserade, Bellossom, Vileplume, Tsareena, Sceptile, Venusaur, Lilligant, Leafeon, Decidueye, Meowscarada, Shaymin, Celebi, Trevenant | Apricorn Seeds, Mint Seeds, Fertilizers, Organic Mulch |
+| **Collector** (`finder_bal`) | **Foragers & Rodents (Pickup Ability)**: Zigzagoon, Linoone, Greedent, Skwovet, Pachirisu, Emolga, Dedenne, Morpeko, Pawmi, Pawmot, Ambipom, Aipom, Cinccino | Ultra Balls, Apricorn Balls, Cherish Balls, Master Balls |
+| **Scholar** (`finder_exp`) | **Intellectuals & Ancient Sages**: Slowking, Orbeetle, Uxie, Mesprit, Azelf, Mewtwo, Metagross, Noctowl, Hypno, Oranguru, Rabsca | Exp Candies XS–XL, Rare Candies |
+| **Chef / Forager** (`finder_food`) | **Culinary, Sweet & Gluttonous**: Slurpuff, Alcremie, Dachsbun, Fidough, Smeargle, Mr. Mime, Mime Jr., Morpeko, Snorlax, Munchlax, Cramorant | Ponigiri, Lava Cookies, Rare Berries, Golden Apples |
+| **Trainer** (`finder_stat`) | **Martial Artists & Athletes**: Machop line, Hariyama, Makuhita, Hitmonlee, Hitmonchan, Hitmontop, Throh, Sawk, Crabrawler, Passimian, Annihilape, Urshifu | HP Up, Protein, Iron, Carbos, Calcium, Zinc |
+| **Armorer** (`finder_held`) | **Knights, Blade & Shield Bearers**: Lucario, Bisharp, Kingambit, Ceruledge, Armarouge, Gallade, Honedge line, Sirfetch'd, Corviknight, Escavalier, Skarmory | Choice Items, Life Orb, Focus Sash, Leftovers, Assault Vest |
+| **Prospector** (`finder_treasure`) | **Gold, Gem & Relic Hoarders**: Gholdengo, Gimmighoul, Sableye, Murkrow, Honchkrow, Thievul, Nickit, Weavile, Sneasel, Perrserker, Runerigus, Cofagrigus | Relic Coins, Gold Ingots, Netherite Scrap, Emeralds |
+| **Smith** (`finder_smith`) | **Hammer, Forge & Metalworkers**: Tinkatink, Tinkatuff, Tinkaton, Klinklang, Heatran, Carkol, Forretress, Orthworm, Revavroom, Melmetal | Armor Trims, Netherite Upgrade Templates, Tool Upgrades |
 
 ---
 
-### 3. Gathering, Harvesting, Mining & Combat Support
-* **Harvester (`cobblebase:harvester`)**: Gathers vanilla crops, apricorns, berries, and mints. (*Venusaur, Scizor, Celebi, Meganium, Torterra*).
-* **Mining (`cobblebase:mining`)**: Digs for regional ores (Coal, Iron, Copper, Gold, Redstone, Amethyst) scaled by proficiency. (*Excadrill, Steelix, Roggenrola, Ting-Lu, Aggron*).
-* **Fishing (`cobblebase:fishing`)**: Catches fish, treasures, and aquatic loot directly into pasture storage. (*Gyarados, Blastoise, Kyogre, Kingdra, Wishiwashi*).
-* **Archeologist (`cobblebase:archeologist`)**: Excavates ancient relics, fossils, and pottery sherds. (*Nidoking, Nidoqueen, Claydol, Sigilyph*).
-* **Healer (`cobblebase:healer`)**: Passively heals party Pokémon and revives fainted team members. (*Blissey, Chansey, Audino, Xerneas*).
-* **Mentor (`cobblebase:mentor`)**: Grants passive XP over time to all Pokémon in the pasture. (*Mewtwo, Alakazam, Latios, Mesprit*).
-* **Guard (`cobblebase:guard`)**: Patrols base borders and repels wild aggressive spawns for XP and loot. (*Gallade, Incineroar, Scizor, Lucario*).
-* **Team Aura Buffs**: Speed II (*Ninjask, Regieleki*), Strength I (*Machamp, Kartana*), Resistance I (*Regirock, Steelix*), Lucky Charm (*Arceus, Jirachi, Mew, Victini*).
+### 3. Gathering, Harvesting, Mining & Team Aura Buffs
+* **Harvester (`cobblebase:harvester`)**: 250+ Grass & Bug species gather crops, apricorns, berries, and mints. (*Venusaur, Scizor, Celebi, Meganium, Torterra, Serperior, Chesnaught, Rillaboom*).
+* **Mining (`cobblebase:mining`)**: 200+ Rock, Ground & Steel species dig for regional ores scaled by proficiency. (*Excadrill, Steelix, Roggenrola, Ting-Lu, Aggron, Tyranitar, Gigalith*).
+* **Fishing (`cobblebase:fishing`)**: 180+ Water species catch fish, treasures, and marine loot. (*Gyarados, Blastoise, Kyogre, Kingdra, Wishiwashi, Dondozo, Wailord*).
+* **Archeologist (`cobblebase:archeologist`)**: 120+ Fossil & Ancient species excavate relics, fossils, and sherds. (*Nidoking, Nidoqueen, Claydol, Sigilyph, Aerodactyl, Tyrantrum, Bastiodon*).
+* **Healer (`cobblebase:healer`)**: Passively restores party HP and revives fainted members. (*Blissey, Chansey, Audino, Xerneas, Togekiss, Alomomola*).
+* **Mentor (`cobblebase:mentor`)**: Channels continuous passive XP to all pastured Pokémon. (*Mewtwo, Alakazam, Latios, Mesprit, Uxie, Calyrex*).
+* **Guard (`cobblebase:guard`)**: Patrols base perimeters and repels aggressive wild spawns. (*Gallade, Incineroar, Scizor, Lucario, Urshifu, Zacian, Zamazenta*).
+* **Global Team Auras**:
+  * **Speed II**: Electric & Agile species (*Ninjask, Regieleki, Jolteon, Deoxys-Speed, Electrode*).
+  * **Strength I**: Apex Physical Attackers (*Machamp, Kartana, Rayquaza, Haxorus, Slaking*).
+  * **Resistance I**: Fortress Defense species (*Regirock, Steelix, Bastiodon, Shuckle, Ting-Lu*).
+  * **Shiny Charm Luck (1.4x–3.0x)**: Divine & Mythical species (*Arceus, Jirachi, Mew, Celebi, Victini*).
 
 ---
 
