@@ -23,17 +23,30 @@ public final class SyncVirtualPastureVisualPacket implements NetworkPacket<SyncV
 
     private final BlockPos pos;
     private final int mode;
+    private final List<Integer> entityIds;
     private final List<Pokemon> pokemonList;
 
-    public SyncVirtualPastureVisualPacket(BlockPos pos, int mode, List<Pokemon> pokemonList) {
+    public SyncVirtualPastureVisualPacket(BlockPos pos, int mode, List<Integer> entityIds, List<Pokemon> pokemonList) {
         this.pos = pos;
         this.mode = mode;
+        this.entityIds = entityIds != null ? entityIds : new ArrayList<>();
         this.pokemonList = pokemonList != null ? pokemonList : new ArrayList<>();
+    }
+
+    public SyncVirtualPastureVisualPacket(BlockPos pos, int mode, List<Pokemon> pokemonList) {
+        this(pos, mode, new ArrayList<>(), pokemonList);
     }
 
     public SyncVirtualPastureVisualPacket(RegistryFriendlyByteBuf buffer) {
         this.pos = buffer.readBlockPos();
         this.mode = buffer.readVarInt();
+        
+        int entitySize = buffer.readVarInt();
+        this.entityIds = new ArrayList<>(entitySize);
+        for (int i = 0; i < entitySize; i++) {
+            this.entityIds.add(buffer.readVarInt());
+        }
+
         int size = buffer.readVarInt();
         this.pokemonList = new ArrayList<>(size);
         for (int i = 0; i < size; i++) {
@@ -50,6 +63,10 @@ public final class SyncVirtualPastureVisualPacket implements NetworkPacket<SyncV
 
     public int mode() {
         return mode;
+    }
+
+    public List<Integer> entityIds() {
+        return entityIds;
     }
 
     public List<Pokemon> pokemonList() {
@@ -70,6 +87,12 @@ public final class SyncVirtualPastureVisualPacket implements NetworkPacket<SyncV
     public void encode(RegistryFriendlyByteBuf buffer) {
         buffer.writeBlockPos(pos);
         buffer.writeVarInt(mode);
+        
+        buffer.writeVarInt(entityIds.size());
+        for (int id : entityIds) {
+            buffer.writeVarInt(id);
+        }
+
         buffer.writeVarInt(pokemonList.size());
         for (Pokemon pkmn : pokemonList) {
             Pokemon.Companion.getS2C_CODEC().encode(buffer, pkmn);

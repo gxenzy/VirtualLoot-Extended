@@ -1,6 +1,7 @@
 package com.lunazstudios.virtualloot.client.visual;
 
 import com.cobblemon.mod.common.pokemon.Pokemon;
+import com.lunazstudios.virtualloot.registry.VirtualLootBlocks;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
@@ -10,6 +11,7 @@ import net.minecraft.sounds.SoundSource;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -18,7 +20,20 @@ public class VirtualPastureVisualizer {
     public static final int MAX_SPAWN_TICKS = 30; // 1.5s materialization duration
     private static final Map<UUID, Integer> SPAWN_TICKS = new ConcurrentHashMap<>();
     private static final Map<UUID, Integer> LAST_MODES = new ConcurrentHashMap<>();
-    private static final Map<BlockPos, java.util.Set<UUID>> PASTURE_POKEMON_MAP = new ConcurrentHashMap<>();
+
+    private static final class PastureVisualRecord {
+        final BlockPos pos;
+        final int mode;
+        final Set<Integer> entityIds = ConcurrentHashMap.newKeySet();
+        final Set<UUID> pokemonUuids = ConcurrentHashMap.newKeySet();
+
+        PastureVisualRecord(BlockPos pos, int mode) {
+            this.pos = pos;
+            this.mode = mode;
+        }
+    }
+
+    private static final Map<BlockPos, PastureVisualRecord> ACTIVE_PASTURES = new ConcurrentHashMap<>();
 
     public static float getSpawnScale(UUID pokemonId, float partialTicks) {
         if (pokemonId == null) return 1.0f;
@@ -29,19 +44,21 @@ public class VirtualPastureVisualizer {
         return (float) Math.sin(progress * Math.PI * 0.5);
     }
 
-    public static void handleServerSync(BlockPos pos, int mode, List<Pokemon> pokemonList) {
+    public static void handleServerSync(BlockPos pos, int mode, List<Integer> entityIds, List<Pokemon> pokemonList) {
         Minecraft mc = Minecraft.getInstance();
         ClientLevel world = mc.level;
 
-        java.util.Set<UUID> newUuids = ConcurrentHashMap.newKeySet();
+        PastureVisualRecord record = new PastureVisualRecord(pos, mode);
+        if (entityIds != null) {
+            record.entityIds.addAll(entityIds);
+        }
+
         if (pokemonList != null) {
             for (Pokemon pkmn : pokemonList) {
                 if (pkmn == null) continue;
                 UUID id = pkmn.getUuid();
-                newUuids.add(id);
+                record.pokemonUuids.add(id);
                 Integer lastMode = LAST_MODES.get(id);
-
-                VirtualRenderShaderHelper.setPokemonVisualMode(id, mode);
 
                 if (mode > 0 && (lastMode == null || lastMode != mode)) {
                     SPAWN_TICKS.put(id, MAX_SPAWN_TICKS);
@@ -65,23 +82,29 @@ public class VirtualPastureVisualizer {
             }
         }
 
-        // Clean up any pokemon that were removed from this virtual pasture
-        java.util.Set<UUID> oldUuids = PASTURE_POKEMON_MAP.put(pos, newUuids);
-        if (oldUuids != null) {
-            for (UUID oldId : oldUuids) {
-                if (!newUuids.contains(oldId)) {
-                    VirtualRenderShaderHelper.removePokemon(oldId);
-                    SPAWN_TICKS.remove(oldId);
-                    LAST_MODES.remove(oldId);
-                }
-            }
-        }
+        ACTIVE_PASTURES.put(pos, record);
+        syncVisualHelper();
     }
 
     public static void clientTick() {
         Minecraft mc = Minecraft.getInstance();
         ClientLevel world = mc.level;
         if (world == null) return;
+
+        boolean changed = false;
+        // Verify all pastures are actually still VirtualPastureBlocks in the world
+        for (BlockPos pos : ACTIVE_PASTURES.keySet()) {
+            if (world.hasChunkAt(pos)) {
+                if (!VirtualLootBlocks.isVirtualPastureBlock(world.getBlockState(pos).getBlock())) {
+                    ACTIVE_PASTURES.remove(pos);
+                    changed = true;
+                }
+            }
+        }
+
+        if (changed) {
+            syncVisualHelper();
+        }
 
         for (Map.Entry<UUID, Integer> entry : SPAWN_TICKS.entrySet()) {
             UUID id = entry.getKey();
@@ -92,6 +115,22 @@ public class VirtualPastureVisualizer {
                 SPAWN_TICKS.remove(id);
             }
         }
+    }
+
+    private static void syncVisualHelper() {
+        Map<UUID, Integer> pokemonModes = new ConcurrentHashMap<>();
+        Map<Integer, Integer> entityModes = new ConcurrentHashMap<>();
+
+        for (PastureVisualRecord record : ACTIVE_PASTURES.values()) {
+            for (UUID uuid : record.pokemonUuids) {
+                pokemonModes.put(uuid, record.mode);
+            }
+            for (int entityId : record.entityIds) {
+                entityModes.put(entityId, record.mode);
+            }
+        }
+
+        VirtualRenderShaderHelper.updateActiveVisuals(pokemonModes, entityModes);
     }
 
     private static void spawnTeleportBeamPillar(ClientLevel world, double x, double y, double z, float height, int mode) {
@@ -118,6 +157,7 @@ public class VirtualPastureVisualizer {
     }
 
     public static void clearAll() {
+        ACTIVE_PASTURES.clear();
         VirtualRenderShaderHelper.clear();
         SPAWN_TICKS.clear();
         LAST_MODES.clear();

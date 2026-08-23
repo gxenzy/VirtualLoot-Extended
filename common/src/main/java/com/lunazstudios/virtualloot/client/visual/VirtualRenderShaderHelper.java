@@ -16,7 +16,13 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class VirtualRenderShaderHelper {
 
-    private static final Map<UUID, Integer> POKEMON_VISUAL_MODES = new ConcurrentHashMap<>();
+    private static volatile Map<UUID, Integer> POKEMON_VISUAL_MODES = new ConcurrentHashMap<>();
+    private static volatile Map<Integer, Integer> ENTITY_VISUAL_MODES = new ConcurrentHashMap<>();
+
+    public static void updateActiveVisuals(Map<UUID, Integer> pokemonModes, Map<Integer, Integer> entityModes) {
+        POKEMON_VISUAL_MODES = new ConcurrentHashMap<>(pokemonModes);
+        ENTITY_VISUAL_MODES = new ConcurrentHashMap<>(entityModes);
+    }
 
     public static void setPokemonVisualMode(UUID pokemonId, int mode) {
         if (pokemonId == null) return;
@@ -30,26 +36,17 @@ public class VirtualRenderShaderHelper {
 
     public static void clear() {
         POKEMON_VISUAL_MODES.clear();
+        ENTITY_VISUAL_MODES.clear();
     }
 
     public static boolean isVirtualPasturePokemon(LivingEntity entity) {
         if (entity instanceof PokemonEntity pkmn) {
-            // 1. Direct pasture block inspection (if valid non-zero block pos)
-            PokemonPastureBlockEntity.Tethering tethering = pkmn.getTethering();
-            if (tethering != null) {
-                BlockPos pasturePos = tethering.getPasturePos();
-                if (pasturePos != null && !pasturePos.equals(BlockPos.ZERO) && pkmn.level() != null) {
-                    BlockState state = pkmn.level().getBlockState(pasturePos);
-                    if (VirtualLootBlocks.isVirtualPastureBlock(state.getBlock())) {
-                        return true;
-                    }
-                    if (state.getBlock() instanceof com.cobblemon.mod.common.block.PastureBlock) {
-                        return false;
-                    }
-                }
+            // 1. Runtime Entity ID mapping
+            if (ENTITY_VISUAL_MODES.containsKey(entity.getId())) {
+                return true;
             }
 
-            // 2. Synced packet cache (primary on client)
+            // 2. Pokemon Data UUID mapping
             if (pkmn.getPokemon() != null && POKEMON_VISUAL_MODES.containsKey(pkmn.getPokemon().getUuid())) {
                 return true;
             }
@@ -67,25 +64,14 @@ public class VirtualRenderShaderHelper {
 
     public static int getVisualMode(LivingEntity entity) {
         if (entity instanceof PokemonEntity pkmn) {
-            // 1. Direct pasture block inspection (if valid non-zero block pos)
-            PokemonPastureBlockEntity.Tethering tethering = pkmn.getTethering();
-            if (tethering != null) {
-                BlockPos pasturePos = tethering.getPasturePos();
-                if (pasturePos != null && !pasturePos.equals(BlockPos.ZERO) && pkmn.level() != null) {
-                    BlockState state = pkmn.level().getBlockState(pasturePos);
-                    if (VirtualLootBlocks.isVirtualPastureBlock(state.getBlock())) {
-                        return VirtualPastureBlock.getVisualMode(state);
-                    }
-                    if (state.getBlock() instanceof com.cobblemon.mod.common.block.PastureBlock) {
-                        return 0;
-                    }
-                }
-            }
+            // 1. Runtime Entity ID mapping
+            Integer entityMode = ENTITY_VISUAL_MODES.get(entity.getId());
+            if (entityMode != null) return entityMode;
 
-            // 2. Synced packet cache (primary on client)
+            // 2. Pokemon Data UUID mapping
             if (pkmn.getPokemon() != null) {
-                Integer mode = POKEMON_VISUAL_MODES.get(pkmn.getPokemon().getUuid());
-                if (mode != null) return mode;
+                Integer pokemonMode = POKEMON_VISUAL_MODES.get(pkmn.getPokemon().getUuid());
+                if (pokemonMode != null) return pokemonMode;
             }
 
             // 3. Entity tags

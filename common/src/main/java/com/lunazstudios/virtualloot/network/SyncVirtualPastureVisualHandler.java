@@ -13,7 +13,7 @@ public final class SyncVirtualPastureVisualHandler implements ClientNetworkPacke
     @Override
     public void handle(SyncVirtualPastureVisualPacket packet, Minecraft client) {
         client.execute(() -> {
-            VirtualPastureVisualizer.handleServerSync(packet.pos(), packet.mode(), packet.pokemonList());
+            VirtualPastureVisualizer.handleServerSync(packet.pos(), packet.mode(), packet.entityIds(), packet.pokemonList());
         });
     }
 }
