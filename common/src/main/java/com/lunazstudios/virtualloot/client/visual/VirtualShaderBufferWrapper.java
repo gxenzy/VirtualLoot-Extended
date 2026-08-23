@@ -27,10 +27,10 @@ public class VirtualShaderBufferWrapper implements MultiBufferSource {
             VertexConsumer original = delegate.getBuffer(targetType);
             return new FastWireframeVertexConsumer(original);
         } else if (mode == 2) {
-            // Mode 2: AUTHENTIC ENERGY HOLOGRAM (Monochromatic electric cyan projection with scanlines)
+            // Mode 2: AUTHENTIC SCI-FI HOLOGRAM (Based on SVC Holograms Star Wars formula)
             RenderType targetType = (texture != null) ? RenderType.itemEntityTranslucentCull(texture) : renderType;
             VertexConsumer original = delegate.getBuffer(targetType);
-            return new AuthenticHologramVertexConsumer(original, time);
+            return new SVCHologramVertexConsumer(original, time);
         } else if (mode == 3) {
             // Mode 3: NATIVE MINECRAFT SPECTATOR GHOST (See-Through Spectator Translucency)
             RenderType targetType = (texture != null) ? RenderType.itemEntityTranslucentCull(texture) : renderType;
@@ -97,16 +97,17 @@ public class VirtualShaderBufferWrapper implements MultiBufferSource {
     }
 
     /**
-     * Mode 2: Authentic Energy Hologram.
-     * Renders a monochromatic electric cyan luminous projection with horizontal laser scanlines.
-     * Discards all diffuse textures so the entire entity (Charizard, Blastoise, Venusaur) glows evenly as projected light.
+     * Mode 2: Authentic Sci-Fi Hologram (SVC Holograms / Star Wars Pipeline).
+     * Color Matrix: R * 0.06, G * 0.45, B * 0.95.
+     * Alpha Scanline Modulation: (0.75 + 0.25 * sin(y * freq - time * speed)) * 128.
+     * Lighting: Fullbright unshaded emissive lighting.
      */
-    private static class AuthenticHologramVertexConsumer implements VertexConsumer {
+    private static class SVCHologramVertexConsumer implements VertexConsumer {
         private final VertexConsumer parent;
         private final long time;
         private float lastY = 0f;
 
-        public AuthenticHologramVertexConsumer(VertexConsumer parent, long time) {
+        public SVCHologramVertexConsumer(VertexConsumer parent, long time) {
             this.parent = parent;
             this.time = time;
         }
@@ -120,23 +121,32 @@ public class VirtualShaderBufferWrapper implements MultiBufferSource {
 
         @Override
         public VertexConsumer setColor(int red, int green, int blue, int alpha) {
+            // SVC Hologram color grading
+            int newR = (int) (red * 0.06f);
+            int newG = (int) (green * 0.45f);
+            int newB = (int) (blue * 0.95f);
+
             // Horizontal laser scanline frequency
-            float scanline = (float) (Math.sin((lastY * 22.0) - (time * 0.009)) * 0.35 + 0.65);
-            int a = Math.max(50, Math.min(230, (int) (140 * scanline)));
-            // Pure monochromatic electric cyan energy
-            parent.setColor(0, 240, 255, a);
+            float scanline = (float) (Math.sin((lastY * 20.0) - (time * 0.008)) * 0.25 + 0.75);
+            int newA = Math.min(128, (int) (125 * scanline));
+
+            parent.setColor(newR, newG, newB, newA);
             return this;
         }
 
         @Override
         public VertexConsumer setColor(int color) {
-            return setColor(0, 240, 255, 255);
+            int a = (color >> 24) & 255;
+            int r = (color >> 16) & 255;
+            int g = (color >> 8) & 255;
+            int b = color & 255;
+            return setColor(r, g, b, a);
         }
 
         @Override public VertexConsumer setUv(float u, float v) { parent.setUv(u, v); return this; }
         @Override public VertexConsumer setUv1(int u, int v) { parent.setUv1(u, v); return this; }
         @Override public VertexConsumer setUv2(int u, int v) { parent.setUv2(0x00F0, 0x00F0); return this; }
-        @Override public VertexConsumer setNormal(float x, float y, float z) { parent.setNormal(x, y, z); return this; }
+        @Override public VertexConsumer setNormal(float x, float y, float z) { parent.setNormal(0f, 1f, 0f); return this; }
         @Override public VertexConsumer setOverlay(int overlay) { parent.setOverlay(overlay); return this; }
         @Override public VertexConsumer setLight(int light) { parent.setLight(0x00F000F0); return this; }
     }
