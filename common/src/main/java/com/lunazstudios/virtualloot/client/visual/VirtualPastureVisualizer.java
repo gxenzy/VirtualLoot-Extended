@@ -9,7 +9,12 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.MoverType;
+import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.*;
@@ -21,11 +26,13 @@ public class VirtualPastureVisualizer {
         public final UUID pokemonId;
         public final PokemonEntity entity;
         public double targetX;
+        public double targetY;
         public double targetZ;
         public int roamCooldown = 0;
         public int mode;
         public int slotIndex;
         public int spawnTicks = MAX_SPAWN_TICKS;
+        public boolean isIdle = false;
 
         public VisualPokemonHolder(UUID pokemonId, PokemonEntity entity, int mode, int slotIndex) {
             this.pokemonId = pokemonId;
@@ -53,6 +60,53 @@ public class VirtualPastureVisualizer {
         return 1.0f;
     }
 
+    public static List<Vec3> scanPastureRoom(ClientLevel world, BlockPos pasturePos) {
+        List<Vec3> validSpots = new ArrayList<>();
+        int maxRadius = 7;
+
+        for (int dx = -maxRadius; dx <= maxRadius; dx++) {
+            for (int dz = -maxRadius; dz <= maxRadius; dz++) {
+                if (Math.abs(dx) <= 1 && Math.abs(dz) <= 1) continue;
+
+                for (int dy = 2; dy >= -3; dy--) {
+                    BlockPos floorPos = pasturePos.offset(dx, dy, dz);
+                    BlockPos feetPos = floorPos.above();
+                    BlockPos headPos = feetPos.above();
+
+                    BlockState floorState = world.getBlockState(floorPos);
+                    BlockState feetState = world.getBlockState(feetPos);
+                    BlockState headState = world.getBlockState(headPos);
+
+                    if (!floorState.isAir() && !floorState.getCollisionShape(world, floorPos).isEmpty()
+                            && feetState.getCollisionShape(world, feetPos).isEmpty()
+                            && headState.getCollisionShape(world, headPos).isEmpty()) {
+
+                        if (hasLineOfSight(world, pasturePos, feetPos)) {
+                            validSpots.add(new Vec3(floorPos.getX() + 0.5, floorPos.getY() + 1.0, floorPos.getZ() + 0.5));
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+        if (validSpots.isEmpty()) {
+            validSpots.add(new Vec3(pasturePos.getX() + 0.5, pasturePos.getY() + 1.0, pasturePos.getZ() + 0.5));
+        }
+        return validSpots;
+    }
+
+    private static boolean hasLineOfSight(ClientLevel world, BlockPos start, BlockPos end) {
+        Vec3 from = new Vec3(start.getX() + 0.5, start.getY() + 1.2, start.getZ() + 0.5);
+        Vec3 to = new Vec3(end.getX() + 0.5, end.getY() + 0.5, end.getZ() + 0.5);
+        ClipContext ctx = new ClipContext(from, to, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, null);
+        BlockHitResult hit = world.clip(ctx);
+        if (hit.getType() == HitResult.Type.MISS) {
+            return true;
+        }
+        BlockPos hitPos = hit.getBlockPos();
+        return hitPos.equals(start) || hitPos.equals(end) || hitPos.equals(end.below());
+    }
+
     public static void handleServerSync(BlockPos pos, int mode, List<Pokemon> pokemonList) {
         Minecraft mc = Minecraft.getInstance();
         ClientLevel world = mc.level;
@@ -69,6 +123,7 @@ public class VirtualPastureVisualizer {
             return;
         }
 
+        List<Vec3> roomSpots = scanPastureRoom(world, pos);
         Set<UUID> syncedUuids = new HashSet<>();
         int total = pokemonList.size();
 
@@ -84,15 +139,12 @@ public class VirtualPastureVisualizer {
                 .findFirst()
                 .orElse(null);
 
-            // Compact non-overlapping radial distribution around pasture
-            double angle = (2.0 * Math.PI / Math.max(1, total)) * i;
-            double dist = 1.5 + (i % 3) * 0.8;
-            double spawnX = pos.getX() + 0.5 + Math.cos(angle) * dist;
-            double spawnZ = pos.getZ() + 0.5 + Math.sin(angle) * dist;
-
-            // Indoor-aware local floor scan relative to pasture Y
-            double groundY = findLocalFloorY(world, spawnX, spawnZ, pos.getY());
-            double spawnY = (mode == 3) ? (groundY + 0.5) : groundY;
+            // Assign distinct distributed floor spot across the pasture room
+            int spotIdx = (i * 3 + (i % 2)) % roomSpots.size();
+            Vec3 spawnSpot = roomSpots.get(spotIdx);
+            double spawnX = spawnSpot.x;
+            double spawnY = (mode == 3) ? (spawnSpot.y + 0.5) : spawnSpot.y;
+            double spawnZ = spawnSpot.z;
 
             if (existing == null) {
                 PokemonEntity visualEntity = new PokemonEntity(world, pkmn, CobblemonEntities.POKEMON);
@@ -123,7 +175,7 @@ public class VirtualPastureVisualizer {
                 visualEntity.yOld = spawnY;
                 visualEntity.zOld = spawnZ;
 
-                float yaw = (float) (angle * (180.0 / Math.PI)) + 90f;
+                float yaw = (float) (Math.random() * 360.0);
                 visualEntity.setYRot(yaw);
                 visualEntity.yHeadRot = yaw;
                 visualEntity.yBodyRot = yaw;
@@ -144,6 +196,7 @@ public class VirtualPastureVisualizer {
 
                 VisualPokemonHolder newHolder = new VisualPokemonHolder(id, visualEntity, mode, i);
                 newHolder.targetX = spawnX;
+                newHolder.targetY = spawnY;
                 newHolder.targetZ = spawnZ;
                 newHolder.spawnTicks = VisualPokemonHolder.MAX_SPAWN_TICKS;
                 currentHolders.add(newHolder);
@@ -184,7 +237,6 @@ public class VirtualPastureVisualizer {
 
     private static void spawnTeleportBeamPillar(ClientLevel world, double x, double y, double z, float height, int mode) {
         float h = Math.max(1.5f, height + 0.8f);
-        // Vertical beam column
         for (double dy = 0; dy <= h; dy += 0.25) {
             for (int r = 0; r < 6; r++) {
                 double rad = (2.0 * Math.PI / 6.0) * r + (dy * 1.2);
@@ -216,13 +268,14 @@ public class VirtualPastureVisualizer {
 
         for (Map.Entry<BlockPos, List<VisualPokemonHolder>> entry : ACTIVE_PASTURE_VISUALS.entrySet()) {
             BlockPos pasturePos = entry.getKey();
-            for (VisualPokemonHolder holder : entry.getValue()) {
-                tickVisualEntity(holder, pasturePos, world);
+            List<VisualPokemonHolder> holders = entry.getValue();
+            for (VisualPokemonHolder holder : holders) {
+                tickVisualEntity(holder, pasturePos, world, holders);
             }
         }
     }
 
-    private static void tickVisualEntity(VisualPokemonHolder holder, BlockPos pasturePos, ClientLevel world) {
+    private static void tickVisualEntity(VisualPokemonHolder holder, BlockPos pasturePos, ClientLevel world, List<VisualPokemonHolder> allHolders) {
         PokemonEntity entity = holder.entity;
         if (entity.isRemoved()) return;
 
@@ -260,21 +313,20 @@ public class VirtualPastureVisualizer {
             }
         }
 
-        // Roaming targets strictly pinned around compact radius inside the pasture area
+        // Natural pasture roaming: pick a new valid open floor spot every 140-280 ticks
         if (holder.roamCooldown-- <= 0) {
-            holder.roamCooldown = 120 + rand.nextInt(100);
-
-            double baseAngle = (2.0 * Math.PI / 6.0) * holder.slotIndex;
-            double angleVar = (rand.nextDouble() - 0.5) * 0.8;
-            double angle = baseAngle + angleVar;
-            double dist = 1.2 + rand.nextDouble() * 1.8;
-            holder.targetX = pasturePos.getX() + 0.5 + Math.cos(angle) * dist;
-            holder.targetZ = pasturePos.getZ() + 0.5 + Math.sin(angle) * dist;
+            holder.roamCooldown = 140 + rand.nextInt(140);
+            holder.isIdle = rand.nextFloat() < 0.40f; // 40% chance to pause/idle naturally
+            if (!holder.isIdle) {
+                List<Vec3> roomSpots = scanPastureRoom(world, pasturePos);
+                if (!roomSpots.isEmpty()) {
+                    Vec3 newSpot = roomSpots.get(rand.nextInt(roomSpots.size()));
+                    holder.targetX = newSpot.x;
+                    holder.targetY = newSpot.y;
+                    holder.targetZ = newSpot.z;
+                }
+            }
         }
-
-        double dx = holder.targetX - entity.getX();
-        double dz = holder.targetZ - entity.getZ();
-        double distSq = dx * dx + dz * dz;
 
         entity.xo = entity.getX();
         entity.yo = entity.getY();
@@ -283,25 +335,51 @@ public class VirtualPastureVisualizer {
         entity.yHeadRotO = entity.yHeadRot;
         entity.yBodyRotO = entity.yBodyRot;
 
-        if (distSq > 0.3) {
-            double angle = Math.atan2(dz, dx);
-            float targetYaw = (float) (angle * (180 / Math.PI)) - 90f;
-            entity.setYRot(targetYaw);
-            entity.yHeadRot = targetYaw;
-            entity.yBodyRot = targetYaw;
+        if (!holder.isIdle) {
+            double dx = holder.targetX - entity.getX();
+            double dz = holder.targetZ - entity.getZ();
+            double distSq = dx * dx + dz * dz;
 
-            double speed = (mode == 3) ? 0.025 : 0.035;
-            double vx = Math.cos(angle) * speed;
-            double vz = Math.sin(angle) * speed;
-            entity.move(MoverType.SELF, new Vec3(vx, 0.0, vz));
+            if (distSq > 0.4) {
+                double angle = Math.atan2(dz, dx);
+                float targetYaw = (float) (angle * (180 / Math.PI)) - 90f;
+                float currentYaw = entity.getYRot();
+                float yawDiff = Mth.wrapDegrees(targetYaw - currentYaw);
+                float newYaw = currentYaw + yawDiff * 0.15f;
+
+                entity.setYRot(newYaw);
+                entity.yHeadRot = newYaw;
+                entity.yBodyRot = newYaw;
+
+                double speed = (mode == 3) ? 0.018 : 0.024;
+                double vx = Math.cos(angle) * speed;
+                double vz = Math.sin(angle) * speed;
+                entity.move(MoverType.SELF, new Vec3(vx, 0.0, vz));
+            } else {
+                holder.isIdle = true;
+            }
         }
 
-        // Indoor-aware floor scan: guarantees Pokemon stays on the indoor floor around pasture Y
+        // Soft entity repulsion so multiple Pokemon (especially large ones like Archaludon) do NOT stack
+        for (VisualPokemonHolder other : allHolders) {
+            if (other == holder || other.entity.isRemoved()) continue;
+            double sepDx = entity.getX() - other.entity.getX();
+            double sepDz = entity.getZ() - other.entity.getZ();
+            double sepDistSq = sepDx * sepDx + sepDz * sepDz;
+            double minSep = Math.max(2.2, (entity.getBbWidth() + other.entity.getBbWidth()) * 0.7);
+            if (sepDistSq < minSep * minSep && sepDistSq > 0.0001) {
+                double sepDist = Math.sqrt(sepDistSq);
+                double push = (minSep - sepDist) * 0.035;
+                entity.setPos(entity.getX() + (sepDx / sepDist) * push, entity.getY(), entity.getZ() + (sepDz / sepDist) * push);
+            }
+        }
+
+        // Floor locking: guarantees Pokemon stays on the indoor floor around pasture Y
         double groundY = findLocalFloorY(world, entity.getX(), entity.getZ(), pasturePos.getY());
 
         if (mode == 3) {
             // Mode 3 (Ghost): Floating bob above ground
-            double hoverY = groundY + 0.5 + 0.15 * Math.sin(entity.tickCount * 0.08);
+            double hoverY = groundY + 0.5 + 0.12 * Math.sin(entity.tickCount * 0.08);
             entity.setPos(entity.getX(), hoverY, entity.getZ());
         } else {
             // Mode 1 (Wireframe) and Mode 2 (Hologram): Feet placed directly on top ground block
@@ -313,14 +391,13 @@ public class VirtualPastureVisualizer {
         int bx = (int) Math.floor(x);
         int bz = (int) Math.floor(z);
 
-        // Scan downwards from pastureY + 2 to pastureY - 4 to find the solid floor block inside the room
         BlockPos.MutableBlockPos mpos = new BlockPos.MutableBlockPos(bx, pastureY + 2, bz);
         for (int y = pastureY + 2; y >= pastureY - 4; y--) {
             mpos.setY(y);
-            net.minecraft.world.level.block.state.BlockState state = world.getBlockState(mpos);
+            BlockState state = world.getBlockState(mpos);
             if (!state.isAir() && !state.getCollisionShape(world, mpos).isEmpty()) {
                 BlockPos above = mpos.above();
-                net.minecraft.world.level.block.state.BlockState aboveState = world.getBlockState(above);
+                BlockState aboveState = world.getBlockState(above);
                 if (aboveState.getCollisionShape(world, above).isEmpty()) {
                     return y + 1.0;
                 }
