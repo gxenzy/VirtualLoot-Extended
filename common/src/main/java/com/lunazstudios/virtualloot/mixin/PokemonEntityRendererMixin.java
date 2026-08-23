@@ -65,7 +65,7 @@ public abstract class PokemonEntityRendererMixin<T extends LivingEntity, M exten
 
     @ModifyVariable(method = "render(Lnet/minecraft/world/entity/LivingEntity;FFLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V", at = @At("HEAD"), argsOnly = true)
     private MultiBufferSource virtualloot$wrapBuffer(MultiBufferSource buffer, T entity) {
-        if (entity instanceof PokemonEntity pkmn) {
+        if (entity instanceof PokemonEntity pkmn && VirtualRenderShaderHelper.isVirtualPasturePokemon(pkmn)) {
             int mode = VirtualRenderShaderHelper.getVisualMode(pkmn);
             if (mode > 0) {
                 ResourceLocation texture = getTextureLocation(entity);

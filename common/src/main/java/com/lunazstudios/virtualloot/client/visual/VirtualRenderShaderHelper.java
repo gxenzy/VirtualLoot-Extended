@@ -40,10 +40,9 @@ public class VirtualRenderShaderHelper {
                     if (VirtualLootBlocks.isVirtualPastureBlock(state.getBlock())) {
                         return true;
                     }
+                    // Normal Cobblemon pasture or non-virtual block -> strictly NOT a virtual pasture pokemon
+                    return false;
                 }
-            }
-            if (pkmn.getPokemon() != null && VIRTUAL_PASTURE_POKEMON.contains(pkmn.getPokemon().getUuid())) {
-                return true;
             }
             if (entity.getTags().contains("virtualloot_virtual_pasture")
                     || entity.getTags().contains("virtualloot_visual_mode_1")
@@ -57,7 +56,7 @@ public class VirtualRenderShaderHelper {
 
     public static int getVisualMode(LivingEntity entity) {
         if (entity instanceof PokemonEntity pkmn) {
-            // 1. Direct pasture block inspection
+            // 1. Direct pasture block inspection (absolute source of truth)
             PokemonPastureBlockEntity.Tethering tethering = pkmn.getTethering();
             if (tethering != null) {
                 BlockPos pasturePos = tethering.getPasturePos();
@@ -66,19 +65,21 @@ public class VirtualRenderShaderHelper {
                     if (VirtualLootBlocks.isVirtualPastureBlock(state.getBlock())) {
                         return VirtualPastureBlock.getVisualMode(state);
                     }
+                    // Normal Cobblemon pasture -> always render standard physical texture (0)
+                    return 0;
                 }
             }
 
-            // 2. Synced packet cache
-            if (pkmn.getPokemon() != null) {
-                Integer mode = POKEMON_VISUAL_MODES.get(pkmn.getPokemon().getUuid());
-                if (mode != null) return mode;
-            }
-
-            // 3. Entity tags
+            // 2. Entity tags
             if (entity.getTags().contains("virtualloot_visual_mode_1")) return 1;
             if (entity.getTags().contains("virtualloot_visual_mode_2")) return 2;
             if (entity.getTags().contains("virtualloot_visual_mode_3")) return 3;
+
+            // 3. Synced packet cache (only if verified virtual pasture)
+            if (isVirtualPasturePokemon(entity) && pkmn.getPokemon() != null) {
+                Integer mode = POKEMON_VISUAL_MODES.get(pkmn.getPokemon().getUuid());
+                if (mode != null) return mode;
+            }
         }
         return 0;
     }
