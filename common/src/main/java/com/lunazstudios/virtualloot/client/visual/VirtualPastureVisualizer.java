@@ -10,7 +10,6 @@ import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.MoverType;
-import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.*;
@@ -85,15 +84,15 @@ public class VirtualPastureVisualizer {
                 .findFirst()
                 .orElse(null);
 
-            // Wide non-overlapping radial distribution around pasture
+            // Compact non-overlapping radial distribution around pasture
             double angle = (2.0 * Math.PI / Math.max(1, total)) * i;
-            double dist = 4.0 + (i % 2) * 1.5;
+            double dist = 1.5 + (i % 3) * 0.8;
             double spawnX = pos.getX() + 0.5 + Math.cos(angle) * dist;
             double spawnZ = pos.getZ() + 0.5 + Math.sin(angle) * dist;
 
-            // Heightmap motion blocking gives exact top solid block Y
-            int groundY = world.getHeight(Heightmap.Types.MOTION_BLOCKING, (int) Math.floor(spawnX), (int) Math.floor(spawnZ));
-            double spawnY = (mode == 3) ? (groundY + 0.75) : groundY;
+            // Indoor-aware local floor scan relative to pasture Y
+            double groundY = findLocalFloorY(world, spawnX, spawnZ, pos.getY());
+            double spawnY = (mode == 3) ? (groundY + 0.5) : groundY;
 
             if (existing == null) {
                 PokemonEntity visualEntity = new PokemonEntity(world, pkmn, CobblemonEntities.POKEMON);
@@ -261,14 +260,14 @@ public class VirtualPastureVisualizer {
             }
         }
 
-        // Roaming targets strictly pinned around distinct slot angles
+        // Roaming targets strictly pinned around compact radius inside the pasture area
         if (holder.roamCooldown-- <= 0) {
             holder.roamCooldown = 120 + rand.nextInt(100);
 
             double baseAngle = (2.0 * Math.PI / 6.0) * holder.slotIndex;
-            double angleVar = (rand.nextDouble() - 0.5) * 0.9;
+            double angleVar = (rand.nextDouble() - 0.5) * 0.8;
             double angle = baseAngle + angleVar;
-            double dist = 3.0 + rand.nextDouble() * 3.5;
+            double dist = 1.2 + rand.nextDouble() * 1.8;
             holder.targetX = pasturePos.getX() + 0.5 + Math.cos(angle) * dist;
             holder.targetZ = pasturePos.getZ() + 0.5 + Math.sin(angle) * dist;
         }
@@ -297,16 +296,37 @@ public class VirtualPastureVisualizer {
             entity.move(MoverType.SELF, new Vec3(vx, 0.0, vz));
         }
 
-        int groundY = world.getHeight(Heightmap.Types.MOTION_BLOCKING, (int) Math.floor(entity.getX()), (int) Math.floor(entity.getZ()));
+        // Indoor-aware floor scan: guarantees Pokemon stays on the indoor floor around pasture Y
+        double groundY = findLocalFloorY(world, entity.getX(), entity.getZ(), pasturePos.getY());
 
         if (mode == 3) {
             // Mode 3 (Ghost): Floating bob above ground
-            double hoverY = groundY + 0.75 + 0.15 * Math.sin(entity.tickCount * 0.08);
+            double hoverY = groundY + 0.5 + 0.15 * Math.sin(entity.tickCount * 0.08);
             entity.setPos(entity.getX(), hoverY, entity.getZ());
         } else {
             // Mode 1 (Wireframe) and Mode 2 (Hologram): Feet placed directly on top ground block
-            entity.setPos(entity.getX(), (double) groundY, entity.getZ());
+            entity.setPos(entity.getX(), groundY, entity.getZ());
         }
+    }
+
+    public static double findLocalFloorY(ClientLevel world, double x, double z, int pastureY) {
+        int bx = (int) Math.floor(x);
+        int bz = (int) Math.floor(z);
+
+        // Scan downwards from pastureY + 2 to pastureY - 4 to find the solid floor block inside the room
+        BlockPos.MutableBlockPos mpos = new BlockPos.MutableBlockPos(bx, pastureY + 2, bz);
+        for (int y = pastureY + 2; y >= pastureY - 4; y--) {
+            mpos.setY(y);
+            net.minecraft.world.level.block.state.BlockState state = world.getBlockState(mpos);
+            if (!state.isAir() && !state.getCollisionShape(world, mpos).isEmpty()) {
+                BlockPos above = mpos.above();
+                net.minecraft.world.level.block.state.BlockState aboveState = world.getBlockState(above);
+                if (aboveState.getCollisionShape(world, above).isEmpty()) {
+                    return y + 1.0;
+                }
+            }
+        }
+        return pastureY;
     }
 
     public static void clearAll() {
