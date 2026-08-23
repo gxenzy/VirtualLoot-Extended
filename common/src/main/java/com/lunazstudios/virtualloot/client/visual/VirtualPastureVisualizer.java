@@ -44,6 +44,10 @@ public class VirtualPastureVisualizer {
         return (float) Math.sin(progress * Math.PI * 0.5);
     }
 
+    public static void handleServerSync(BlockPos pos, int mode, List<Pokemon> pokemonList) {
+        handleServerSync(pos, mode, new java.util.ArrayList<>(), pokemonList);
+    }
+
     public static void handleServerSync(BlockPos pos, int mode, List<Integer> entityIds, List<Pokemon> pokemonList) {
         Minecraft mc = Minecraft.getInstance();
         ClientLevel world = mc.level;

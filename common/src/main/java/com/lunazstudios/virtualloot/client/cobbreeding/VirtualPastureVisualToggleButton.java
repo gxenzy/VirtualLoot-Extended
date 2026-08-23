@@ -101,7 +101,7 @@ public final class VirtualPastureVisualToggleButton extends AbstractWidget {
             packet.sendToServer();
 
             if (currentMode == 0) {
-                VirtualPastureVisualizer.handleServerSync(bottomPos, 0, Collections.emptyList());
+                VirtualPastureVisualizer.handleServerSync(bottomPos, 0, java.util.Collections.emptyList(), java.util.Collections.emptyList());
             }
         }
     }
