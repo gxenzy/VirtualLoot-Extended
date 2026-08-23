@@ -24,6 +24,8 @@ import com.cobblemon.mod.common.util.PlayerExtensionsKt;
 import com.cobblemon.mod.common.util.VectorShapeExtensionsKt;
 import com.cobblemon.mod.common.pokemon.Pokemon;
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity;
+import com.cobblemon.mod.common.CobblemonEntities;
+import net.minecraft.world.entity.Entity;
 import com.lunazstudios.virtualloot.integration.VirtualPastureInventory;
 import com.lunazstudios.virtualloot.integration.VirtualLootCompat;
 import com.lunazstudios.virtualloot.integration.cobbreeding.CobbreedingCompat;
@@ -265,15 +267,49 @@ public final class VirtualPastureBlock extends BaseEntityBlock implements Simple
         }
 
         int visualMode = getVisualMode(state);
-        if (world instanceof ServerLevel serverLevel && serverLevel.getGameTime() % 20L == 0L) {
-            List<Pokemon> pokemonList = new ArrayList<>();
+        if (world instanceof ServerLevel serverLevel) {
             for (PokemonPastureBlockEntity.Tethering tethering : pasture.getTetheredPokemon()) {
                 Pokemon pokemon = tethering.getPokemon();
-                if (pokemon != null) {
-                    pokemonList.add(pokemon);
+                if (pokemon == null) continue;
+
+                Entity currentEntity = serverLevel.getEntity(tethering.getEntityId());
+                if (visualMode == 0) {
+                    if (currentEntity != null && !currentEntity.isRemoved()) {
+                        currentEntity.discard();
+                        tethering.setEntityId(-1);
+                    }
+                } else {
+                    if (currentEntity == null || currentEntity.isRemoved() || tethering.getEntityId() == -1) {
+                        Direction facing = state.getValue(HorizontalDirectionalBlock.FACING);
+                        Direction directionToBehind = facing.getOpposite();
+                        PokemonEntity entity = new PokemonEntity(serverLevel, pokemon, CobblemonEntities.POKEMON);
+                        entity.setPokemon(pokemon);
+                        entity.setBeamMode(2);
+
+                        double spawnX = pos.getX() + 0.5 + directionToBehind.getStepX() * 1.5;
+                        double spawnY = pos.getY();
+                        double spawnZ = pos.getZ() + 0.5 + directionToBehind.getStepZ() * 1.5;
+                        entity.setPos(spawnX, spawnY, spawnZ);
+
+                        if (serverLevel.addFreshEntity(entity)) {
+                            tethering.setEntityId(entity.getId());
+                            entity.setTethering(tethering);
+                            pasture.setChanged();
+                        }
+                    }
                 }
             }
-            new SyncVirtualPastureVisualPacket(pos, visualMode, pokemonList).sendToPlayersAround(serverLevel, pos, 48.0);
+
+            if (serverLevel.getGameTime() % 20L == 0L) {
+                List<Pokemon> pokemonList = new ArrayList<>();
+                for (PokemonPastureBlockEntity.Tethering tethering : pasture.getTetheredPokemon()) {
+                    Pokemon pokemon = tethering.getPokemon();
+                    if (pokemon != null) {
+                        pokemonList.add(pokemon);
+                    }
+                }
+                new SyncVirtualPastureVisualPacket(pos, visualMode, pokemonList).sendToPlayersAround(serverLevel, pos, 48.0);
+            }
         }
 
         setOnState(world, pos, state, hasLinkedViewer(world, pos));
