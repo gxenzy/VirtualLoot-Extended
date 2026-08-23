@@ -82,7 +82,6 @@ public class VirtualPastureVisualizer {
 
                 visualEntity.setCustomName(Component.literal(pkmn.getDisplayName(false).getString() + " Lv. " + pkmn.getLevel()));
                 visualEntity.setCustomNameVisible(true);
-                visualEntity.setGlowingTag(mode == 1 || mode == 2);
 
                 // Spread Pokémon around pasture radius so they don't stack on each other
                 double baseRadius = 3.5;
@@ -126,7 +125,6 @@ public class VirtualPastureVisualizer {
                 existing.entity.removeTag("virtualloot_visual_mode_2");
                 existing.entity.removeTag("virtualloot_visual_mode_3");
                 existing.entity.addTag("virtualloot_visual_mode_" + mode);
-                existing.entity.setGlowingTag(mode == 1 || mode == 2);
                 existing.entity.noPhysics = (mode == 3);
             }
         }
@@ -169,7 +167,7 @@ public class VirtualPastureVisualizer {
         double ez = entity.getZ();
 
         if (mode == 1) {
-            // Mode 1: WIREFRAME / CYBER (Green matrix spark particles)
+            // Mode 1: WIREFRAME (Green matrix spark particles)
             if (rand.nextFloat() < 0.4f) {
                 world.addParticle(ParticleTypes.HAPPY_VILLAGER, ex + (rand.nextDouble() - 0.5) * 0.8, ey + (rand.nextDouble() - 0.5) * 0.8, ez + (rand.nextDouble() - 0.5) * 0.8, 0, 0.05, 0);
             }
@@ -179,7 +177,6 @@ public class VirtualPastureVisualizer {
                 world.addParticle(ParticleTypes.ELECTRIC_SPARK, ex + (rand.nextDouble() - 0.5) * 0.8, ey + (rand.nextDouble() - 0.5) * 0.8, ez + (rand.nextDouble() - 0.5) * 0.8, (rand.nextDouble() - 0.5) * 0.05, 0.05, (rand.nextDouble() - 0.5) * 0.05);
             }
             if (rand.nextFloat() < 0.25f) {
-                // Projector beam particles from pasture top block
                 double beamX = pasturePos.getX() + 0.5;
                 double beamY = pasturePos.getY() + 1.2;
                 double beamZ = pasturePos.getZ() + 0.5;
@@ -189,11 +186,8 @@ public class VirtualPastureVisualizer {
                 world.addParticle(ParticleTypes.GLOW, beamX, beamY, beamZ, toX, toY, toZ);
             }
         } else if (mode == 3) {
-            // Mode 3: GHOST (Floating spirit with soul fire flames & purple witch mist)
-            if (rand.nextFloat() < 0.6f) {
-                world.addParticle(ParticleTypes.WITCH, ex + (rand.nextDouble() - 0.5) * 0.8, ey + (rand.nextDouble() - 0.5) * 0.8, ez + (rand.nextDouble() - 0.5) * 0.8, (rand.nextDouble() - 0.5) * 0.02, 0.03, (rand.nextDouble() - 0.5) * 0.02);
-            }
-            if (rand.nextFloat() < 0.3f) {
+            // Mode 3: SPECTATOR GHOST (Floating spirit with subtle soul fire flames)
+            if (rand.nextFloat() < 0.25f) {
                 world.addParticle(ParticleTypes.SOUL_FIRE_FLAME, ex + (rand.nextDouble() - 0.5) * 0.5, ey + (rand.nextDouble() - 0.5) * 0.5, ez + (rand.nextDouble() - 0.5) * 0.5, 0, 0.02, 0);
             }
         }
@@ -212,7 +206,6 @@ public class VirtualPastureVisualizer {
         double dz = holder.targetZ - entity.getZ();
         double distSq = dx * dx + dz * dz;
 
-        // Maintain previous positions for smooth lerping (no visual lag/stutter)
         entity.xo = entity.getX();
         entity.yo = entity.getY();
         entity.zo = entity.getZ();
