@@ -7,7 +7,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.MoverType;
@@ -19,7 +18,7 @@ import java.util.*;
 public class VirtualPastureVisualizer {
 
     public static class VisualPokemonHolder {
-        public static final int MAX_SPAWN_TICKS = 20;
+        public static final int MAX_SPAWN_TICKS = 30; // 1.5s materialization duration
         public final UUID pokemonId;
         public final PokemonEntity entity;
         public double targetX;
@@ -136,23 +135,27 @@ public class VirtualPastureVisualizer {
                 visualEntity.addTag("virtualloot_visual_mode_" + mode);
                 world.addEntity(visualEntity);
 
-                // Play teleport spawn sound & particle burst
+                // Play prominent teleport sound
                 try {
-                    world.playLocalSound(spawnX, spawnY, spawnZ, SoundEvents.CHORUS_FRUIT_TELEPORT, SoundSource.BLOCKS, 0.6f, 1.4f, false);
+                    world.playLocalSound(spawnX, spawnY, spawnZ, SoundEvents.CHORUS_FRUIT_TELEPORT, SoundSource.BLOCKS, 0.8f, 1.3f, false);
                 } catch (Throwable ignored) {}
 
-                for (int p = 0; p < 16; p++) {
-                    double pAngle = (2.0 * Math.PI / 16) * p;
-                    double px = spawnX + Math.cos(pAngle) * 0.6;
-                    double pz = spawnZ + Math.sin(pAngle) * 0.6;
-                    world.addParticle(ParticleTypes.REVERSE_PORTAL, px, spawnY + 0.1, pz, Math.cos(pAngle) * 0.05, 0.12, Math.sin(pAngle) * 0.05);
-                }
+                // Spawn a dense, high-impact initial teleportation beam pillar
+                spawnTeleportBeamPillar(world, spawnX, spawnY, spawnZ, visualEntity.getBbHeight(), mode);
 
                 VisualPokemonHolder newHolder = new VisualPokemonHolder(id, visualEntity, mode, i);
                 newHolder.targetX = spawnX;
                 newHolder.targetZ = spawnZ;
+                newHolder.spawnTicks = VisualPokemonHolder.MAX_SPAWN_TICKS;
                 currentHolders.add(newHolder);
             } else {
+                if (existing.mode != mode) {
+                    existing.spawnTicks = VisualPokemonHolder.MAX_SPAWN_TICKS;
+                    spawnTeleportBeamPillar(world, existing.entity.getX(), existing.entity.getY(), existing.entity.getZ(), existing.entity.getBbHeight(), mode);
+                    try {
+                        world.playLocalSound(existing.entity.getX(), existing.entity.getY(), existing.entity.getZ(), SoundEvents.CHORUS_FRUIT_TELEPORT, SoundSource.BLOCKS, 0.8f, 1.3f, false);
+                    } catch (Throwable ignored) {}
+                }
                 existing.mode = mode;
                 existing.slotIndex = i;
                 existing.entity.setPokemon(pkmn);
@@ -176,6 +179,30 @@ public class VirtualPastureVisualizer {
             if (!syncedUuids.contains(h.pokemonId)) {
                 h.entity.discard();
                 it.remove();
+            }
+        }
+    }
+
+    private static void spawnTeleportBeamPillar(ClientLevel world, double x, double y, double z, float height, int mode) {
+        float h = Math.max(1.5f, height + 0.8f);
+        // Vertical beam column
+        for (double dy = 0; dy <= h; dy += 0.25) {
+            for (int r = 0; r < 6; r++) {
+                double rad = (2.0 * Math.PI / 6.0) * r + (dy * 1.2);
+                double px = x + Math.cos(rad) * 0.55;
+                double pz = z + Math.sin(rad) * 0.55;
+                double py = y + dy;
+
+                if (mode == 1) {
+                    world.addParticle(ParticleTypes.END_ROD, px, py, pz, 0.0, 0.08, 0.0);
+                    world.addParticle(ParticleTypes.ELECTRIC_SPARK, px, py, pz, 0.0, 0.05, 0.0);
+                } else if (mode == 2) {
+                    world.addParticle(ParticleTypes.REVERSE_PORTAL, px, py, pz, 0.0, 0.12, 0.0);
+                    world.addParticle(ParticleTypes.GLOW, px, py, pz, 0.0, 0.04, 0.0);
+                } else if (mode == 3) {
+                    world.addParticle(ParticleTypes.PORTAL, px, py, pz, (Math.random() - 0.5) * 0.2, 0.15, (Math.random() - 0.5) * 0.2);
+                    world.addParticle(ParticleTypes.SOUL_FIRE_FLAME, px, py, pz, 0.0, 0.06, 0.0);
+                }
             }
         }
     }
@@ -207,25 +234,27 @@ public class VirtualPastureVisualizer {
         double ey = entity.getY() + entity.getBbHeight() * 0.5;
         double ez = entity.getZ();
 
-        // Teleportation materialization particles
+        // Dense rising teleport vortex beam while materializing
         if (holder.spawnTicks > 0) {
             holder.spawnTicks--;
-            double pAngle = rand.nextDouble() * Math.PI * 2.0;
-            double pDist = 0.3 + rand.nextDouble() * 0.4;
-            double px = ex + Math.cos(pAngle) * pDist;
-            double pz = ez + Math.sin(pAngle) * pDist;
-            double py = entity.getY() + rand.nextDouble() * Math.max(0.6, entity.getBbHeight());
+            for (int i = 0; i < 6; i++) {
+                double spiralAngle = (holder.spawnTicks * 0.35) + (i * (Math.PI / 3.0));
+                double radius = 0.55 * (holder.spawnTicks / (float) VisualPokemonHolder.MAX_SPAWN_TICKS);
+                double px = ex + Math.cos(spiralAngle) * radius;
+                double pz = ez + Math.sin(spiralAngle) * radius;
+                double py = entity.getY() + (rand.nextDouble() * (entity.getBbHeight() + 0.6));
 
-            if (mode == 1) {
-                world.addParticle(ParticleTypes.END_ROD, px, py, pz, 0, 0.05, 0);
-            } else if (mode == 2) {
-                world.addParticle(ParticleTypes.REVERSE_PORTAL, px, py, pz, 0, 0.08, 0);
-            } else if (mode == 3) {
-                world.addParticle(ParticleTypes.PORTAL, px, py, pz, (rand.nextDouble() - 0.5) * 0.2, 0.1, (rand.nextDouble() - 0.5) * 0.2);
+                if (mode == 1) {
+                    world.addParticle(ParticleTypes.END_ROD, px, py, pz, 0.0, 0.06, 0.0);
+                } else if (mode == 2) {
+                    world.addParticle(ParticleTypes.REVERSE_PORTAL, px, py, pz, 0.0, 0.09, 0.0);
+                } else if (mode == 3) {
+                    world.addParticle(ParticleTypes.PORTAL, px, py, pz, (rand.nextDouble() - 0.5) * 0.2, 0.1, (rand.nextDouble() - 0.5) * 0.2);
+                }
             }
         }
 
-        // ONLY Ghost (mode 3) has subtle spirit particles
+        // ONLY Ghost (mode 3) has subtle continuous spirit particles
         if (mode == 3) {
             if (rand.nextFloat() < 0.15f) {
                 world.addParticle(ParticleTypes.SOUL_FIRE_FLAME, ex + (rand.nextDouble() - 0.5) * 0.5, ey + (rand.nextDouble() - 0.5) * 0.5, ez + (rand.nextDouble() - 0.5) * 0.5, 0, 0.02, 0);
