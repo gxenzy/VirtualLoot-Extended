@@ -70,6 +70,8 @@ public class VirtualPastureVisualizer {
                 visualEntity.setNoAi(false);
                 visualEntity.setInvulnerable(true);
                 visualEntity.setSilent(true);
+                
+                // Only Ghost (mode 3) has noPhysics / floating. Mode 1 and 2 walk normally on the ground.
                 visualEntity.noPhysics = (mode == 3);
                 visualEntity.setOnGround(mode != 3);
 
@@ -89,7 +91,8 @@ public class VirtualPastureVisualizer {
                 double dist = baseRadius + (i % 3) * 1.5;
                 double spawnX = pos.getX() + 0.5 + Math.cos(angle) * dist;
                 double spawnZ = pos.getZ() + 0.5 + Math.sin(angle) * dist;
-                double spawnY = pos.getY() + 1.0 + (mode == 3 ? 0.5 : 0.0);
+                // Mode 1 and 2 spawn directly on the ground. Mode 3 (Ghost) floats slightly above.
+                double spawnY = pos.getY() + 1.0 + (mode == 3 ? 0.6 : 0.0);
 
                 visualEntity.setPos(spawnX, spawnY, spawnZ);
                 visualEntity.xo = spawnX;
@@ -126,6 +129,7 @@ public class VirtualPastureVisualizer {
                 existing.entity.removeTag("virtualloot_visual_mode_3");
                 existing.entity.addTag("virtualloot_visual_mode_" + mode);
                 existing.entity.noPhysics = (mode == 3);
+                existing.entity.setOnGround(mode != 3);
             }
         }
 
@@ -166,28 +170,9 @@ public class VirtualPastureVisualizer {
         double ey = entity.getY() + entity.getBbHeight() * 0.5;
         double ez = entity.getZ();
 
-        if (mode == 1) {
-            // Mode 1: WIREFRAME (Green matrix spark particles)
-            if (rand.nextFloat() < 0.4f) {
-                world.addParticle(ParticleTypes.HAPPY_VILLAGER, ex + (rand.nextDouble() - 0.5) * 0.8, ey + (rand.nextDouble() - 0.5) * 0.8, ez + (rand.nextDouble() - 0.5) * 0.8, 0, 0.05, 0);
-            }
-        } else if (mode == 2) {
-            // Mode 2: HOLOGRAM (Projector beam from PC + Cyan electric sparks)
-            if (rand.nextFloat() < 0.5f) {
-                world.addParticle(ParticleTypes.ELECTRIC_SPARK, ex + (rand.nextDouble() - 0.5) * 0.8, ey + (rand.nextDouble() - 0.5) * 0.8, ez + (rand.nextDouble() - 0.5) * 0.8, (rand.nextDouble() - 0.5) * 0.05, 0.05, (rand.nextDouble() - 0.5) * 0.05);
-            }
-            if (rand.nextFloat() < 0.25f) {
-                double beamX = pasturePos.getX() + 0.5;
-                double beamY = pasturePos.getY() + 1.2;
-                double beamZ = pasturePos.getZ() + 0.5;
-                double toX = (ex - beamX) * 0.08;
-                double toY = (ey - beamY) * 0.08;
-                double toZ = (ez - beamZ) * 0.08;
-                world.addParticle(ParticleTypes.GLOW, beamX, beamY, beamZ, toX, toY, toZ);
-            }
-        } else if (mode == 3) {
-            // Mode 3: SPECTATOR GHOST (Floating spirit with subtle soul fire flames)
-            if (rand.nextFloat() < 0.25f) {
+        // ONLY Ghost (mode 3) has subtle spirit particles
+        if (mode == 3) {
+            if (rand.nextFloat() < 0.2f) {
                 world.addParticle(ParticleTypes.SOUL_FIRE_FLAME, ex + (rand.nextDouble() - 0.5) * 0.5, ey + (rand.nextDouble() - 0.5) * 0.5, ez + (rand.nextDouble() - 0.5) * 0.5, 0, 0.02, 0);
             }
         }
@@ -223,6 +208,7 @@ public class VirtualPastureVisualizer {
             double speed = (mode == 3) ? 0.03 : 0.045;
             double vx = Math.cos(angle) * speed;
             double vz = Math.sin(angle) * speed;
+            // Mode 1 and 2 walk on the ground (vy = 0). Mode 3 (Ghost) floats up and down gently.
             double vy = (mode == 3) ? Math.sin(entity.tickCount * 0.1) * 0.015 : 0.0;
             
             entity.move(MoverType.SELF, new Vec3(vx, vy, vz));

@@ -22,16 +22,16 @@ public class VirtualShaderBufferWrapper implements MultiBufferSource {
     @Override
     public VertexConsumer getBuffer(RenderType renderType) {
         if (mode == 1) {
-            // Mode 1: TRUE CS2 VECTOR WIREFRAME (Outlines on lines buffer, 100% empty interior)
+            // Mode 1: 100% PURE VECTOR WIREFRAME (All layers including flames/emissives redirected to lines)
             VertexConsumer linesConsumer = delegate.getBuffer(RenderType.lines());
             return new WireframeVertexConsumer(linesConsumer);
         } else if (mode == 2) {
-            // Mode 2: ENERGY HOLOGRAM (Emissive Translucent Hologram)
-            RenderType hologramType = (texture != null) ? RenderType.entityTranslucentEmissive(texture) : renderType;
+            // Mode 2: AUTHENTIC ENERGY HOLOGRAM (Luminous electric cyan see-through projection with scanlines)
+            RenderType hologramType = (texture != null) ? RenderType.itemEntityTranslucentCull(texture) : renderType;
             VertexConsumer original = delegate.getBuffer(hologramType);
             return new HologramVertexConsumer(original, time);
         } else if (mode == 3) {
-            // Mode 3: NATIVE MINECRAFT SPECTATOR GHOST (Pure See-Through Spectator Translucency)
+            // Mode 3: NATIVE MINECRAFT SPECTATOR GHOST (See-Through Spectator Translucency)
             RenderType ghostType = (texture != null) ? RenderType.itemEntityTranslucentCull(texture) : renderType;
             VertexConsumer original = delegate.getBuffer(ghostType);
             return new SpectatorGhostVertexConsumer(original);
@@ -39,12 +39,16 @@ public class VirtualShaderBufferWrapper implements MultiBufferSource {
         return delegate.getBuffer(renderType);
     }
 
+    /**
+     * Mode 1: 100% Vector Wireframe.
+     * Draws pure glowing cyan line geometry for all quads, triangles, and animated layers (like flames).
+     */
     private static class WireframeVertexConsumer implements VertexConsumer {
         private final VertexConsumer lines;
         private final float[] x = new float[4];
         private final float[] y = new float[4];
         private final float[] z = new float[4];
-        private int vertexCount = 0;
+        private int count = 0;
 
         public WireframeVertexConsumer(VertexConsumer lines) {
             this.lines = lines;
@@ -52,11 +56,11 @@ public class VirtualShaderBufferWrapper implements MultiBufferSource {
 
         @Override
         public VertexConsumer addVertex(float vx, float vy, float vz) {
-            int idx = vertexCount % 4;
+            int idx = count % 4;
             x[idx] = vx;
             y[idx] = vy;
             z[idx] = vz;
-            vertexCount++;
+            count++;
 
             if (idx == 3) {
                 int r = 0;
@@ -104,6 +108,10 @@ public class VirtualShaderBufferWrapper implements MultiBufferSource {
         @Override public VertexConsumer setLight(int light) { return this; }
     }
 
+    /**
+     * Mode 2: Authentic Energy Hologram.
+     * Renders a luminous, see-through electric cyan silhouette with horizontal scanlines and emissive brightness.
+     */
     private static class HologramVertexConsumer implements VertexConsumer {
         private final VertexConsumer parent;
         private final long time;
@@ -123,22 +131,19 @@ public class VirtualShaderBufferWrapper implements MultiBufferSource {
 
         @Override
         public VertexConsumer setColor(int red, int green, int blue, int alpha) {
-            float scanline = (float) (Math.sin((lastY * 25.0) - (time * 0.007)) * 0.35 + 0.65);
-            int r = Math.min(255, (int) (15 + 30 * scanline));
-            int g = Math.min(255, (int) (180 + 75 * scanline));
+            // Horizontal energy scanline modulation
+            float scanline = (float) (Math.sin((lastY * 20.0) - (time * 0.008)) * 0.25 + 0.75);
+            int r = 0;
+            int g = 230;
             int b = 255;
-            int a = Math.max(60, Math.min(230, (int) (140 + 70 * scanline)));
+            int a = Math.max(50, Math.min(220, (int) (130 * scanline)));
             parent.setColor(r, g, b, a);
             return this;
         }
 
         @Override
         public VertexConsumer setColor(int color) {
-            int a = (color >> 24) & 255;
-            int r = (color >> 16) & 255;
-            int g = (color >> 8) & 255;
-            int b = color & 255;
-            return setColor(r, g, b, a);
+            return setColor(0, 230, 255, 255);
         }
 
         @Override public VertexConsumer setUv(float u, float v) { parent.setUv(u, v); return this; }
@@ -149,6 +154,10 @@ public class VirtualShaderBufferWrapper implements MultiBufferSource {
         @Override public VertexConsumer setLight(int light) { parent.setLight(0x00F000F0); return this; }
     }
 
+    /**
+     * Mode 3: Native Minecraft Spectator Ghost.
+     * Renders exact authentic Pokémon skin with 40% see-through Spectator translucency.
+     */
     private static class SpectatorGhostVertexConsumer implements VertexConsumer {
         private final VertexConsumer parent;
 
@@ -164,7 +173,7 @@ public class VirtualShaderBufferWrapper implements MultiBufferSource {
 
         @Override
         public VertexConsumer setColor(int red, int green, int blue, int alpha) {
-            // Authentic Minecraft Spectator translucency: 40% see-through alpha on original texture
+            // Native Minecraft Spectator alpha: 40% see-through opacity on authentic colors
             parent.setColor(red, green, blue, 105);
             return this;
         }

@@ -29,13 +29,9 @@ public abstract class PokemonEntityRendererMixin<T extends LivingEntity, M exten
     private void virtualloot$applyVisualTransformations(T entity, float entityYaw, float partialTicks, PoseStack poseStack, MultiBufferSource buffer, int packedLight, CallbackInfo ci) {
         if (entity instanceof PokemonEntity pkmn) {
             int mode = VirtualRenderShaderHelper.getVisualMode(pkmn);
-            if (mode == 2) {
-                // Hologram subtle jitter/flicker
-                double glitch = (Math.sin((entity.tickCount + partialTicks) * 0.4D) > 0.95D) ? 0.015D : 0.0D;
-                poseStack.translate(glitch, 0.0D, 0.0D);
-            } else if (mode == 3) {
-                // Ghost levitation floating
-                double hover = 0.45D + 0.15D * Math.sin((entity.tickCount + partialTicks) * 0.09D);
+            // ONLY Ghost (mode 3) levitates in the air. Wireframe and Hologram stand normally on the ground.
+            if (mode == 3) {
+                double hover = 0.35D + 0.12D * Math.sin((entity.tickCount + partialTicks) * 0.09D);
                 poseStack.translate(0.0D, hover, 0.0D);
             }
         }
