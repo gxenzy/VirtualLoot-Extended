@@ -273,29 +273,13 @@ public final class VirtualPastureBlock extends BaseEntityBlock implements Simple
                 if (pokemon == null) continue;
 
                 Entity currentEntity = serverLevel.getEntity(tethering.getEntityId());
-                if (visualMode == 0) {
-                    if (currentEntity != null && !currentEntity.isRemoved()) {
-                        currentEntity.discard();
-                        tethering.setEntityId(-1);
-                    }
-                } else {
-                    if (currentEntity == null || currentEntity.isRemoved() || tethering.getEntityId() == -1) {
-                        Direction facing = state.getValue(HorizontalDirectionalBlock.FACING);
-                        Direction directionToBehind = facing.getOpposite();
-                        PokemonEntity entity = new PokemonEntity(serverLevel, pokemon, CobblemonEntities.POKEMON);
-                        entity.setPokemon(pokemon);
-                        entity.setBeamMode(2);
-
-                        double spawnX = pos.getX() + 0.5 + directionToBehind.getStepX() * 1.5;
-                        double spawnY = pos.getY();
-                        double spawnZ = pos.getZ() + 0.5 + directionToBehind.getStepZ() * 1.5;
-                        entity.setPos(spawnX, spawnY, spawnZ);
-
-                        if (serverLevel.addFreshEntity(entity)) {
-                            tethering.setEntityId(entity.getId());
-                            entity.setTethering(tethering);
-                            pasture.setChanged();
-                        }
+                if (currentEntity instanceof PokemonEntity pkmnEntity) {
+                    if (visualMode == 0) {
+                        pkmnEntity.setInvisible(true);
+                        pkmnEntity.setSilent(true);
+                    } else {
+                        pkmnEntity.setInvisible(false);
+                        pkmnEntity.setSilent(false);
                     }
                 }
             }

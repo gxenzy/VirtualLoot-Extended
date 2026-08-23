@@ -36,6 +36,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          fetch-tags: true
 
       - name: Set up JDK 21
         uses: actions/setup-java@v4
@@ -93,12 +94,6 @@ jobs:
           echo "VERSION_TYPE=$VER_TYPE" >> $GITHUB_ENV
           echo "VERSION_SUBTITLE=$SUBTITLE" >> $GITHUB_ENV
           echo "RELEASE_TAG=$TAG" >> $GITHUB_ENV
-          
-          # Extract commit changelog
-          echo "CHANGELOG<<EOF" >> $GITHUB_ENV
-          git log -n 8 --pretty=format:"* %s (%h by @%an)" >> $GITHUB_ENV
-          echo "" >> $GITHUB_ENV
-          echo "EOF" >> $GITHUB_ENV
 
       - name: Generate Dynamic Release Notes Body
         run: |
@@ -114,15 +109,16 @@ jobs:
           REPO_URL="https://github.com/${{ github.repository }}"
 
           # 2. Determine git range for dynamic changelog
+          git fetch --tags --force 2>/dev/null || true
           PREV_TAG=$(git tag --sort=-creatordate | grep -v "^${RELEASE_TAG}$" | head -n 1)
           if [ -n "$PREV_TAG" ]; then
             RANGE="${PREV_TAG}..HEAD"
             RANGE_TITLE="Changes since ${PREV_TAG}"
             COMPARE_LINK="[Full Changelog & Diff](${REPO_URL}/compare/${PREV_TAG}...${RELEASE_TAG})"
           else
-            RANGE="HEAD"
-            RANGE_TITLE="Complete Version History"
-            COMPARE_LINK="[Initial Release Tree](${REPO_URL}/tree/${RELEASE_TAG})"
+            RANGE="HEAD~15..HEAD"
+            RANGE_TITLE="Recent Changes"
+            COMPARE_LINK="[Repository Tree](${REPO_URL}/tree/${RELEASE_TAG})"
           fi
 
           # 3. Categorize commits dynamically
@@ -134,8 +130,10 @@ jobs:
           CHORE_LOG=""
           OTHER_LOG=""
 
+          COMMIT_COUNT=0
           while IFS='|' read -r hash author title; do
             [ -z "$hash" ] && continue
+            COMMIT_COUNT=$((COMMIT_COUNT + 1))
             LINE="* ${title} ([${hash}](${REPO_URL}/commit/${hash})) - @${author}"
             case "${title,,}" in
               *feat\(visual*|*fix\(visual*|*feat*visual*|*fix*visual*|*shader*|*wireframe*|*hologram*|*ghost*)
@@ -160,7 +158,16 @@ jobs:
                 OTHER_LOG="${OTHER_LOG}"$'\n'"${LINE}"
                 ;;
             esac
-          done < <(git log ${RANGE} --pretty=format:"%h|%an|%s")
+          done < <(git log ${RANGE} --pretty=format:"%h|%an|%s" 2>/dev/null || git log -n 15 --pretty=format:"%h|%an|%s")
+
+          # Fallback if range was empty
+          if [ "$COMMIT_COUNT" -eq 0 ]; then
+            while IFS='|' read -r hash author title; do
+              [ -z "$hash" ] && continue
+              LINE="* ${title} ([${hash}](${REPO_URL}/commit/${hash})) - @${author}"
+              OTHER_LOG="${OTHER_LOG}"$'\n'"${LINE}"
+            done < <(git log -n 15 --pretty=format:"%h|%an|%s")
+          fi
 
           # 4. Generate dynamic file checksum table
           JAR_TABLE="| Filename | File Size | SHA-256 Checksum |"$'\n'"| :--- | :---: | :--- |"
