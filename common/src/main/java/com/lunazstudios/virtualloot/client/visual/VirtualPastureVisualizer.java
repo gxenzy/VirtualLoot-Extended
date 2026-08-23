@@ -63,11 +63,11 @@ public class VirtualPastureVisualizer {
 
     public static List<Vec3> scanPastureRoom(ClientLevel world, BlockPos pasturePos) {
         List<Vec3> validSpots = new ArrayList<>();
-        int maxRadius = 7;
+        int maxRadius = 6;
 
         for (int dx = -maxRadius; dx <= maxRadius; dx++) {
             for (int dz = -maxRadius; dz <= maxRadius; dz++) {
-                if (Math.abs(dx) <= 1 && Math.abs(dz) <= 1) continue;
+                if (dx == 0 && dz == 0) continue;
 
                 for (int dy = 2; dy >= -3; dy--) {
                     BlockPos floorPos = pasturePos.offset(dx, dy, dz);
@@ -81,35 +81,39 @@ public class VirtualPastureVisualizer {
                     if (!floorState.isAir() && !floorState.getCollisionShape(world, floorPos).isEmpty()
                             && feetState.getCollisionShape(world, feetPos).isEmpty()
                             && headState.getCollisionShape(world, headPos).isEmpty()) {
-
-                        if (hasLineOfSight(world, pasturePos, feetPos)) {
-                            validSpots.add(new Vec3(floorPos.getX() + 0.5, floorPos.getY() + 1.0, floorPos.getZ() + 0.5));
-                        }
+                        validSpots.add(new Vec3(floorPos.getX() + 0.5, floorPos.getY() + 1.0, floorPos.getZ() + 0.5));
                         break;
                     }
                 }
             }
         }
-        if (validSpots.isEmpty()) {
-            validSpots.add(new Vec3(pasturePos.getX() + 0.5, pasturePos.getY() + 1.0, pasturePos.getZ() + 0.5));
-        }
         return validSpots;
     }
 
-    private static boolean hasLineOfSight(ClientLevel world, BlockPos start, BlockPos end) {
-        try {
-            Vec3 from = new Vec3(start.getX() + 0.5, start.getY() + 1.2, start.getZ() + 0.5);
-            Vec3 to = new Vec3(end.getX() + 0.5, end.getY() + 0.5, end.getZ() + 0.5);
-            ClipContext ctx = new ClipContext(from, to, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, CollisionContext.empty());
-            BlockHitResult hit = world.clip(ctx);
-            if (hit.getType() == HitResult.Type.MISS) {
-                return true;
+    public static Vec3 findSafeWanderSpot(ClientLevel world, BlockPos pasturePos, double baseAngle, int index, int total) {
+        net.minecraft.util.RandomSource rand = world.random;
+        double angle = baseAngle + (rand.nextDouble() - 0.5) * 1.2;
+        double dist = 2.0 + (index % 3) * 1.3 + (rand.nextDouble() * 1.5);
+
+        for (double d = dist; d >= 1.2; d -= 0.6) {
+            double testX = pasturePos.getX() + 0.5 + Math.cos(angle) * d;
+            double testZ = pasturePos.getZ() + 0.5 + Math.sin(angle) * d;
+            double testY = findLocalFloorY(world, testX, testZ, pasturePos.getY());
+
+            BlockPos feetPos = new BlockPos((int) Math.floor(testX), (int) Math.floor(testY), (int) Math.floor(testZ));
+            BlockPos headPos = feetPos.above();
+            BlockState feetState = world.getBlockState(feetPos);
+            BlockState headState = world.getBlockState(headPos);
+
+            if (feetState.getCollisionShape(world, feetPos).isEmpty() && headState.getCollisionShape(world, headPos).isEmpty()) {
+                return new Vec3(testX, testY, testZ);
             }
-            BlockPos hitPos = hit.getBlockPos();
-            return hitPos.equals(start) || hitPos.equals(end) || hitPos.equals(end.below());
-        } catch (Throwable t) {
-            return true;
         }
+
+        double fallbackX = pasturePos.getX() + 0.5 + Math.cos(baseAngle) * 1.8;
+        double fallbackZ = pasturePos.getZ() + 0.5 + Math.sin(baseAngle) * 1.8;
+        double fallbackY = findLocalFloorY(world, fallbackX, fallbackZ, pasturePos.getY());
+        return new Vec3(fallbackX, fallbackY, fallbackZ);
     }
 
     public static void handleServerSync(BlockPos pos, int mode, List<Pokemon> pokemonList) {
@@ -128,7 +132,6 @@ public class VirtualPastureVisualizer {
             return;
         }
 
-        List<Vec3> roomSpots = scanPastureRoom(world, pos);
         Set<UUID> syncedUuids = new HashSet<>();
         int total = pokemonList.size();
 
@@ -144,9 +147,8 @@ public class VirtualPastureVisualizer {
                 .findFirst()
                 .orElse(null);
 
-            // Assign distinct distributed floor spot across the pasture room
-            int spotIdx = (i * 3 + (i % 2)) % roomSpots.size();
-            Vec3 spawnSpot = roomSpots.get(spotIdx);
+            double baseAngle = (2.0 * Math.PI / Math.max(1, total)) * i;
+            Vec3 spawnSpot = findSafeWanderSpot(world, pos, baseAngle, i, total);
             double spawnX = spawnSpot.x;
             double spawnY = (mode == 3) ? (spawnSpot.y + 0.5) : spawnSpot.y;
             double spawnZ = spawnSpot.z;
@@ -191,12 +193,11 @@ public class VirtualPastureVisualizer {
                 visualEntity.addTag("virtualloot_visual_mode_" + mode);
                 world.addEntity(visualEntity);
 
-                // Play prominent teleport sound
+                // Play teleport sound
                 try {
                     world.playLocalSound(spawnX, spawnY, spawnZ, SoundEvents.CHORUS_FRUIT_TELEPORT, SoundSource.BLOCKS, 0.8f, 1.3f, false);
                 } catch (Throwable ignored) {}
 
-                // Spawn a dense, high-impact initial teleportation beam pillar
                 spawnTeleportBeamPillar(world, spawnX, spawnY, spawnZ, visualEntity.getBbHeight(), mode);
 
                 VisualPokemonHolder newHolder = new VisualPokemonHolder(id, visualEntity, mode, i);
@@ -274,13 +275,22 @@ public class VirtualPastureVisualizer {
         for (Map.Entry<BlockPos, List<VisualPokemonHolder>> entry : ACTIVE_PASTURE_VISUALS.entrySet()) {
             BlockPos pasturePos = entry.getKey();
             List<VisualPokemonHolder> holders = entry.getValue();
-            for (VisualPokemonHolder holder : holders) {
-                tickVisualEntity(holder, pasturePos, world, holders);
+            int total = holders.size();
+            for (int i = 0; i < total; i++) {
+                VisualPokemonHolder holder = holders.get(i);
+                tickVisualEntity(holder, pasturePos, world, holders, i, total);
             }
         }
     }
 
-    private static void tickVisualEntity(VisualPokemonHolder holder, BlockPos pasturePos, ClientLevel world, List<VisualPokemonHolder> allHolders) {
+    private static void tickVisualEntity(
+        VisualPokemonHolder holder,
+        BlockPos pasturePos,
+        ClientLevel world,
+        List<VisualPokemonHolder> allHolders,
+        int slotIndex,
+        int totalSlots
+    ) {
         PokemonEntity entity = holder.entity;
         if (entity.isRemoved()) return;
 
@@ -311,25 +321,23 @@ public class VirtualPastureVisualizer {
             }
         }
 
-        // ONLY Ghost (mode 3) has subtle continuous spirit particles
+        // Ghost mode subtle spirit particles
         if (mode == 3) {
             if (rand.nextFloat() < 0.15f) {
                 world.addParticle(ParticleTypes.SOUL_FIRE_FLAME, ex + (rand.nextDouble() - 0.5) * 0.5, ey + (rand.nextDouble() - 0.5) * 0.5, ez + (rand.nextDouble() - 0.5) * 0.5, 0, 0.02, 0);
             }
         }
 
-        // Natural pasture roaming: pick a new valid open floor spot every 140-280 ticks
+        // Natural pasture roaming: pick a new valid open floor spot in assigned sector every 100-220 ticks
         if (holder.roamCooldown-- <= 0) {
-            holder.roamCooldown = 140 + rand.nextInt(140);
+            holder.roamCooldown = 100 + rand.nextInt(120);
             holder.isIdle = rand.nextFloat() < 0.40f; // 40% chance to pause/idle naturally
             if (!holder.isIdle) {
-                List<Vec3> roomSpots = scanPastureRoom(world, pasturePos);
-                if (!roomSpots.isEmpty()) {
-                    Vec3 newSpot = roomSpots.get(rand.nextInt(roomSpots.size()));
-                    holder.targetX = newSpot.x;
-                    holder.targetY = newSpot.y;
-                    holder.targetZ = newSpot.z;
-                }
+                double baseAngle = (2.0 * Math.PI / Math.max(1, totalSlots)) * slotIndex;
+                Vec3 newSpot = findSafeWanderSpot(world, pasturePos, baseAngle, slotIndex, totalSlots);
+                holder.targetX = newSpot.x;
+                holder.targetY = newSpot.y;
+                holder.targetZ = newSpot.z;
             }
         }
 
@@ -345,37 +353,45 @@ public class VirtualPastureVisualizer {
             double dz = holder.targetZ - entity.getZ();
             double distSq = dx * dx + dz * dz;
 
-            if (distSq > 0.4) {
+            if (distSq > 0.3) {
                 double angle = Math.atan2(dz, dx);
                 float targetYaw = (float) (angle * (180 / Math.PI)) - 90f;
                 float currentYaw = entity.getYRot();
                 float yawDiff = Mth.wrapDegrees(targetYaw - currentYaw);
-                float newYaw = currentYaw + yawDiff * 0.15f;
+                float newYaw = currentYaw + yawDiff * 0.18f;
 
                 entity.setYRot(newYaw);
                 entity.yHeadRot = newYaw;
                 entity.yBodyRot = newYaw;
 
-                double speed = (mode == 3) ? 0.018 : 0.024;
+                double speed = (mode == 3) ? 0.020 : 0.028;
                 double vx = Math.cos(angle) * speed;
                 double vz = Math.sin(angle) * speed;
                 entity.move(MoverType.SELF, new Vec3(vx, 0.0, vz));
             } else {
                 holder.isIdle = true;
             }
+        } else {
+            // Idle head wandering
+            if (rand.nextFloat() < 0.05f) {
+                float headJitter = (rand.nextFloat() - 0.5f) * 30.0f;
+                entity.yHeadRot = entity.getYRot() + headJitter;
+            }
         }
 
-        // Soft entity repulsion so multiple Pokemon (especially large ones like Archaludon) do NOT stack
+        // Strong anti-stacking physics repulsion: Guarantees Pokemon NEVER clump or stack
         for (VisualPokemonHolder other : allHolders) {
             if (other == holder || other.entity.isRemoved()) continue;
             double sepDx = entity.getX() - other.entity.getX();
             double sepDz = entity.getZ() - other.entity.getZ();
             double sepDistSq = sepDx * sepDx + sepDz * sepDz;
-            double minSep = Math.max(2.2, (entity.getBbWidth() + other.entity.getBbWidth()) * 0.7);
-            if (sepDistSq < minSep * minSep && sepDistSq > 0.0001) {
-                double sepDist = Math.sqrt(sepDistSq);
-                double push = (minSep - sepDist) * 0.035;
-                entity.setPos(entity.getX() + (sepDx / sepDist) * push, entity.getY(), entity.getZ() + (sepDz / sepDist) * push);
+            double minSep = Math.max(2.4, (entity.getBbWidth() + other.entity.getBbWidth()) * 0.85);
+            if (sepDistSq < minSep * minSep) {
+                double sepDist = Math.sqrt(Math.max(0.0001, sepDistSq));
+                double push = (minSep - sepDist) * 0.08;
+                double nx = (sepDist > 0.001) ? (sepDx / sepDist) : Math.cos(slotIndex);
+                double nz = (sepDist > 0.001) ? (sepDz / sepDist) : Math.sin(slotIndex);
+                entity.setPos(entity.getX() + nx * push, entity.getY(), entity.getZ() + nz * push);
             }
         }
 
@@ -396,8 +412,8 @@ public class VirtualPastureVisualizer {
         int bx = (int) Math.floor(x);
         int bz = (int) Math.floor(z);
 
-        BlockPos.MutableBlockPos mpos = new BlockPos.MutableBlockPos(bx, pastureY + 2, bz);
-        for (int y = pastureY + 2; y >= pastureY - 4; y--) {
+        BlockPos.MutableBlockPos mpos = new BlockPos.MutableBlockPos(bx, pastureY + 3, bz);
+        for (int y = pastureY + 3; y >= pastureY - 5; y--) {
             mpos.setY(y);
             BlockState state = world.getBlockState(mpos);
             if (!state.isAir() && !state.getCollisionShape(world, mpos).isEmpty()) {
