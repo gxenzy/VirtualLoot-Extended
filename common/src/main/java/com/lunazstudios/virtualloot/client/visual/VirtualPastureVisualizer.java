@@ -80,7 +80,7 @@ public class VirtualPastureVisualizer {
                     visualEntity.getEntityData().set(PokemonEntity.getUNBATTLEABLE(), true);
                 } catch (Throwable ignored) {}
 
-                visualEntity.setCustomName(Component.literal(pkmn.getDisplayName().getString() + " Lv. " + pkmn.getLevel()));
+                visualEntity.setCustomName(Component.literal(pkmn.getDisplayName(false).getString() + " Lv. " + pkmn.getLevel()));
                 visualEntity.setCustomNameVisible(true);
                 visualEntity.setGlowingTag(mode == 1 || mode == 2);
 
@@ -121,7 +121,7 @@ public class VirtualPastureVisualizer {
                 try {
                     existing.entity.getEntityData().set(PokemonEntity.getLABEL_LEVEL(), pkmn.getLevel());
                 } catch (Throwable ignored) {}
-                existing.entity.setCustomName(Component.literal(pkmn.getDisplayName().getString() + " Lv. " + pkmn.getLevel()));
+                existing.entity.setCustomName(Component.literal(pkmn.getDisplayName(false).getString() + " Lv. " + pkmn.getLevel()));
                 existing.entity.removeTag("virtualloot_visual_mode_1");
                 existing.entity.removeTag("virtualloot_visual_mode_2");
                 existing.entity.removeTag("virtualloot_visual_mode_3");
