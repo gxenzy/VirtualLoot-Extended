@@ -23,6 +23,7 @@ import com.cobblemon.mod.common.net.messages.client.pasture.OpenPasturePacket;
 import com.cobblemon.mod.common.util.PlayerExtensionsKt;
 import com.cobblemon.mod.common.util.VectorShapeExtensionsKt;
 import com.cobblemon.mod.common.pokemon.Pokemon;
+import com.cobblemon.mod.common.entity.pokemon.PokemonEntity;
 import com.lunazstudios.virtualloot.integration.VirtualPastureInventory;
 import com.lunazstudios.virtualloot.integration.VirtualLootCompat;
 import com.lunazstudios.virtualloot.integration.cobbreeding.CobbreedingCompat;
