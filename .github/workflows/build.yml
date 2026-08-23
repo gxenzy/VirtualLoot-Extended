@@ -175,8 +175,6 @@ jobs:
 
           # 5. Assemble dynamic release_body.md
           cat << EOF > release_body.md
-          # Virtual Loot: Extended [${MC_VER}] ${RELEASE_TAG} - ${{ env.VERSION_SUBTITLE }}
-
           > **Release Status:** **${{ env.VERSION_TYPE }}** (${{ env.VERSION_TYPE == 'Release' && 'Production Build' || 'Testing Build' }})  
           > **Target Minecraft:** \`${MC_VER}\`  
           > **Required On:** **Client & Server**  
