@@ -19,25 +19,24 @@ public class VirtualShaderBufferWrapper implements MultiBufferSource {
     @Override
     public VertexConsumer getBuffer(RenderType renderType) {
         if (mode == 1) {
-            // Mode 1: TRUE 3D WIREFRAME MESH (CS2 Style)
-            // Redirects to lines buffer to render pure vector wireframe outlines with 100% empty/see-through faces
+            // Mode 1: TRUE CS2 VECTOR WIREFRAME
             VertexConsumer linesConsumer = delegate.getBuffer(RenderType.lines());
             return new WireframeVertexConsumer(linesConsumer);
         } else if (mode == 2) {
-            // Mode 2: HOLOGRAM (Fortnite / Cobblemon Energy Beam Style)
+            // Mode 2: ENERGY HOLOGRAM
             VertexConsumer original = delegate.getBuffer(renderType);
             return new HologramVertexConsumer(original, time);
         } else if (mode == 3) {
-            // Mode 3: GHOST SPIRIT (Genshin Seelie / Spectral Style)
+            // Mode 3: NATIVE MINECRAFT SPECTATOR GHOST (See-Through Translucency)
             VertexConsumer original = delegate.getBuffer(renderType);
-            return new GhostVertexConsumer(original, time);
+            return new SpectatorGhostVertexConsumer(original);
         }
         return delegate.getBuffer(renderType);
     }
 
     /**
-     * Mode 1: Real CS2-style vector wireframe mesh generator.
-     * Takes quads and renders 4 crisp line edges into the line buffer.
+     * Mode 1: Real CS2 vector wireframe mesh.
+     * Takes quads and renders 4 vector lines into Minecraft lines buffer.
      */
     private static class WireframeVertexConsumer implements VertexConsumer {
         private final VertexConsumer lines;
@@ -59,20 +58,14 @@ public class VirtualShaderBufferWrapper implements MultiBufferSource {
             vertexCount++;
 
             if (idx == 3) {
-                // Quad complete: Emit 4 wireframe edge lines (CS2 vector lattice)
-                // Line color: Luminous Cyan Wireframe (#00E5FF)
                 int r = 0;
                 int g = 230;
                 int b = 255;
                 int a = 255;
 
-                // Edge 0 -> 1
                 drawLine(x[0], y[0], z[0], x[1], y[1], z[1], r, g, b, a);
-                // Edge 1 -> 2
                 drawLine(x[1], y[1], z[1], x[2], y[2], z[2], r, g, b, a);
-                // Edge 2 -> 3
                 drawLine(x[2], y[2], z[2], x[3], y[3], z[3], r, g, b, a);
-                // Edge 3 -> 0
                 drawLine(x[3], y[3], z[3], x[0], y[0], z[0], r, g, b, a);
             }
             return this;
@@ -95,49 +88,18 @@ public class VirtualShaderBufferWrapper implements MultiBufferSource {
             lines.addVertex(x2, y2, z2).setColor(r, g, b, a).setNormal(nx, ny, nz);
         }
 
-        @Override
-        public VertexConsumer setColor(int red, int green, int blue, int alpha) {
-            return this;
-        }
-
-        @Override
-        public VertexConsumer setColor(int color) {
-            return this;
-        }
-
-        @Override
-        public VertexConsumer setUv(float u, float v) {
-            return this;
-        }
-
-        @Override
-        public VertexConsumer setUv1(int u, int v) {
-            return this;
-        }
-
-        @Override
-        public VertexConsumer setUv2(int u, int v) {
-            return this;
-        }
-
-        @Override
-        public VertexConsumer setNormal(float nx, float ny, float nz) {
-            return this;
-        }
-
-        @Override
-        public VertexConsumer setOverlay(int overlay) {
-            return this;
-        }
-
-        @Override
-        public VertexConsumer setLight(int light) {
-            return this;
-        }
+        @Override public VertexConsumer setColor(int red, int green, int blue, int alpha) { return this; }
+        @Override public VertexConsumer setColor(int color) { return this; }
+        @Override public VertexConsumer setUv(float u, float v) { return this; }
+        @Override public VertexConsumer setUv1(int u, int v) { return this; }
+        @Override public VertexConsumer setUv2(int u, int v) { return this; }
+        @Override public VertexConsumer setNormal(float nx, float ny, float nz) { return this; }
+        @Override public VertexConsumer setOverlay(int overlay) { return this; }
+        @Override public VertexConsumer setLight(int light) { return this; }
     }
 
     /**
-     * Mode 2: Hologram energy projection (Fortnite / Pokéball Energy Beam style).
+     * Mode 2: Hologram energy projection.
      */
     private static class HologramVertexConsumer implements VertexConsumer {
         private final VertexConsumer parent;
@@ -158,16 +120,11 @@ public class VirtualShaderBufferWrapper implements MultiBufferSource {
 
         @Override
         public VertexConsumer setColor(int red, int green, int blue, int alpha) {
-            // High-tech electric cyan hologram energy with scanlines and shimmer
-            float scanline = (float) (Math.sin((lastY * 28.0) - (time * 0.008)) * 0.35 + 0.65);
-            float flicker = (float) (0.90 + 0.10 * Math.sin(time * 0.05));
-            float intensity = scanline * flicker;
-
-            int r = Math.min(255, (int) (15 + 40 * intensity));
-            int g = Math.min(255, (int) (160 + 95 * intensity));
+            float scanline = (float) (Math.sin((lastY * 25.0) - (time * 0.007)) * 0.35 + 0.65);
+            int r = Math.min(255, (int) (20 + 30 * scanline));
+            int g = Math.min(255, (int) (180 + 75 * scanline));
             int b = 255;
-            int a = Math.max(50, Math.min(230, (int) (140 + 75 * intensity)));
-
+            int a = Math.max(60, Math.min(230, (int) (150 + 60 * scanline)));
             parent.setColor(r, g, b, a);
             return this;
         }
@@ -181,119 +138,52 @@ public class VirtualShaderBufferWrapper implements MultiBufferSource {
             return setColor(r, g, b, a);
         }
 
-        @Override
-        public VertexConsumer setUv(float u, float v) {
-            parent.setUv(u, v);
-            return this;
-        }
-
-        @Override
-        public VertexConsumer setUv1(int u, int v) {
-            parent.setUv1(u, v);
-            return this;
-        }
-
-        @Override
-        public VertexConsumer setUv2(int u, int v) {
-            parent.setUv2(0x00F0, 0x00F0); // Emissive fullbright
-            return this;
-        }
-
-        @Override
-        public VertexConsumer setNormal(float x, float y, float z) {
-            parent.setNormal(x, y, z);
-            return this;
-        }
-
-        @Override
-        public VertexConsumer setOverlay(int overlay) {
-            parent.setOverlay(overlay);
-            return this;
-        }
-
-        @Override
-        public VertexConsumer setLight(int light) {
-            parent.setLight(0x00F000F0);
-            return this;
-        }
+        @Override public VertexConsumer setUv(float u, float v) { parent.setUv(u, v); return this; }
+        @Override public VertexConsumer setUv1(int u, int v) { parent.setUv1(u, v); return this; }
+        @Override public VertexConsumer setUv2(int u, int v) { parent.setUv2(0x00F0, 0x00F0); return this; }
+        @Override public VertexConsumer setNormal(float x, float y, float z) { parent.setNormal(x, y, z); return this; }
+        @Override public VertexConsumer setOverlay(int overlay) { parent.setOverlay(overlay); return this; }
+        @Override public VertexConsumer setLight(int light) { parent.setLight(0x00F000F0); return this; }
     }
 
     /**
-     * Mode 3: Genshin Seelie spirit style (Luminous core fading into ethereal spectral mist).
+     * Mode 3: Native Minecraft Spectator Mode Ghost.
+     * Renders exact authentic Pokémon skin with smooth see-through Spectator translucency (Picture 1).
+     * No tinting, no distortion.
      */
-    private static class GhostVertexConsumer implements VertexConsumer {
+    private static class SpectatorGhostVertexConsumer implements VertexConsumer {
         private final VertexConsumer parent;
-        private final long time;
-        private float lastY = 0f;
 
-        public GhostVertexConsumer(VertexConsumer parent, long time) {
+        public SpectatorGhostVertexConsumer(VertexConsumer parent) {
             this.parent = parent;
-            this.time = time;
         }
 
         @Override
         public VertexConsumer addVertex(float x, float y, float z) {
-            this.lastY = y;
             parent.addVertex(x, y, z);
             return this;
         }
 
         @Override
         public VertexConsumer setColor(int red, int green, int blue, int alpha) {
-            // Ethereal gradient: luminous top/core fading into translucent spirit mist
-            float pulse = (float) (Math.sin((time * 0.003) + (lastY * 2.5)) * 0.25 + 0.75);
-            int r = Math.min(255, (int) (140 + 70 * pulse));
-            int g = Math.min(255, (int) (210 + 45 * pulse));
-            int b = 255;
-            int a = Math.max(35, Math.min(180, (int) (100 * pulse)));
-
-            parent.setColor(r, g, b, a);
+            // Native Minecraft Spectator alpha: 40% see-through opacity on authentic colors
+            parent.setColor(red, green, blue, 105);
             return this;
         }
 
         @Override
         public VertexConsumer setColor(int color) {
-            int a = (color >> 24) & 255;
             int r = (color >> 16) & 255;
             int g = (color >> 8) & 255;
             int b = color & 255;
-            return setColor(r, g, b, a);
+            return setColor(r, g, b, 105);
         }
 
-        @Override
-        public VertexConsumer setUv(float u, float v) {
-            parent.setUv(u, v);
-            return this;
-        }
-
-        @Override
-        public VertexConsumer setUv1(int u, int v) {
-            parent.setUv1(u, v);
-            return this;
-        }
-
-        @Override
-        public VertexConsumer setUv2(int u, int v) {
-            parent.setUv2(u, v);
-            return this;
-        }
-
-        @Override
-        public VertexConsumer setNormal(float x, float y, float z) {
-            parent.setNormal(x, y, z);
-            return this;
-        }
-
-        @Override
-        public VertexConsumer setOverlay(int overlay) {
-            parent.setOverlay(overlay);
-            return this;
-        }
-
-        @Override
-        public VertexConsumer setLight(int light) {
-            parent.setLight(light);
-            return this;
-        }
+        @Override public VertexConsumer setUv(float u, float v) { parent.setUv(u, v); return this; }
+        @Override public VertexConsumer setUv1(int u, int v) { parent.setUv1(u, v); return this; }
+        @Override public VertexConsumer setUv2(int u, int v) { parent.setUv2(u, v); return this; }
+        @Override public VertexConsumer setNormal(float x, float y, float z) { parent.setNormal(x, y, z); return this; }
+        @Override public VertexConsumer setOverlay(int overlay) { parent.setOverlay(overlay); return this; }
+        @Override public VertexConsumer setLight(int light) { parent.setLight(light); return this; }
     }
 }
