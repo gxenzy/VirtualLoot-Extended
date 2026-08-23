@@ -23,11 +23,13 @@ public class VirtualPastureVisualizer {
         public double targetZ;
         public int roamCooldown = 0;
         public int mode;
+        public int slotIndex;
 
-        public VisualPokemonHolder(UUID pokemonId, PokemonEntity entity, int mode) {
+        public VisualPokemonHolder(UUID pokemonId, PokemonEntity entity, int mode, int slotIndex) {
             this.pokemonId = pokemonId;
             this.entity = entity;
             this.mode = mode;
+            this.slotIndex = slotIndex;
         }
     }
 
@@ -51,8 +53,9 @@ public class VirtualPastureVisualizer {
         }
 
         Set<UUID> syncedUuids = new HashSet<>();
+        int total = pokemonList.size();
 
-        for (int i = 0; i < pokemonList.size(); i++) {
+        for (int i = 0; i < total; i++) {
             Pokemon pkmn = pokemonList.get(i);
             if (pkmn == null) continue;
 
@@ -64,6 +67,16 @@ public class VirtualPastureVisualizer {
                 .findFirst()
                 .orElse(null);
 
+            // Wide non-overlapping radial distribution around pasture
+            double angle = (2.0 * Math.PI / Math.max(1, total)) * i;
+            double dist = 4.0 + (i % 2) * 1.5;
+            double spawnX = pos.getX() + 0.5 + Math.cos(angle) * dist;
+            double spawnZ = pos.getZ() + 0.5 + Math.sin(angle) * dist;
+
+            // Heightmap motion blocking gives exact top solid block Y
+            int groundY = world.getHeight(Heightmap.Types.MOTION_BLOCKING, (int) Math.floor(spawnX), (int) Math.floor(spawnZ));
+            double spawnY = (mode == 3) ? (groundY + 0.75) : groundY;
+
             if (existing == null) {
                 PokemonEntity visualEntity = new PokemonEntity(world, pkmn, CobblemonEntities.POKEMON);
                 visualEntity.setPokemon(pkmn);
@@ -72,11 +85,9 @@ public class VirtualPastureVisualizer {
                 visualEntity.setInvulnerable(true);
                 visualEntity.setSilent(true);
                 
-                // Only Ghost (mode 3) has noPhysics / floating
                 visualEntity.noPhysics = (mode == 3);
                 visualEntity.setOnGround(mode != 3);
 
-                // Set authentic Level and Label on Cobblemon entity data
                 try {
                     visualEntity.getEntityData().set(PokemonEntity.getLABEL_LEVEL(), pkmn.getLevel());
                     visualEntity.getEntityData().set(PokemonEntity.getHIDE_LABEL(), false);
@@ -85,22 +96,6 @@ public class VirtualPastureVisualizer {
 
                 visualEntity.setCustomName(Component.literal(pkmn.getDisplayName(false).getString() + " Lv. " + pkmn.getLevel()));
                 visualEntity.setCustomNameVisible(true);
-
-                // Spread Pokémon around pasture radius
-                double baseRadius = 3.5;
-                double angle = (2.0 * Math.PI / Math.max(1, pokemonList.size())) * i + (id.hashCode() % 100) * 0.005;
-                double dist = baseRadius + (i % 3) * 1.5;
-                double spawnX = pos.getX() + 0.5 + Math.cos(angle) * dist;
-                double spawnZ = pos.getZ() + 0.5 + Math.sin(angle) * dist;
-
-                // Find terrain height so walking Pokémon spawn directly on the ground
-                int blockX = (int) Math.floor(spawnX);
-                int blockZ = (int) Math.floor(spawnZ);
-                int topY = world.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, blockX, blockZ);
-                double spawnY = (topY > 0) ? topY : pos.getY();
-                if (mode == 3) {
-                    spawnY += 0.8; // Ghost hovers above terrain
-                }
 
                 visualEntity.setPos(spawnX, spawnY, spawnZ);
                 visualEntity.xo = spawnX;
@@ -121,12 +116,13 @@ public class VirtualPastureVisualizer {
                 visualEntity.addTag("virtualloot_visual_mode_" + mode);
                 world.addEntity(visualEntity);
 
-                VisualPokemonHolder newHolder = new VisualPokemonHolder(id, visualEntity, mode);
+                VisualPokemonHolder newHolder = new VisualPokemonHolder(id, visualEntity, mode, i);
                 newHolder.targetX = spawnX;
                 newHolder.targetZ = spawnZ;
                 currentHolders.add(newHolder);
             } else {
                 existing.mode = mode;
+                existing.slotIndex = i;
                 existing.entity.setPokemon(pkmn);
                 try {
                     existing.entity.getEntityData().set(PokemonEntity.getLABEL_LEVEL(), pkmn.getLevel());
@@ -185,12 +181,14 @@ public class VirtualPastureVisualizer {
             }
         }
 
-        // Roaming behavior within pasture radius
+        // Roaming targets strictly pinned around distinct slot angles
         if (holder.roamCooldown-- <= 0) {
-            holder.roamCooldown = 100 + rand.nextInt(120);
+            holder.roamCooldown = 120 + rand.nextInt(100);
 
-            double angle = rand.nextDouble() * Math.PI * 2.0;
-            double dist = 2.5 + rand.nextDouble() * 5.5;
+            double baseAngle = (2.0 * Math.PI / 6.0) * holder.slotIndex;
+            double angleVar = (rand.nextDouble() - 0.5) * 0.9;
+            double angle = baseAngle + angleVar;
+            double dist = 3.0 + rand.nextDouble() * 3.5;
             holder.targetX = pasturePos.getX() + 0.5 + Math.cos(angle) * dist;
             holder.targetZ = pasturePos.getZ() + 0.5 + Math.sin(angle) * dist;
         }
@@ -206,32 +204,28 @@ public class VirtualPastureVisualizer {
         entity.yHeadRotO = entity.yHeadRot;
         entity.yBodyRotO = entity.yBodyRot;
 
-        if (distSq > 0.4) {
+        if (distSq > 0.3) {
             double angle = Math.atan2(dz, dx);
             float targetYaw = (float) (angle * (180 / Math.PI)) - 90f;
             entity.setYRot(targetYaw);
             entity.yHeadRot = targetYaw;
             entity.yBodyRot = targetYaw;
 
-            double speed = (mode == 3) ? 0.03 : 0.045;
+            double speed = (mode == 3) ? 0.025 : 0.035;
             double vx = Math.cos(angle) * speed;
             double vz = Math.sin(angle) * speed;
             entity.move(MoverType.SELF, new Vec3(vx, 0.0, vz));
         }
 
-        // Terrain snap / Height calculation
-        int blockX = (int) Math.floor(entity.getX());
-        int blockZ = (int) Math.floor(entity.getZ());
-        int topY = world.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, blockX, blockZ);
-        double groundY = (topY > 0) ? topY : pasturePos.getY();
+        int groundY = world.getHeight(Heightmap.Types.MOTION_BLOCKING, (int) Math.floor(entity.getX()), (int) Math.floor(entity.getZ()));
 
         if (mode == 3) {
-            // Mode 3 (Ghost): Smooth hovering and bouncing in the air above terrain
-            double hoverY = groundY + 0.75 + 0.2 * Math.sin(entity.tickCount * 0.08);
+            // Mode 3 (Ghost): Floating bob above ground
+            double hoverY = groundY + 0.75 + 0.15 * Math.sin(entity.tickCount * 0.08);
             entity.setPos(entity.getX(), hoverY, entity.getZ());
         } else {
-            // Mode 1 (Wireframe) and Mode 2 (Hologram): Walk directly on solid ground
-            entity.setPos(entity.getX(), groundY, entity.getZ());
+            // Mode 1 (Wireframe) and Mode 2 (Hologram): Feet placed directly on top ground block
+            entity.setPos(entity.getX(), (double) groundY, entity.getZ());
         }
     }
 

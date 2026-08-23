@@ -22,15 +22,14 @@ public class VirtualShaderBufferWrapper implements MultiBufferSource {
     @Override
     public VertexConsumer getBuffer(RenderType renderType) {
         if (mode == 1) {
-            // Mode 1: FAST 100% VECTOR WIREFRAME (High FPS, all layers wireframed)
-            RenderType targetType = (texture != null) ? RenderType.itemEntityTranslucentCull(texture) : renderType;
-            VertexConsumer original = delegate.getBuffer(targetType);
-            return new FastWireframeVertexConsumer(original);
+            // Mode 1: PURE 3D VECTOR WIREFRAME (CS2 Style vector lattice, empty interior)
+            VertexConsumer linesConsumer = delegate.getBuffer(RenderType.lines());
+            return new WireframeVertexConsumer(linesConsumer);
         } else if (mode == 2) {
-            // Mode 2: AUTHENTIC SCI-FI HOLOGRAM (Based on SVC Holograms Star Wars formula)
-            RenderType targetType = (texture != null) ? RenderType.itemEntityTranslucentCull(texture) : renderType;
+            // Mode 2: VIBRANT LUMINOUS HOLOGRAM (Electric Cyan Energy Silhouette with scanlines)
+            RenderType targetType = (texture != null) ? RenderType.entityTranslucentEmissive(texture) : renderType;
             VertexConsumer original = delegate.getBuffer(targetType);
-            return new SVCHologramVertexConsumer(original, time);
+            return new HologramVertexConsumer(original, time);
         } else if (mode == 3) {
             // Mode 3: NATIVE MINECRAFT SPECTATOR GHOST (See-Through Spectator Translucency)
             RenderType targetType = (texture != null) ? RenderType.itemEntityTranslucentCull(texture) : renderType;
@@ -41,73 +40,86 @@ public class VirtualShaderBufferWrapper implements MultiBufferSource {
     }
 
     /**
-     * Mode 1: High-Performance 100% Vector Wireframe.
-     * Generates crisp glowing cyan lattice outlines across all model parts (including flames and emissives)
-     * at full 60-80+ FPS with zero CPU vertex overhead.
+     * Mode 1: Pure 3D Vector Wireframe.
+     * Captures polygon vertices and renders vector edge lines to RenderType.lines().
+     * Faces are 100% empty and transparent.
      */
-    private static class FastWireframeVertexConsumer implements VertexConsumer {
-        private final VertexConsumer parent;
-        private float lastU = 0f;
-        private float lastV = 0f;
+    private static class WireframeVertexConsumer implements VertexConsumer {
+        private final VertexConsumer lines;
+        private final float[] x = new float[4];
+        private final float[] y = new float[4];
+        private final float[] z = new float[4];
+        private int count = 0;
 
-        public FastWireframeVertexConsumer(VertexConsumer parent) {
-            this.parent = parent;
+        public WireframeVertexConsumer(VertexConsumer lines) {
+            this.lines = lines;
         }
 
         @Override
-        public VertexConsumer addVertex(float x, float y, float z) {
-            parent.addVertex(x, y, z);
-            return this;
-        }
+        public VertexConsumer addVertex(float vx, float vy, float vz) {
+            int idx = count % 4;
+            x[idx] = vx;
+            y[idx] = vy;
+            z[idx] = vz;
+            count++;
 
-        @Override
-        public VertexConsumer setColor(int red, int green, int blue, int alpha) {
-            float uFrac = Math.abs((lastU * 16.0f) % 1.0f);
-            float vFrac = Math.abs((lastV * 16.0f) % 1.0f);
-            boolean isEdge = (uFrac < 0.14f || uFrac > 0.86f || vFrac < 0.14f || vFrac > 0.86f);
+            if (idx == 3) {
+                int r = 0;
+                int g = 235;
+                int b = 255;
+                int a = 255;
 
-            if (isEdge) {
-                // Crisp glowing cyan wireframe edge line
-                parent.setColor(0, 235, 255, 255);
-            } else {
-                // Completely transparent / empty interior polygon
-                parent.setColor(0, 20, 30, 20);
+                drawLine(x[0], y[0], z[0], x[1], y[1], z[1], r, g, b, a);
+                drawLine(x[1], y[1], z[1], x[2], y[2], z[2], r, g, b, a);
+                drawLine(x[2], y[2], z[2], x[3], y[3], z[3], r, g, b, a);
+                drawLine(x[3], y[3], z[3], x[0], y[0], z[0], r, g, b, a);
             }
             return this;
         }
 
-        @Override
-        public VertexConsumer setColor(int color) {
-            return setColor(0, 235, 255, 255);
+        private void drawLine(float x1, float y1, float z1, float x2, float y2, float z2, int r, int g, int b, int a) {
+            float nx = x2 - x1;
+            float ny = y2 - y1;
+            float nz = z2 - z1;
+            float len = (float) Math.sqrt(nx * nx + ny * ny + nz * nz);
+            if (len > 0.0001f) {
+                nx /= len;
+                ny /= len;
+                nz /= len;
+            } else {
+                ny = 1.0f;
+            }
+
+            lines.addVertex(x1, y1, z1);
+            lines.setColor(r, g, b, a);
+            lines.setNormal(nx, ny, nz);
+
+            lines.addVertex(x2, y2, z2);
+            lines.setColor(r, g, b, a);
+            lines.setNormal(nx, ny, nz);
         }
 
-        @Override
-        public VertexConsumer setUv(float u, float v) {
-            this.lastU = u;
-            this.lastV = v;
-            parent.setUv(u, v);
-            return this;
-        }
-
-        @Override public VertexConsumer setUv1(int u, int v) { parent.setUv1(u, v); return this; }
-        @Override public VertexConsumer setUv2(int u, int v) { parent.setUv2(0x00F0, 0x00F0); return this; }
-        @Override public VertexConsumer setNormal(float x, float y, float z) { parent.setNormal(x, y, z); return this; }
-        @Override public VertexConsumer setOverlay(int overlay) { parent.setOverlay(overlay); return this; }
-        @Override public VertexConsumer setLight(int light) { parent.setLight(0x00F000F0); return this; }
+        @Override public VertexConsumer setColor(int red, int green, int blue, int alpha) { return this; }
+        @Override public VertexConsumer setColor(int color) { return this; }
+        @Override public VertexConsumer setUv(float u, float v) { return this; }
+        @Override public VertexConsumer setUv1(int u, int v) { return this; }
+        @Override public VertexConsumer setUv2(int u, int v) { return this; }
+        @Override public VertexConsumer setNormal(float nx, float ny, float nz) { return this; }
+        @Override public VertexConsumer setOverlay(int overlay) { return this; }
+        @Override public VertexConsumer setLight(int light) { return this; }
     }
 
     /**
-     * Mode 2: Authentic Sci-Fi Hologram (SVC Holograms / Star Wars Pipeline).
-     * Color Matrix: R * 0.06, G * 0.45, B * 0.95.
-     * Alpha Scanline Modulation: (0.75 + 0.25 * sin(y * freq - time * speed)) * 128.
-     * Lighting: Fullbright unshaded emissive lighting.
+     * Mode 2: Vibrant Luminous Hologram.
+     * Renders a glowing electric cyan (#00F5FF) energy projection with horizontal laser scanlines.
+     * Fullbright emissive lighting without muddy dark diffuse shading.
      */
-    private static class SVCHologramVertexConsumer implements VertexConsumer {
+    private static class HologramVertexConsumer implements VertexConsumer {
         private final VertexConsumer parent;
         private final long time;
         private float lastY = 0f;
 
-        public SVCHologramVertexConsumer(VertexConsumer parent, long time) {
+        public HologramVertexConsumer(VertexConsumer parent, long time) {
             this.parent = parent;
             this.time = time;
         }
@@ -121,26 +133,17 @@ public class VirtualShaderBufferWrapper implements MultiBufferSource {
 
         @Override
         public VertexConsumer setColor(int red, int green, int blue, int alpha) {
-            // SVC Hologram color grading
-            int newR = (int) (red * 0.06f);
-            int newG = (int) (green * 0.45f);
-            int newB = (int) (blue * 0.95f);
+            // Vibrant electric cyan energy with horizontal laser scanlines
+            float scanline = (float) (Math.sin((lastY * 20.0) - (time * 0.008)) * 0.3 + 0.7);
+            int a = Math.max(70, Math.min(235, (int) (150 * scanline)));
 
-            // Horizontal laser scanline frequency
-            float scanline = (float) (Math.sin((lastY * 20.0) - (time * 0.008)) * 0.25 + 0.75);
-            int newA = Math.min(128, (int) (125 * scanline));
-
-            parent.setColor(newR, newG, newB, newA);
+            parent.setColor(0, 245, 255, a);
             return this;
         }
 
         @Override
         public VertexConsumer setColor(int color) {
-            int a = (color >> 24) & 255;
-            int r = (color >> 16) & 255;
-            int g = (color >> 8) & 255;
-            int b = color & 255;
-            return setColor(r, g, b, a);
+            return setColor(0, 245, 255, 255);
         }
 
         @Override public VertexConsumer setUv(float u, float v) { parent.setUv(u, v); return this; }
