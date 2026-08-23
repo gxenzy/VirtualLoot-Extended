@@ -264,9 +264,19 @@ public final class VirtualPastureBlock extends BaseEntityBlock implements Simple
         }
 
         int visualMode = getVisualMode(state);
-        if (visualMode > 0 && world instanceof ServerLevel serverLevel && serverLevel.getGameTime() % 20L == 0L) {
-            pasture.setChanged();
-            serverLevel.sendBlockUpdated(pos, state, state, 3);
+        if (world instanceof ServerLevel serverLevel) {
+            for (PokemonPastureBlockEntity.Tethering tethering : pasture.getTetheredPokemon()) {
+                Pokemon pokemon = tethering.getPokemon();
+                if (pokemon != null && pokemon.getEntity() != null) {
+                    PokemonEntity entity = pokemon.getEntity();
+                    entity.removeTag("virtualloot_visual_mode_1");
+                    entity.removeTag("virtualloot_visual_mode_2");
+                    entity.removeTag("virtualloot_visual_mode_3");
+                    if (visualMode > 0) {
+                        entity.addTag("virtualloot_visual_mode_" + visualMode);
+                    }
+                }
+            }
         }
 
         setOnState(world, pos, state, hasLinkedViewer(world, pos));
