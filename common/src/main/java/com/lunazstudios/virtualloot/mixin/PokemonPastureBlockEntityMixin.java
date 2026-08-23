@@ -191,8 +191,6 @@ public abstract class PokemonPastureBlockEntityMixin implements VirtualPastureIn
         }
     }
 
-
-
     @Inject(method = "canAddPokemon", at = @At("HEAD"), cancellable = true, remap = false)
     private void virtualloot$canAddVirtualPokemon(ServerPlayer player, Pokemon pokemon, int maxPerPlayer, CallbackInfoReturnable<Boolean> cir) {
         if (!virtualloot$isVirtualPasture()) {
@@ -231,6 +229,11 @@ public abstract class PokemonPastureBlockEntityMixin implements VirtualPastureIn
         pasture.setChanged();
         virtualloot$broadcastVisualSync();
         cir.setReturnValue(true);
+    }
+
+    @Inject(method = "untether", at = @At("RETURN"), remap = false, require = 0)
+    private void virtualloot$onUntether(CallbackInfo ci) {
+        virtualloot$broadcastVisualSync();
     }
 
     @Unique

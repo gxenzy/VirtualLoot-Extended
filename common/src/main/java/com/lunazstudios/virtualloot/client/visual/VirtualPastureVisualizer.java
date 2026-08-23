@@ -144,26 +144,32 @@ public class VirtualPastureVisualizer {
         int mode = holder.mode;
         net.minecraft.util.RandomSource rand = world.random;
 
-        // 1. Particle and floating effect per mode
         double ex = entity.getX();
         double ey = entity.getY() + entity.getBbHeight() * 0.5;
         double ez = entity.getZ();
 
         if (mode == 1) {
-            // Mode 1: WIREFRAME / CYBER (Green matrix code particles)
+            // Mode 1: WIREFRAME / CYBER (Green matrix spark particles)
             if (rand.nextFloat() < 0.4f) {
                 world.addParticle(ParticleTypes.HAPPY_VILLAGER, ex + (rand.nextDouble() - 0.5) * 0.8, ey + (rand.nextDouble() - 0.5) * 0.8, ez + (rand.nextDouble() - 0.5) * 0.8, 0, 0.05, 0);
             }
         } else if (mode == 2) {
-            // Mode 2: HOLOGRAM (Cyan electric / end rod digital aura)
+            // Mode 2: HOLOGRAM (Projector beam from PC + Cyan electric sparks)
             if (rand.nextFloat() < 0.5f) {
                 world.addParticle(ParticleTypes.ELECTRIC_SPARK, ex + (rand.nextDouble() - 0.5) * 0.8, ey + (rand.nextDouble() - 0.5) * 0.8, ez + (rand.nextDouble() - 0.5) * 0.8, (rand.nextDouble() - 0.5) * 0.05, 0.05, (rand.nextDouble() - 0.5) * 0.05);
             }
-            if (rand.nextFloat() < 0.2f) {
-                world.addParticle(ParticleTypes.END_ROD, ex + (rand.nextDouble() - 0.5) * 0.6, ey + (rand.nextDouble() - 0.5) * 0.6, ez + (rand.nextDouble() - 0.5) * 0.6, 0, 0.02, 0);
+            if (rand.nextFloat() < 0.25f) {
+                // Projector beam particles from pasture top block
+                double beamX = pasturePos.getX() + 0.5;
+                double beamY = pasturePos.getY() + 1.2;
+                double beamZ = pasturePos.getZ() + 0.5;
+                double toX = (ex - beamX) * 0.08;
+                double toY = (ey - beamY) * 0.08;
+                double toZ = (ez - beamZ) * 0.08;
+                world.addParticle(ParticleTypes.GLOW, beamX, beamY, beamZ, toX, toY, toZ);
             }
         } else if (mode == 3) {
-            // Mode 3: GHOST (Floating spirit with witch magic & soul fire flames)
+            // Mode 3: GHOST (Floating spirit with soul fire flames & purple witch mist)
             if (rand.nextFloat() < 0.6f) {
                 world.addParticle(ParticleTypes.WITCH, ex + (rand.nextDouble() - 0.5) * 0.8, ey + (rand.nextDouble() - 0.5) * 0.8, ez + (rand.nextDouble() - 0.5) * 0.8, (rand.nextDouble() - 0.5) * 0.02, 0.03, (rand.nextDouble() - 0.5) * 0.02);
             }
@@ -172,7 +178,7 @@ public class VirtualPastureVisualizer {
             }
         }
 
-        // 2. Roaming behavior
+        // Roaming behavior
         if (holder.roamCooldown-- <= 0) {
             holder.roamCooldown = 80 + rand.nextInt(100);
 
