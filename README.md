@@ -16,7 +16,7 @@
   <a href="#overview">Overview</a> •
   <a href="#key-features">Key Features</a> •
   <a href="#3d-visual-projection-engine">3D Projections</a> •
-  <a href="#species-database--job-catalog">Species Job Catalog</a> •
+  <a href="#species-database--job-catalog">1,000+ Species Catalog</a> •
   <a href="#proficiency-scaling-system">Proficiency Math</a> •
   <a href="#controls--automation-setup">Controls & Automation</a> •
   <a href="#configuration-reference">Configuration</a> •
@@ -29,7 +29,7 @@
 ---
 
 <a id="overview"></a>
-## <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/town-map.png" width="24" height="24" align="center"> Overview
+## <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/town-map.png" width="24" height="24" align="absmiddle"> Overview
 
 In standard Cobblemon pastures, placing multiple Pokémon in pasture blocks causes physical mob entities to wander the surrounding terrain. On multiplayer servers and expansive player bases, this causes continuous entity ticking, AI navigation loops, collision physics overhead, and pathfinding spikes that rapidly degrade server TPS and client framerates.
 
@@ -43,12 +43,12 @@ In standard Cobblemon pastures, placing multiple Pokémon in pasture blocks caus
 ---
 
 <a id="key-features"></a>
-## <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/star-piece.png" width="24" height="24" align="center"> Key Features
+## <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/star-piece.png" width="24" height="24" align="absmiddle"> Key Features
 
-<table>
+<table width="100%">
   <tr>
     <td width="50%" valign="top">
-      <h4><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/thunder-stone.png" width="20" height="20" align="center"> Server Performance & Storage</h4>
+      <h4><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/thunder-stone.png" width="20" height="20" align="absmiddle"> Server Performance & Storage</h4>
       <ul>
         <li><b>0 Entity Server Overhead</b>: Supports 16+ Pokémon per block without server tick lag.</li>
         <li><b>27-Slot Storage</b>: Built-in container for all drops. Access via <b>Shift + Right Click</b>.</li>
@@ -57,7 +57,7 @@ In standard Cobblemon pastures, placing multiple Pokémon in pasture blocks caus
       </ul>
     </td>
     <td width="50%" valign="top">
-      <h4><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/devon-scope.png" width="20" height="20" align="center"> 3D Visual Projections & Polish</h4>
+      <h4><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/devon-scope.png" width="20" height="20" align="absmiddle"> 3D Visual Projections & Polish</h4>
       <ul>
         <li><b>3 Visual Modes</b>: Wireframe, Hologram, and Ghost projections toggleable in-game.</li>
         <li><b>Zero-Push Physics</b>: Players walk freely through visual models with no collision bumping.</li>
@@ -68,7 +68,7 @@ In standard Cobblemon pastures, placing multiple Pokémon in pasture blocks caus
   </tr>
   <tr>
     <td width="50%" valign="top">
-      <h4><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/miracle-seed.png" width="20" height="20" align="center"> Cobblebase 2.0+ Automation</h4>
+      <h4><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/miracle-seed.png" width="20" height="20" align="absmiddle"> Cobblebase 2.0+ Automation</h4>
       <ul>
         <li><b>42+ Palworld Jobs</b>: Complete coverage for all 1,367+ species across Gens 1–9.</li>
         <li><b>12 Finder Subtypes</b>: Targeted foraging for stones, candies, held items, relics, and more.</li>
@@ -77,7 +77,7 @@ In standard Cobblemon pastures, placing multiple Pokémon in pasture blocks caus
       </ul>
     </td>
     <td width="50%" valign="top">
-      <h4><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/lucky-egg.png" width="20" height="20" align="center"> Ecosystem Compatibility</h4>
+      <h4><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/lucky-egg.png" width="20" height="20" align="absmiddle"> Ecosystem Compatibility</h4>
       <ul>
         <li><b>Cobbreeding Bridge</b>: Virtual egg breeding, timers, and Mirror Herb move transfers.</li>
         <li><b>PC GUI Safety Shield</b>: Fixes crashes when querying properties on non-pasture blocks.</li>
@@ -91,25 +91,55 @@ In standard Cobblemon pastures, placing multiple Pokémon in pasture blocks caus
 ---
 
 <a id="3d-visual-projection-engine"></a>
-## <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/vs-seeker.png" width="24" height="24" align="center"> 3D Visual Projection Engine
+## <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/vs-seeker.png" width="24" height="24" align="absmiddle"> 3D Visual Projection Engine
 
 The visual projection engine renders client-side holograms and energy lattices of tethered Pokémon without spawning server mobs. Toggle modes directly in the Pasture interface or PC menu:
 
-| Visual Mode | Visual Aesthetic | Rendering Pipeline & Shader Specs | Physics & World Behavior |
-| :---: | :--- | :--- | :--- |
-| **Mode 1** | **Cyber Wireframe** | • Vector polygon line lattice (`RenderType.lines()`).<br>• Electric Cyan outline (`#00F5FF`) with transparent empty interiors.<br>• Full dynamic geometry support (Charizard tail flames, wing membranes).<br>• High-performance batch buffering at **60–80+ FPS**. | • Clamped to terrain heightmaps (`MOTION_BLOCKING`).<br>• Zero player collision pushing (`VirtualPokemonNoPushMixin`). |
-| **Mode 2** | **Sci-Fi Hologram** | • Emissive energy projection (`RenderType.entityTranslucentEmissive`).<br>• Electric Cyan base tint with real-time animated horizontal sine scanlines.<br>• Fullbright unshaded lighting (`0x00F000F0`) with zero dark shadows at night. | • Clamped to terrain heightmaps (`MOTION_BLOCKING`).<br>• Zero player collision pushing (`VirtualPokemonNoPushMixin`). |
-| **Mode 3** | **Ethereal Ghost** | • Translucent spirit model (`RenderType.itemEntityTranslucentCull`).<br>• 40% Spectator opacity (`alpha = 105`) preserving natural Pokémon textures.<br>• Gentle soul fire particle mist radiating from the base. | • Hovers smoothly above the ground (+0.75 blocks).<br>• Zero player collision pushing (`VirtualPokemonNoPushMixin`). |
-| **Mode 0** | **Disabled** | • Visual models disabled entirely for maximum client performance. | • Pokémon tick 100% virtually in background. |
+<table width="100%">
+  <thead>
+    <tr>
+      <th width="15%" align="center">Visual Mode</th>
+      <th width="20%" align="left">Aesthetic Style</th>
+      <th width="40%" align="left">Rendering Pipeline & Shader Specs</th>
+      <th width="25%" align="left">World Physics</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td align="center"><b>Mode 1</b></td>
+      <td><b>Cyber Wireframe</b></td>
+      <td>• Vector polygon line lattice (<code>RenderType.lines()</code>)<br>• Electric Cyan outline (<code>#00F5FF</code>) with empty interiors<br>• Dynamic geometry support (Charizard tail flames, wing membranes)<br>• High-performance batch buffering at <b>60–80+ FPS</b></td>
+      <td>• Heightmap clamped<br>• Zero-push collision bypass</td>
+    </tr>
+    <tr>
+      <td align="center"><b>Mode 2</b></td>
+      <td><b>Sci-Fi Hologram</b></td>
+      <td>• Emissive energy projection (<code>RenderType.entityTranslucentEmissive</code>)<br>• Cyan base tint with real-time animated sine scanlines<br>• Fullbright unshaded lighting (<code>0x00F000F0</code>)</td>
+      <td>• Heightmap clamped<br>• Zero-push collision bypass</td>
+    </tr>
+    <tr>
+      <td align="center"><b>Mode 3</b></td>
+      <td><b>Ethereal Ghost</b></td>
+      <td>• Translucent spirit model (<code>RenderType.itemEntityTranslucentCull</code>)<br>• 40% Spectator opacity (<code>alpha = 105</code>)<br>• Soul fire particle mist radiating from the base</td>
+      <td>• Smooth hover (+0.75 blocks)<br>• Zero-push collision bypass</td>
+    </tr>
+    <tr>
+      <td align="center"><b>Mode 0</b></td>
+      <td><b>Disabled</b></td>
+      <td>• Visual models disabled entirely for maximum client performance</td>
+      <td>• 100% background ticking</td>
+    </tr>
+  </tbody>
+</table>
 
 ---
 
 <a id="species-database--job-catalog"></a>
-## <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/miracle-seed.png" width="24" height="24" align="center"> 1,000+ Species Database & Job Classification Engine
+## <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/miracle-seed.png" width="24" height="24" align="absmiddle"> Universal 1,000+ Species Database & Job Catalog
 
-Cobblebase assigns work roles to all **1,367+ Pokémon species across Generations 1–9** through an **Elemental Type & Biological Aptitude Matrix**. Every Pokémon's primary and secondary types, evolutionary stage, ability traits, and movepools dictate their native skills and baseline proficiency.
+Virtual Loot: Extended integrates with Cobblebase's `SpeciesSkillRegistry` to map all **1,025 National Pokédex species plus regional and form variants (1,367+ total)** across Generations 1 through 9.
 
-If a Pokémon is tethered without an explicit manual assignment, the engine evaluates `SpeciesSkillRegistry` and automatically executes their **highest-priority, highest-proficiency skill**.
+Every Pokémon automatically receives native work skills based on its **Primary & Secondary Elemental Types**, **Biological Anatomy**, **Abilities**, and **Evolutionary Stage**.
 
 ```
                         [1,367+ Pokémon Species Database (Gens 1–9)]
@@ -127,145 +157,925 @@ If a Pokémon is tethered without an explicit manual assignment, the engine eval
 ---
 
 ### 1. The 18 Elemental Type Work Aptitude Matrix
-Every Pokémon belongs to one or two elemental types that determine its available job suite across all generations:
+Every single Pokémon in the game maps to work aptitudes through its elemental typing:
 
-| Elemental Type | Primary Work Aptitudes | Compatible Specialized Finder & Support Subtypes |
-| :--- | :--- | :--- |
-| **Grass** | **Harvester** (Crops, Apricorns, Berries, Mints) | **Botanist** (`finder_see`), **Pharmacist** (`finder_hea`) |
-| **Bug** | **Harvester** (Vegetation), **Silk Producer** | **Botanist** (`finder_see`), **Collector** (`finder_bal`) |
-| **Rock** | **Mining** (Ores, Stone, Amethyst, Quartz) | **Excavator** (`finder_ore`), **Architect** (`finder_bui`) |
-| **Ground** | **Mining** (Ores), **Archeologist** (Fossils & Pottery) | **Excavator** (`finder_ore`), **Prospector** (`finder_treasure`) |
-| **Steel** | **Mining** (Metals), **Smith** (Templates & Trims) | **Architect** (`finder_bui`), **Armorer** (`finder_held`) |
-| **Water** | **Fishing** (Aquatic Loot), **Dive Looter** | **Pharmacist** (`finder_hea`), **Collector** (`finder_bal`) |
-| **Fire** | **Thermal Producer** (Charcoal, Blaze Powder, Magma) | **Alchemist** (`finder_evo`), **Smith** (`finder_smith`) |
-| **Electric** | **Power Generation**, **Speed II Aura** | **Collector** (`finder_bal`), **Architect** (`finder_bui`) |
-| **Psychic** | **Mentor** (Pasture XP), **Alchemist** (Evolution Items) | **Scholar** (`finder_exp`), **Healer** (`healer`) |
-| **Fairy** | **Healer** (Party HP & Status Cures) | **Pharmacist** (`finder_hea`), **Chef / Forager** (`finder_food`) |
-| **Fighting** | **Guard** (Base Defense), **Strength I Aura** | **Trainer** (`finder_stat`), **Armorer** (`finder_held`) |
-| **Dark** | **Guard** (Night Patrol), **Prospector** (Relics) | **Armorer** (`finder_held`), **Prospector** (`finder_treasure`) |
-| **Ghost** | **Archeologist** (Ancient Relics), **Prospector** | **Scholar** (`finder_exp`), **Alchemist** (`finder_evo`) |
-| **Normal** | **Direct Producer** (Wool, Milk, Eggs), **Collector** | **Chef / Forager** (`finder_food`), **Collector** (`finder_bal`) |
-| **Flying** | **Poultry Producer** (Eggs), **Pickup Scout** | **Collector** (`finder_bal`), **Speed Aura** |
-| **Dragon** | **Apex Guard** (Base Defense), **Strength Aura** | **Scholar** (`finder_exp`), **Armorer** (`finder_held`) |
-| **Ice** | **Preservation**, **Resistance I Aura** | **Architect** (`finder_bui`), **Excavator** (`finder_ore`) |
-| **Poison** | **Slime & Viscosity Producer**, **Alchemist** | **Pharmacist** (`finder_hea`), **Prospector** (`finder_treasure`) |
+<table width="100%">
+  <thead>
+    <tr>
+      <th width="15%" align="left">Elemental Type</th>
+      <th width="35%" align="left">Primary Work Aptitudes</th>
+      <th width="50%" align="left">Compatible Specialized Finder & Support Roles</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><b>Grass</b></td>
+      <td><b>Harvester</b> (Crops, Apricorns, Berries, Mints)</td>
+      <td><b>Botanist</b> (<code>finder_see</code>), <b>Pharmacist</b> (<code>finder_hea</code>)</td>
+    </tr>
+    <tr>
+      <td><b>Bug</b></td>
+      <td><b>Harvester</b> (Vegetation), <b>Silk Producer</b></td>
+      <td><b>Botanist</b> (<code>finder_see</code>), <b>Collector</b> (<code>finder_bal</code>)</td>
+    </tr>
+    <tr>
+      <td><b>Rock</b></td>
+      <td><b>Mining</b> (Ores, Stone, Amethyst, Quartz)</td>
+      <td><b>Excavator</b> (<code>finder_ore</code>), <b>Architect</b> (<code>finder_bui</code>)</td>
+    </tr>
+    <tr>
+      <td><b>Ground</b></td>
+      <td><b>Mining</b> (Ores), <b>Archeologist</b> (Fossils & Pottery)</td>
+      <td><b>Excavator</b> (<code>finder_ore</code>), <b>Prospector</b> (<code>finder_treasure</code>)</td>
+    </tr>
+    <tr>
+      <td><b>Steel</b></td>
+      <td><b>Mining</b> (Metals), <b>Smith</b> (Templates & Trims)</td>
+      <td><b>Architect</b> (<code>finder_bui</code>), <b>Armorer</b> (<code>finder_held</code>)</td>
+    </tr>
+    <tr>
+      <td><b>Water</b></td>
+      <td><b>Fishing</b> (Aquatic Loot), <b>Dive Looter</b></td>
+      <td><b>Pharmacist</b> (<code>finder_hea</code>), <b>Collector</b> (<code>finder_bal</code>)</td>
+    </tr>
+    <tr>
+      <td><b>Fire</b></td>
+      <td><b>Thermal Producer</b> (Charcoal, Blaze Powder, Magma)</td>
+      <td><b>Alchemist</b> (<code>finder_evo</code>), <b>Smith</b> (<code>finder_smith</code>)</td>
+    </tr>
+    <tr>
+      <td><b>Electric</b></td>
+      <td><b>Power Generation</b>, <b>Speed II Aura</b></td>
+      <td><b>Collector</b> (<code>finder_bal</code>), <b>Architect</b> (<code>finder_bui</code>)</td>
+    </tr>
+    <tr>
+      <td><b>Psychic</b></td>
+      <td><b>Mentor</b> (Pasture XP), <b>Alchemist</b> (Evolution Items)</td>
+      <td><b>Scholar</b> (<code>finder_exp</code>), <b>Healer</b> (<code>healer</code>)</td>
+    </tr>
+    <tr>
+      <td><b>Fairy</b></td>
+      <td><b>Healer</b> (Party HP & Status Cures)</td>
+      <td><b>Pharmacist</b> (<code>finder_hea</code>), <b>Chef / Forager</b> (<code>finder_food</code>)</td>
+    </tr>
+    <tr>
+      <td><b>Fighting</b></td>
+      <td><b>Guard</b> (Base Defense), <b>Strength I Aura</b></td>
+      <td><b>Trainer</b> (<code>finder_stat</code>), <b>Armorer</b> (<code>finder_held</code>)</td>
+    </tr>
+    <tr>
+      <td><b>Dark</b></td>
+      <td><b>Guard</b> (Night Patrol), <b>Prospector</b> (Relics)</td>
+      <td><b>Armorer</b> (<code>finder_held</code>), <b>Prospector</b> (<code>finder_treasure</code>)</td>
+    </tr>
+    <tr>
+      <td><b>Ghost</b></td>
+      <td><b>Archeologist</b> (Ancient Relics), <b>Prospector</b></td>
+      <td><b>Scholar</b> (<code>finder_exp</code>), <b>Alchemist</b> (<code>finder_evo</code>)</td>
+    </tr>
+    <tr>
+      <td><b>Normal</b></td>
+      <td><b>Direct Producer</b> (Wool, Milk, Eggs), <b>Collector</b></td>
+      <td><b>Chef / Forager</b> (<code>finder_food</code>), <b>Collector</b> (<code>finder_bal</code>)</td>
+    </tr>
+    <tr>
+      <td><b>Flying</b></td>
+      <td><b>Poultry Producer</b> (Eggs), <b>Pickup Scout</b></td>
+      <td><b>Collector</b> (<code>finder_bal</code>), <b>Speed Aura</b></td>
+    </tr>
+    <tr>
+      <td><b>Dragon</b></td>
+      <td><b>Apex Guard</b> (Base Defense), <b>Strength Aura</b></td>
+      <td><b>Scholar</b> (<code>finder_exp</code>), <b>Armorer</b> (<code>finder_held</code>)</td>
+    </tr>
+    <tr>
+      <td><b>Ice</b></td>
+      <td><b>Preservation</b>, <b>Resistance I Aura</b></td>
+      <td><b>Architect</b> (<code>finder_bui</code>), <b>Excavator</b> (<code>finder_ore</code>)</td>
+    </tr>
+    <tr>
+      <td><b>Poison</b></td>
+      <td><b>Slime & Viscosity Producer</b>, <b>Alchemist</b></td>
+      <td><b>Pharmacist</b> (<code>finder_hea</code>), <b>Prospector</b> (<code>finder_treasure</code>)</td>
+    </tr>
+  </tbody>
+</table>
 
 ---
 
 ### 2. Tiered Drop Probabilities by Skill Proficiency
-Unlike fixed loot drops, all Finder, Mining, Harvester, Fishing, and Archaeology jobs dynamically roll across **4 loot tiers** based on the working Pokémon's proficiency rating:
+All Finder, Mining, Harvester, Fishing, and Archaeology tasks roll across **4 loot tiers** based on proficiency:
 
 $$\text{Loot Tiers: } \text{Common (Tier 0)} \longrightarrow \text{Uncommon (Tier 1)} \longrightarrow \text{Rare (Tier 2)} \longrightarrow \text{Ultra Rare (Tier 3)}$$
 
-| Pokémon Proficiency Rating | Tier 0 (Common) | Tier 1 (Uncommon) | Tier 2 (Rare) | Tier 3 (Ultra Rare) |
-| :---: | :---: | :---: | :---: | :---: |
-| <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/star-piece.png" width="14" height="14"> **1 Star (Novice)** | **80%** | **20%** | 0% | 0% |
-| <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/star-piece.png" width="14" height="14"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/star-piece.png" width="14" height="14"> **2 Stars (Apprentice)** | **80%** | **20%** | 0% | 0% |
-| <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/star-piece.png" width="14" height="14"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/star-piece.png" width="14" height="14"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/star-piece.png" width="14" height="14"> **3 Stars (Skilled)** | **50%** | **35%** | **15%** | 0% |
-| <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/star-piece.png" width="14" height="14"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/star-piece.png" width="14" height="14"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/star-piece.png" width="14" height="14"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/star-piece.png" width="14" height="14"> **4 Stars (Expert)** | **20%** | **40%** | **30%** | **10%** |
-| <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/star-piece.png" width="14" height="14"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/star-piece.png" width="14" height="14"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/star-piece.png" width="14" height="14"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/star-piece.png" width="14" height="14"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/star-piece.png" width="14" height="14"> **5 Stars (Master)** | **0%** | **30%** | **45%** | **25%** |
-
-* **Evolution Progression**: First-stage and baby Pokémon naturally possess 1–2 Star proficiency; mid-stage Pokémon hold 3 Stars; fully evolved, Mega, and Mythical/Legendary Pokémon possess 4–5 Star ratings.
+<table width="100%">
+  <thead>
+    <tr>
+      <th width="32%" align="center">Proficiency Rating</th>
+      <th width="17%" align="center">Tier 0 (Common)</th>
+      <th width="17%" align="center">Tier 1 (Uncommon)</th>
+      <th width="17%" align="center">Tier 2 (Rare)</th>
+      <th width="17%" align="center">Tier 3 (Ultra Rare)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td align="center"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/star-piece.png" width="16" height="16" align="absmiddle"> <b>1 Star (Novice)</b></td>
+      <td align="center"><b>80%</b></td>
+      <td align="center"><b>20%</b></td>
+      <td align="center">0%</td>
+      <td align="center">0%</td>
+    </tr>
+    <tr>
+      <td align="center"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/star-piece.png" width="16" height="16" align="absmiddle"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/star-piece.png" width="16" height="16" align="absmiddle"> <b>2 Stars (Apprentice)</b></td>
+      <td align="center"><b>80%</b></td>
+      <td align="center"><b>20%</b></td>
+      <td align="center">0%</td>
+      <td align="center">0%</td>
+    </tr>
+    <tr>
+      <td align="center"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/star-piece.png" width="16" height="16" align="absmiddle"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/star-piece.png" width="16" height="16" align="absmiddle"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/star-piece.png" width="16" height="16" align="absmiddle"> <b>3 Stars (Skilled)</b></td>
+      <td align="center"><b>50%</b></td>
+      <td align="center"><b>35%</b></td>
+      <td align="center"><b>15%</b></td>
+      <td align="center">0%</td>
+    </tr>
+    <tr>
+      <td align="center"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/star-piece.png" width="16" height="16" align="absmiddle"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/star-piece.png" width="16" height="16" align="absmiddle"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/star-piece.png" width="16" height="16" align="absmiddle"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/star-piece.png" width="16" height="16" align="absmiddle"> <b>4 Stars (Expert)</b></td>
+      <td align="center"><b>20%</b></td>
+      <td align="center"><b>40%</b></td>
+      <td align="center"><b>30%</b></td>
+      <td align="center"><b>10%</b></td>
+    </tr>
+    <tr>
+      <td align="center"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/star-piece.png" width="16" height="16" align="absmiddle"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/star-piece.png" width="16" height="16" align="absmiddle"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/star-piece.png" width="16" height="16" align="absmiddle"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/star-piece.png" width="16" height="16" align="absmiddle"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/star-piece.png" width="16" height="16" align="absmiddle"> <b>5 Stars (Master)</b></td>
+      <td align="center"><b>0%</b></td>
+      <td align="center"><b>30%</b></td>
+      <td align="center"><b>45%</b></td>
+      <td align="center"><b>25%</b></td>
+    </tr>
+  </tbody>
+</table>
 
 ---
 
 ### 3. Direct Biological Producer Registry (`cobblebase:producer`)
 Direct producers periodically generate fixed items based on authentic species anatomy directly into pasture storage:
 
-| Production Category | Item Output | Representative Species by Generation (with Sprites) |
-| :--- | :--- | :--- |
-| **Wool, Cotton & Fiber** | `minecraft:white_wool` (x1–x2) | **Gen 2**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/179.png" width="22" height="22" align="center"> Mareep, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/180.png" width="22" height="22" align="center"> Flaaffy, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/181.png" width="22" height="22" align="center"> Ampharos • **Gen 3**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/333.png" width="22" height="22" align="center"> Swablu, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/334.png" width="22" height="22" align="center"> Altaria • **Gen 5**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/546.png" width="22" height="22" align="center"> Cottonee, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/547.png" width="22" height="22" align="center"> Whimsicott • **Gen 8**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/831.png" width="22" height="22" align="center"> Wooloo, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/832.png" width="22" height="22" align="center"> Dubwool, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/830.png" width="22" height="22" align="center"> Eldegoss |
-| **Silk, String & Webs** | `minecraft:string` (x1–x3) | **Gen 1**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10.png" width="22" height="22" align="center"> Caterpie, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/13.png" width="22" height="22" align="center"> Weedle • **Gen 2**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/167.png" width="22" height="22" align="center"> Spinarak, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/168.png" width="22" height="22" align="center"> Ariados • **Gen 3**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/265.png" width="22" height="22" align="center"> Wurmple • **Gen 5**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/540.png" width="22" height="22" align="center"> Sewaddle, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/542.png" width="22" height="22" align="center"> Leavanny, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/595.png" width="22" height="22" align="center"> Joltik, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/596.png" width="22" height="22" align="center"> Galvantula • **Gen 7**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/751.png" width="22" height="22" align="center"> Dewpider, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/752.png" width="22" height="22" align="center"> Araquanid • **Gen 8**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/872.png" width="22" height="22" align="center"> Snom, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/873.png" width="22" height="22" align="center"> Frosmoth • **Gen 9**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/917.png" width="22" height="22" align="center"> Tarountula, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/918.png" width="22" height="22" align="center"> Spidops |
-| **Dairy MooMoo Milk** | `cobblemon:moomoo_milk` (x1–x2) | **Gen 1**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/128.png" width="22" height="22" align="center"> Tauros • **Gen 2**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/241.png" width="22" height="22" align="center"> Miltank • **Gen 5**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/626.png" width="22" height="22" align="center"> Bouffalant • **Gen 6**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/672.png" width="22" height="22" align="center"> Skiddo, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/673.png" width="22" height="22" align="center"> Gogoat |
-| **Poultry & Bird Eggs** | `minecraft:egg` (x1–x2) | **Gen 1**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/16.png" width="22" height="22" align="center"> Pidgey, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/102.png" width="22" height="22" align="center"> Exeggcute, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/113.png" width="22" height="22" align="center"> Chansey • **Gen 2**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/242.png" width="22" height="22" align="center"> Blissey • **Gen 3**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/255.png" width="22" height="22" align="center"> Torchic line • **Gen 4**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/440.png" width="22" height="22" align="center"> Happiny • **Gen 6**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/661.png" width="22" height="22" align="center"> Fletchling, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/663.png" width="22" height="22" align="center"> Talonflame • **Gen 7**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/722.png" width="22" height="22" align="center"> Rowlet • **Gen 9**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/940.png" width="22" height="22" align="center"> Wattrel, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/941.png" width="22" height="22" align="center"> Kilowattrel |
-| **Honey & Honeycomb** | `minecraft:honeycomb` & `honey_bottle` | **Gen 1**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/15.png" width="22" height="22" align="center"> Beedrill • **Gen 4**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/415.png" width="22" height="22" align="center"> Combee, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/416.png" width="22" height="22" align="center"> Vespiquen • **Gen 7**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/742.png" width="22" height="22" align="center"> Cutiefly, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/743.png" width="22" height="22" align="center"> Ribombee |
-| **Precious Metals & Nuggets** | `minecraft:gold_nugget` & `iron_nugget` | **Gen 1**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/52.png" width="22" height="22" align="center"> Meowth, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/53.png" width="22" height="22" align="center"> Persian • **Gen 3**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/302.png" width="22" height="22" align="center"> Sableye • **Gen 8**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/863.png" width="22" height="22" align="center"> Perrserker • **Gen 9**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/999.png" width="22" height="22" align="center"> Gimmighoul, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1000.png" width="22" height="22" align="center"> Gholdengo |
-| **Gems, Diamonds & Amethyst** | `minecraft:diamond` & `amethyst_shard` | **Gen 3**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/302.png" width="22" height="22" align="center"> Sableye • **Gen 5**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/524.png" width="22" height="22" align="center"> Roggenrola, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/525.png" width="22" height="22" align="center"> Boldore, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/526.png" width="22" height="22" align="center"> Gigalith • **Gen 6**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/703.png" width="22" height="22" align="center"> Carbink, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/719.png" width="22" height="22" align="center"> Diancie • **Gen 9**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/932.png" width="22" height="22" align="center"> Nacli, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/933.png" width="22" height="22" align="center"> Naclstack, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/934.png" width="22" height="22" align="center"> Garganacl |
-| **Orchard Fruits & Berries** | `minecraft:apple` & `sweet_berries` | **Gen 3**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/357.png" width="22" height="22" align="center"> Tropius • **Gen 4**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/420.png" width="22" height="22" align="center"> Cherubi, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/421.png" width="22" height="22" align="center"> Cherrim • **Gen 7**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/761.png" width="22" height="22" align="center"> Bounsweet, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/763.png" width="22" height="22" align="center"> Tsareena • **Gen 8**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/840.png" width="22" height="22" align="center"> Applin, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/841.png" width="22" height="22" align="center"> Flapple, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/842.png" width="22" height="22" align="center"> Appletun • **Gen 9**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/928.png" width="22" height="22" align="center"> Smoliv, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/930.png" width="22" height="22" align="center"> Arboliva, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1011.png" width="22" height="22" align="center"> Dipplin, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1019.png" width="22" height="22" align="center"> Hydrapple |
-| **Slime, Viscosity & Toxins** | `minecraft:slime_ball` & `magma_cream` | **Gen 1**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/88.png" width="22" height="22" align="center"> Grimer, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/89.png" width="22" height="22" align="center"> Muk • **Gen 2**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/218.png" width="22" height="22" align="center"> Slugma, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/219.png" width="22" height="22" align="center"> Magcargo • **Gen 3**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/316.png" width="22" height="22" align="center"> Gulpin, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/317.png" width="22" height="22" align="center"> Swalot • **Gen 4**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/422.png" width="22" height="22" align="center"> Shellos, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/423.png" width="22" height="22" align="center"> Gastrodon • **Gen 6**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/704.png" width="22" height="22" align="center"> Goomy, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/706.png" width="22" height="22" align="center"> Goodra |
-| **Fuel, Charcoal & Blaze Dust** | `minecraft:charcoal` & `blaze_powder` | **Gen 1**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/126.png" width="22" height="22" align="center"> Magmar • **Gen 2**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/240.png" width="22" height="22" align="center"> Magby • **Gen 3**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/322.png" width="22" height="22" align="center"> Numel, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/323.png" width="22" height="22" align="center"> Camerupt, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/324.png" width="22" height="22" align="center"> Torkoal • **Gen 4**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/467.png" width="22" height="22" align="center"> Magmortar • **Gen 8**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/837.png" width="22" height="22" align="center"> Rolycoly, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/838.png" width="22" height="22" align="center"> Carkol, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/839.png" width="22" height="22" align="center"> Coalossal |
-| **Ocean Pearls & Prismarine** | `minecraft:pearl` & `prismarine_shard` | **Gen 1**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/90.png" width="22" height="22" align="center"> Shellder, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/91.png" width="22" height="22" align="center"> Cloyster • **Gen 3**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/366.png" width="22" height="22" align="center"> Clamperl, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/367.png" width="22" height="22" align="center"> Huntail, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/368.png" width="22" height="22" align="center"> Gorebyss • **Gen 5**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/557.png" width="22" height="22" align="center"> Dwebble, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/558.png" width="22" height="22" align="center"> Crustle • **Gen 6**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/688.png" width="22" height="22" align="center"> Binacle, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/689.png" width="22" height="22" align="center"> Barbaracle |
-| **Fermented Nectars & Teas** | `cobblemon:berry_juice` (x1) | **Gen 2**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/213.png" width="22" height="22" align="center"> Shuckle • **Gen 8**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/854.png" width="22" height="22" align="center"> Sinistea, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/855.png" width="22" height="22" align="center"> Polteageist • **Gen 9**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1012.png" width="22" height="22" align="center"> Poltchageist, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1013.png" width="22" height="22" align="center"> Sinistcha |
+<table width="100%">
+  <thead>
+    <tr>
+      <th width="20%" align="left">Production Category</th>
+      <th width="32%" align="left">Item Output & Sprites</th>
+      <th width="48%" align="left">Eligible Species Gallery (Gens 1–9)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><b>Wool & Fiber</b></td>
+      <td><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/fluffy-tail.png" width="18" height="18" align="absmiddle"> <code>minecraft:white_wool</code> (x1–x2)</td>
+      <td>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/179.png" width="22" height="22" align="absmiddle"> Mareep
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/180.png" width="22" height="22" align="absmiddle"> Flaaffy
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/181.png" width="22" height="22" align="absmiddle"> Ampharos
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/333.png" width="22" height="22" align="absmiddle"> Swablu
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/334.png" width="22" height="22" align="absmiddle"> Altaria
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/546.png" width="22" height="22" align="absmiddle"> Cottonee
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/547.png" width="22" height="22" align="absmiddle"> Whimsicott
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/831.png" width="22" height="22" align="absmiddle"> Wooloo
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/832.png" width="22" height="22" align="absmiddle"> Dubwool
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/830.png" width="22" height="22" align="absmiddle"> Eldegoss
+      </td>
+    </tr>
+    <tr>
+      <td><b>Silk & Webs</b></td>
+      <td><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/silver-powder.png" width="18" height="18" align="absmiddle"> <code>minecraft:string</code> (x1–x3)</td>
+      <td>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10.png" width="22" height="22" align="absmiddle"> Caterpie
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/13.png" width="22" height="22" align="absmiddle"> Weedle
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/167.png" width="22" height="22" align="absmiddle"> Spinarak
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/168.png" width="22" height="22" align="absmiddle"> Ariados
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/265.png" width="22" height="22" align="absmiddle"> Wurmple
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/540.png" width="22" height="22" align="absmiddle"> Sewaddle
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/542.png" width="22" height="22" align="absmiddle"> Leavanny
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/595.png" width="22" height="22" align="absmiddle"> Joltik
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/596.png" width="22" height="22" align="absmiddle"> Galvantula
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/751.png" width="22" height="22" align="absmiddle"> Dewpider
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/752.png" width="22" height="22" align="absmiddle"> Araquanid
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/872.png" width="22" height="22" align="absmiddle"> Snom
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/873.png" width="22" height="22" align="absmiddle"> Frosmoth
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/917.png" width="22" height="22" align="absmiddle"> Tarountula
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/918.png" width="22" height="22" align="absmiddle"> Spidops
+      </td>
+    </tr>
+    <tr>
+      <td><b>Dairy Milk</b></td>
+      <td><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/moomoo-milk.png" width="18" height="18" align="absmiddle"> <code>cobblemon:moomoo_milk</code> (x1–x2)</td>
+      <td>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/128.png" width="22" height="22" align="absmiddle"> Tauros
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/241.png" width="22" height="22" align="absmiddle"> Miltank
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/626.png" width="22" height="22" align="absmiddle"> Bouffalant
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/672.png" width="22" height="22" align="absmiddle"> Skiddo
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/673.png" width="22" height="22" align="absmiddle"> Gogoat
+      </td>
+    </tr>
+    <tr>
+      <td><b>Poultry Eggs</b></td>
+      <td><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/lucky-egg.png" width="18" height="18" align="absmiddle"> <code>minecraft:egg</code> (x1–x2)</td>
+      <td>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/16.png" width="22" height="22" align="absmiddle"> Pidgey
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/102.png" width="22" height="22" align="absmiddle"> Exeggcute
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/113.png" width="22" height="22" align="absmiddle"> Chansey
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/242.png" width="22" height="22" align="absmiddle"> Blissey
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/255.png" width="22" height="22" align="absmiddle"> Torchic
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/440.png" width="22" height="22" align="absmiddle"> Happiny
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/661.png" width="22" height="22" align="absmiddle"> Fletchling
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/663.png" width="22" height="22" align="absmiddle"> Talonflame
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/722.png" width="22" height="22" align="absmiddle"> Rowlet
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/940.png" width="22" height="22" align="absmiddle"> Wattrel
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/941.png" width="22" height="22" align="absmiddle"> Kilowattrel
+      </td>
+    </tr>
+    <tr>
+      <td><b>Honey & Comb</b></td>
+      <td><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/honey.png" width="18" height="18" align="absmiddle"> <code>minecraft:honeycomb</code> / <code>honey_bottle</code></td>
+      <td>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/15.png" width="22" height="22" align="absmiddle"> Beedrill
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/415.png" width="22" height="22" align="absmiddle"> Combee
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/416.png" width="22" height="22" align="absmiddle"> Vespiquen
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/742.png" width="22" height="22" align="absmiddle"> Cutiefly
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/743.png" width="22" height="22" align="absmiddle"> Ribombee
+      </td>
+    </tr>
+    <tr>
+      <td><b>Precious Metals</b></td>
+      <td>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/nugget.png" width="18" height="18" align="absmiddle"> <code>gold_nugget</code> &nbsp;
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/iron.png" width="18" height="18" align="absmiddle"> <code>iron_nugget</code>
+      </td>
+      <td>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/52.png" width="22" height="22" align="absmiddle"> Meowth
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/53.png" width="22" height="22" align="absmiddle"> Persian
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/302.png" width="22" height="22" align="absmiddle"> Sableye
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/863.png" width="22" height="22" align="absmiddle"> Perrserker
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/999.png" width="22" height="22" align="absmiddle"> Gimmighoul
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1000.png" width="22" height="22" align="absmiddle"> Gholdengo
+      </td>
+    </tr>
+    <tr>
+      <td><b>Gems & Crystals</b></td>
+      <td>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/star-piece.png" width="18" height="18" align="absmiddle"> <code>diamond</code> &nbsp;
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/pearl.png" width="18" height="18" align="absmiddle"> <code>amethyst_shard</code>
+      </td>
+      <td>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/302.png" width="22" height="22" align="absmiddle"> Sableye
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/524.png" width="22" height="22" align="absmiddle"> Roggenrola
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/525.png" width="22" height="22" align="absmiddle"> Boldore
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/526.png" width="22" height="22" align="absmiddle"> Gigalith
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/703.png" width="22" height="22" align="absmiddle"> Carbink
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/719.png" width="22" height="22" align="absmiddle"> Diancie
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/932.png" width="22" height="22" align="absmiddle"> Nacli
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/933.png" width="22" height="22" align="absmiddle"> Naclstack
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/934.png" width="22" height="22" align="absmiddle"> Garganacl
+      </td>
+    </tr>
+    <tr>
+      <td><b>Orchard Fruits</b></td>
+      <td>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/oran-berry.png" width="18" height="18" align="absmiddle"> <code>apple</code> &nbsp;
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/sitrus-berry.png" width="18" height="18" align="absmiddle"> <code>sweet_berries</code>
+      </td>
+      <td>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/357.png" width="22" height="22" align="absmiddle"> Tropius
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/420.png" width="22" height="22" align="absmiddle"> Cherubi
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/421.png" width="22" height="22" align="absmiddle"> Cherrim
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/761.png" width="22" height="22" align="absmiddle"> Bounsweet
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/763.png" width="22" height="22" align="absmiddle"> Tsareena
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/840.png" width="22" height="22" align="absmiddle"> Applin
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/841.png" width="22" height="22" align="absmiddle"> Flapple
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/842.png" width="22" height="22" align="absmiddle"> Appletun
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/928.png" width="22" height="22" align="absmiddle"> Smoliv
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/930.png" width="22" height="22" align="absmiddle"> Arboliva
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1011.png" width="22" height="22" align="absmiddle"> Dipplin
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1019.png" width="22" height="22" align="absmiddle"> Hydrapple
+      </td>
+    </tr>
+    <tr>
+      <td><b>Slime & Viscosity</b></td>
+      <td>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/sticky-barb.png" width="18" height="18" align="absmiddle"> <code>slime_ball</code> &nbsp;
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/black-sludge.png" width="18" height="18" align="absmiddle"> <code>magma_cream</code>
+      </td>
+      <td>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/88.png" width="22" height="22" align="absmiddle"> Grimer
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/89.png" width="22" height="22" align="absmiddle"> Muk
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/218.png" width="22" height="22" align="absmiddle"> Slugma
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/219.png" width="22" height="22" align="absmiddle"> Magcargo
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/316.png" width="22" height="22" align="absmiddle"> Gulpin
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/317.png" width="22" height="22" align="absmiddle"> Swalot
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/422.png" width="22" height="22" align="absmiddle"> Shellos
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/423.png" width="22" height="22" align="absmiddle"> Gastrodon
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/704.png" width="22" height="22" align="absmiddle"> Goomy
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/706.png" width="22" height="22" align="absmiddle"> Goodra
+      </td>
+    </tr>
+    <tr>
+      <td><b>Fuel & Charcoal</b></td>
+      <td>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/charcoal.png" width="18" height="18" align="absmiddle"> <code>charcoal</code> &nbsp;
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/magmarizer.png" width="18" height="18" align="absmiddle"> <code>blaze_powder</code>
+      </td>
+      <td>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/126.png" width="22" height="22" align="absmiddle"> Magmar
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/240.png" width="22" height="22" align="absmiddle"> Magby
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/322.png" width="22" height="22" align="absmiddle"> Numel
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/323.png" width="22" height="22" align="absmiddle"> Camerupt
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/324.png" width="22" height="22" align="absmiddle"> Torkoal
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/467.png" width="22" height="22" align="absmiddle"> Magmortar
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/837.png" width="22" height="22" align="absmiddle"> Rolycoly
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/838.png" width="22" height="22" align="absmiddle"> Carkol
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/839.png" width="22" height="22" align="absmiddle"> Coalossal
+      </td>
+    </tr>
+    <tr>
+      <td><b>Pearls & Prismarine</b></td>
+      <td>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/pearl.png" width="18" height="18" align="absmiddle"> <code>pearl</code> &nbsp;
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/prism-scale.png" width="18" height="18" align="absmiddle"> <code>prismarine_shard</code>
+      </td>
+      <td>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/90.png" width="22" height="22" align="absmiddle"> Shellder
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/91.png" width="22" height="22" align="absmiddle"> Cloyster
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/366.png" width="22" height="22" align="absmiddle"> Clamperl
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/367.png" width="22" height="22" align="absmiddle"> Huntail
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/368.png" width="22" height="22" align="absmiddle"> Gorebyss
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/557.png" width="22" height="22" align="absmiddle"> Dwebble
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/558.png" width="22" height="22" align="absmiddle"> Crustle
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/688.png" width="22" height="22" align="absmiddle"> Binacle
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/689.png" width="22" height="22" align="absmiddle"> Barbaracle
+      </td>
+    </tr>
+    <tr>
+      <td><b>Fermented Juice & Teas</b></td>
+      <td><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/berry-juice.png" width="18" height="18" align="absmiddle"> <code>cobblemon:berry_juice</code> (x1)</td>
+      <td>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/213.png" width="22" height="22" align="absmiddle"> Shuckle
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/854.png" width="22" height="22" align="absmiddle"> Sinistea
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/855.png" width="22" height="22" align="absmiddle"> Polteageist
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1012.png" width="22" height="22" align="absmiddle"> Poltchageist
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1013.png" width="22" height="22" align="absmiddle"> Sinistcha
+      </td>
+    </tr>
+  </tbody>
+</table>
 
 ---
 
 ### 4. The 12 Specialized Finder Subtypes (`cobblebase:finder_*`)
 Finders forage for specialized loot tables based on their elemental typing, species traits, and movepool lore:
 
-| Finder Subtype | Specialization | Focus Target Items | Representative Species Across All 9 Generations (with Sprites) |
-| :--- | :--- | :--- | :--- |
-| **Alchemist** (`finder_evo`) | Evolution Items | Fire/Water/Thunder/Leaf/Moon/Sun/Dusk/Dawn Stones, Linking Cords, Ability Patches, King's Rocks | **Gen 1**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/65.png" width="22" height="22" align="center"> Alakazam • **Gen 2**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/178.png" width="22" height="22" align="center"> Xatu, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/199.png" width="22" height="22" align="center"> Slowking • **Gen 3**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/282.png" width="22" height="22" align="center"> Gardevoir, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/344.png" width="22" height="22" align="center"> Claydol • **Gen 4**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/429.png" width="22" height="22" align="center"> Mismagius • **Gen 5**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/561.png" width="22" height="22" align="center"> Sigilyph, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/576.png" width="22" height="22" align="center"> Gothitelle, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/579.png" width="22" height="22" align="center"> Reuniclus, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/606.png" width="22" height="22" align="center"> Beheeyem • **Gen 6**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/655.png" width="22" height="22" align="center"> Delphox • **Gen 8**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/858.png" width="22" height="22" align="center"> Hatterene |
-| **Pharmacist** (`finder_hea`) | Medical & Healing | Max Potions, Full Restores, Revives, Max Revives, Sacred Ash, Full Heals, Energy Roots | **Gen 1**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/113.png" width="22" height="22" align="center"> Chansey • **Gen 2**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/154.png" width="22" height="22" align="center"> Meganium, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/242.png" width="22" height="22" align="center"> Blissey • **Gen 4**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/468.png" width="22" height="22" align="center"> Togekiss • **Gen 5**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/531.png" width="22" height="22" align="center"> Audino, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/581.png" width="22" height="22" align="center"> Swanna, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/594.png" width="22" height="22" align="center"> Alomomola • **Gen 6**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/671.png" width="22" height="22" align="center"> Florges, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/683.png" width="22" height="22" align="center"> Aromatisse • **Gen 7**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/764.png" width="22" height="22" align="center"> Comfey • **Gen 8**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/830.png" width="22" height="22" align="center"> Eldegoss, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/876.png" width="22" height="22" align="center"> Indeedee |
-| **Architect** (`finder_bui`) | Synthetic & Matrix | Prismarine, Sea Lanterns, Crying Obsidian, Quartz, Smooth Stone, Glowstone, Redstone Lamps | **Gen 1**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/82.png" width="22" height="22" align="center"> Magneton, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/137.png" width="22" height="22" align="center"> Porygon • **Gen 2**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/233.png" width="22" height="22" align="center"> Porygon2 • **Gen 4**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/437.png" width="22" height="22" align="center"> Bronzong, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/462.png" width="22" height="22" align="center"> Magnezone, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/474.png" width="22" height="22" align="center"> Porygon-Z, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/479.png" width="22" height="22" align="center"> Rotom • **Gen 5**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/532.png" width="22" height="22" align="center"> Timburr, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/533.png" width="22" height="22" align="center"> Gurdurr, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/534.png" width="22" height="22" align="center"> Conkeldurr, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/557.png" width="22" height="22" align="center"> Dwebble, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/558.png" width="22" height="22" align="center"> Crustle |
-| **Excavator** (`finder_ore`) | Subterranean Minerals | Raw Iron, Raw Copper, Raw Gold, Diamonds, Emeralds, Ancient Debris, Obsidian | **Gen 1**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/27.png" width="22" height="22" align="center"> Sandshrew, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/28.png" width="22" height="22" align="center"> Sandslash, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/50.png" width="22" height="22" align="center"> Diglett, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/51.png" width="22" height="22" align="center"> Dugtrio, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/95.png" width="22" height="22" align="center"> Onix • **Gen 2**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/208.png" width="22" height="22" align="center"> Steelix, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/232.png" width="22" height="22" align="center"> Donphan • **Gen 4**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/444.png" width="22" height="22" align="center"> Gabite, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/445.png" width="22" height="22" align="center"> Garchomp, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/450.png" width="22" height="22" align="center"> Hippowdon • **Gen 5**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/529.png" width="22" height="22" align="center"> Drilbur, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/530.png" width="22" height="22" align="center"> Excadrill • **Gen 9**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/984.png" width="22" height="22" align="center"> Great Tusk, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1003.png" width="22" height="22" align="center"> Ting-Lu |
-| **Botanist** (`finder_see`) | Seeds & Agriculture | Black/White/Red/Blue/Yellow/Green/Pink Apricorn Seeds, Mint Seeds, Fertilizers, Organic Mulch | **Gen 1**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/3.png" width="22" height="22" align="center"> Venusaur, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/45.png" width="22" height="22" align="center"> Vileplume • **Gen 2**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/182.png" width="22" height="22" align="center"> Bellossom, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/251.png" width="22" height="22" align="center"> Celebi • **Gen 3**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/254.png" width="22" height="22" align="center"> Sceptile • **Gen 4**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/407.png" width="22" height="22" align="center"> Roserade, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/470.png" width="22" height="22" align="center"> Leafeon, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/492.png" width="22" height="22" align="center"> Shaymin • **Gen 5**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/549.png" width="22" height="22" align="center"> Lilligant • **Gen 6**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/709.png" width="22" height="22" align="center"> Trevenant • **Gen 7**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/724.png" width="22" height="22" align="center"> Decidueye, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/763.png" width="22" height="22" align="center"> Tsareena • **Gen 9**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/908.png" width="22" height="22" align="center"> Meowscarada |
-| **Collector** (`finder_bal`) | Poké Balls & Devices | Ultra Balls, Apricorn Specialty Balls (Heavy, Moon, Love, Level), Cherish Balls, Master Balls | **Gen 2**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/190.png" width="22" height="22" align="center"> Aipom • **Gen 3**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/263.png" width="22" height="22" align="center"> Zigzagoon, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/264.png" width="22" height="22" align="center"> Linoone • **Gen 4**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/417.png" width="22" height="22" align="center"> Pachirisu, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/424.png" width="22" height="22" align="center"> Ambipom • **Gen 5**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/573.png" width="22" height="22" align="center"> Cinccino, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/587.png" width="22" height="22" align="center"> Emolga • **Gen 6**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/702.png" width="22" height="22" align="center"> Dedenne • **Gen 8**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/819.png" width="22" height="22" align="center"> Skwovet, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/820.png" width="22" height="22" align="center"> Greedent, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/877.png" width="22" height="22" align="center"> Morpeko • **Gen 9**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/921.png" width="22" height="22" align="center"> Pawmi, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/923.png" width="22" height="22" align="center"> Pawmot |
-| **Scholar** (`finder_exp`) | Ancient Lore & Exp | Exp Candies XS, S, M, L, XL, Rare Candies | **Gen 1**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/97.png" width="22" height="22" align="center"> Hypno, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/150.png" width="22" height="22" align="center"> Mewtwo • **Gen 2**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/164.png" width="22" height="22" align="center"> Noctowl, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/199.png" width="22" height="22" align="center"> Slowking • **Gen 3**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/376.png" width="22" height="22" align="center"> Metagross • **Gen 4**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/480.png" width="22" height="22" align="center"> Uxie, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/481.png" width="22" height="22" align="center"> Mesprit, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/482.png" width="22" height="22" align="center"> Azelf • **Gen 7**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/765.png" width="22" height="22" align="center"> Oranguru • **Gen 8**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/826.png" width="22" height="22" align="center"> Orbeetle • **Gen 9**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/954.png" width="22" height="22" align="center"> Rabsca |
-| **Chef / Forager** (`finder_food`) | Culinary & Harvest | Ponigiri, Casteliacones, Lava Cookies, Roasted Leeks, Golden Apples, Rare Berries | **Gen 1**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/122.png" width="22" height="22" align="center"> Mr. Mime, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/143.png" width="22" height="22" align="center"> Snorlax • **Gen 2**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/235.png" width="22" height="22" align="center"> Smeargle • **Gen 4**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/439.png" width="22" height="22" align="center"> Mime Jr., <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/446.png" width="22" height="22" align="center"> Munchlax • **Gen 6**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/685.png" width="22" height="22" align="center"> Slurpuff • **Gen 8**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/845.png" width="22" height="22" align="center"> Cramorant, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/869.png" width="22" height="22" align="center"> Alcremie • **Gen 9**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/926.png" width="22" height="22" align="center"> Fidough, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/927.png" width="22" height="22" align="center"> Dachsbun |
-| **Trainer** (`finder_stat`) | EV Training & Vitamins | HP Up, Protein, Iron, Carbos, Calcium, Zinc, Power Weight/Bracer/Belt/Lens/Band/Anklet | **Gen 1**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/66.png" width="22" height="22" align="center"> Machop, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/67.png" width="22" height="22" align="center"> Machoke, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/68.png" width="22" height="22" align="center"> Machamp, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/106.png" width="22" height="22" align="center"> Hitmonlee, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/107.png" width="22" height="22" align="center"> Hitmonchan • **Gen 2**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/237.png" width="22" height="22" align="center"> Hitmontop • **Gen 3**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/296.png" width="22" height="22" align="center"> Makuhita, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/297.png" width="22" height="22" align="center"> Hariyama • **Gen 5**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/538.png" width="22" height="22" align="center"> Throh, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/539.png" width="22" height="22" align="center"> Sawk • **Gen 7**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/740.png" width="22" height="22" align="center"> Crabominable • **Gen 8**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/892.png" width="22" height="22" align="center"> Urshifu • **Gen 9**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/979.png" width="22" height="22" align="center"> Annihilape |
-| **Armorer** (`finder_held`) | Battle Gear & Competitive Items | Choice Band, Choice Specs, Choice Scarf, Life Orb, Focus Sash, Leftovers, Assault Vest, Heavy-Duty Boots, Rocky Helmet | **Gen 2**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/227.png" width="22" height="22" align="center"> Skarmory • **Gen 4**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/448.png" width="22" height="22" align="center"> Lucario, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/475.png" width="22" height="22" align="center"> Gallade • **Gen 5**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/589.png" width="22" height="22" align="center"> Escavalier, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/625.png" width="22" height="22" align="center"> Bisharp • **Gen 6**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/679.png" width="22" height="22" align="center"> Honedge, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/681.png" width="22" height="22" align="center"> Aegislash • **Gen 8**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/823.png" width="22" height="22" align="center"> Corviknight, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/865.png" width="22" height="22" align="center"> Sirfetch'd • **Gen 9**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/936.png" width="22" height="22" align="center"> Armarouge, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/937.png" width="22" height="22" align="center"> Ceruledge, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/983.png" width="22" height="22" align="center"> Kingambit |
-| **Prospector** (`finder_treasure`) | Relics & Valuables | Ancient Relic Coins, Gold Ingots, Netherite Scrap, Emeralds, Ancient Debris, Pottery Sherds | **Gen 2**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/198.png" width="22" height="22" align="center"> Murkrow, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/215.png" width="22" height="22" align="center"> Sneasel • **Gen 3**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/302.png" width="22" height="22" align="center"> Sableye • **Gen 4**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/430.png" width="22" height="22" align="center"> Honchkrow, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/461.png" width="22" height="22" align="center"> Weavile • **Gen 5**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/563.png" width="22" height="22" align="center"> Cofagrigus • **Gen 8**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/827.png" width="22" height="22" align="center"> Nickit, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/828.png" width="22" height="22" align="center"> Thievul, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/867.png" width="22" height="22" align="center"> Runerigus • **Gen 9**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/999.png" width="22" height="22" align="center"> Gimmighoul, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1000.png" width="22" height="22" align="center"> Gholdengo |
-| **Smith** (`finder_smith`) | Forge, Trims & Templates | Armor Trims, Netherite Upgrade Templates, Smithing Upgrades, Anvils, Iron Blocks, Heavy Cores | **Gen 2**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/205.png" width="22" height="22" align="center"> Forretress • **Gen 4**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/485.png" width="22" height="22" align="center"> Heatran • **Gen 5**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/601.png" width="22" height="22" align="center"> Klinklang • **Gen 7**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/809.png" width="22" height="22" align="center"> Melmetal • **Gen 8**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/838.png" width="22" height="22" align="center"> Carkol • **Gen 9**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/957.png" width="22" height="22" align="center"> Tinkatink, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/958.png" width="22" height="22" align="center"> Tinkatuff, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/959.png" width="22" height="22" align="center"> Tinkaton, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/966.png" width="22" height="22" align="center"> Revavroom, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/968.png" width="22" height="22" align="center"> Orthworm |
+<table width="100%">
+  <thead>
+    <tr>
+      <th width="18%" align="left">Finder Subtype</th>
+      <th width="38%" align="left">Focus Target Items (With Individual Sprites)</th>
+      <th width="44%" align="left">Eligible Species Gallery (Gens 1–9)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><b>Alchemist</b><br><code>finder_evo</code></td>
+      <td>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/fire-stone.png" width="16" height="16" align="absmiddle"> Fire Stone &nbsp;
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/water-stone.png" width="16" height="16" align="absmiddle"> Water Stone &nbsp;
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/thunder-stone.png" width="16" height="16" align="absmiddle"> Thunder Stone &nbsp;
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/leaf-stone.png" width="16" height="16" align="absmiddle"> Leaf Stone &nbsp;
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/moon-stone.png" width="16" height="16" align="absmiddle"> Moon Stone &nbsp;
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/sun-stone.png" width="16" height="16" align="absmiddle"> Sun Stone &nbsp;
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/up-grade.png" width="16" height="16" align="absmiddle"> Linking Cord &nbsp;
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/ability-capsule.png" width="16" height="16" align="absmiddle"> Ability Patch &nbsp;
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/kings-rock.png" width="16" height="16" align="absmiddle"> King's Rock
+      </td>
+      <td>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/65.png" width="22" height="22" align="absmiddle"> Alakazam
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/178.png" width="22" height="22" align="absmiddle"> Xatu
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/199.png" width="22" height="22" align="absmiddle"> Slowking
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/282.png" width="22" height="22" align="absmiddle"> Gardevoir
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/344.png" width="22" height="22" align="absmiddle"> Claydol
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/429.png" width="22" height="22" align="absmiddle"> Mismagius
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/561.png" width="22" height="22" align="absmiddle"> Sigilyph
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/576.png" width="22" height="22" align="absmiddle"> Gothitelle
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/579.png" width="22" height="22" align="absmiddle"> Reuniclus
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/606.png" width="22" height="22" align="absmiddle"> Beheeyem
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/655.png" width="22" height="22" align="absmiddle"> Delphox
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/858.png" width="22" height="22" align="absmiddle"> Hatterene
+      </td>
+    </tr>
+    <tr>
+      <td><b>Pharmacist</b><br><code>finder_hea</code></td>
+      <td>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/max-potion.png" width="16" height="16" align="absmiddle"> Max Potion &nbsp;
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/full-restore.png" width="16" height="16" align="absmiddle"> Full Restore &nbsp;
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/revive.png" width="16" height="16" align="absmiddle"> Revive &nbsp;
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/max-revive.png" width="16" height="16" align="absmiddle"> Max Revive &nbsp;
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/sacred-ash.png" width="16" height="16" align="absmiddle"> Sacred Ash &nbsp;
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/full-heal.png" width="16" height="16" align="absmiddle"> Full Heal &nbsp;
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/energy-root.png" width="16" height="16" align="absmiddle"> Energy Root
+      </td>
+      <td>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/113.png" width="22" height="22" align="absmiddle"> Chansey
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/154.png" width="22" height="22" align="absmiddle"> Meganium
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/242.png" width="22" height="22" align="absmiddle"> Blissey
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/468.png" width="22" height="22" align="absmiddle"> Togekiss
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/531.png" width="22" height="22" align="absmiddle"> Audino
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/581.png" width="22" height="22" align="absmiddle"> Swanna
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/594.png" width="22" height="22" align="absmiddle"> Alomomola
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/671.png" width="22" height="22" align="absmiddle"> Florges
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/683.png" width="22" height="22" align="absmiddle"> Aromatisse
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/764.png" width="22" height="22" align="absmiddle"> Comfey
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/830.png" width="22" height="22" align="absmiddle"> Eldegoss
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/876.png" width="22" height="22" align="absmiddle"> Indeedee
+      </td>
+    </tr>
+    <tr>
+      <td><b>Architect</b><br><code>finder_bui</code></td>
+      <td>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/prism-scale.png" width="16" height="16" align="absmiddle"> Prismarine &nbsp;
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/sun-stone.png" width="16" height="16" align="absmiddle"> Sea Lantern &nbsp;
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/dusk-stone.png" width="16" height="16" align="absmiddle"> Crying Obsidian &nbsp;
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/hard-stone.png" width="16" height="16" align="absmiddle"> Quartz &nbsp;
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/smooth-rock.png" width="16" height="16" align="absmiddle"> Smooth Stone
+      </td>
+      <td>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/82.png" width="22" height="22" align="absmiddle"> Magneton
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/137.png" width="22" height="22" align="absmiddle"> Porygon
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/233.png" width="22" height="22" align="absmiddle"> Porygon2
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/437.png" width="22" height="22" align="absmiddle"> Bronzong
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/462.png" width="22" height="22" align="absmiddle"> Magnezone
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/474.png" width="22" height="22" align="absmiddle"> Porygon-Z
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/479.png" width="22" height="22" align="absmiddle"> Rotom
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/532.png" width="22" height="22" align="absmiddle"> Timburr
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/533.png" width="22" height="22" align="absmiddle"> Gurdurr
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/534.png" width="22" height="22" align="absmiddle"> Conkeldurr
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/557.png" width="22" height="22" align="absmiddle"> Dwebble
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/558.png" width="22" height="22" align="absmiddle"> Crustle
+      </td>
+    </tr>
+    <tr>
+      <td><b>Excavator</b><br><code>finder_ore</code></td>
+      <td>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/iron.png" width="16" height="16" align="absmiddle"> Raw Iron &nbsp;
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/relic-copper.png" width="16" height="16" align="absmiddle"> Raw Copper &nbsp;
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/nugget.png" width="16" height="16" align="absmiddle"> Raw Gold &nbsp;
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/star-piece.png" width="16" height="16" align="absmiddle"> Diamonds &nbsp;
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/everstone.png" width="16" height="16" align="absmiddle"> Emeralds &nbsp;
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/comet-shard.png" width="16" height="16" align="absmiddle"> Ancient Debris
+      </td>
+      <td>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/27.png" width="22" height="22" align="absmiddle"> Sandshrew
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/28.png" width="22" height="22" align="absmiddle"> Sandslash
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/50.png" width="22" height="22" align="absmiddle"> Diglett
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/51.png" width="22" height="22" align="absmiddle"> Dugtrio
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/95.png" width="22" height="22" align="absmiddle"> Onix
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/208.png" width="22" height="22" align="absmiddle"> Steelix
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/232.png" width="22" height="22" align="absmiddle"> Donphan
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/444.png" width="22" height="22" align="absmiddle"> Gabite
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/445.png" width="22" height="22" align="absmiddle"> Garchomp
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/450.png" width="22" height="22" align="absmiddle"> Hippowdon
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/529.png" width="22" height="22" align="absmiddle"> Drilbur
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/530.png" width="22" height="22" align="absmiddle"> Excadrill
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/984.png" width="22" height="22" align="absmiddle"> Great Tusk
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1003.png" width="22" height="22" align="absmiddle"> Ting-Lu
+      </td>
+    </tr>
+    <tr>
+      <td><b>Botanist</b><br><code>finder_see</code></td>
+      <td>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/miracle-seed.png" width="16" height="16" align="absmiddle"> Apricorn Seeds &nbsp;
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/lum-berry.png" width="16" height="16" align="absmiddle"> Mint Seeds &nbsp;
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/energy-powder.png" width="16" height="16" align="absmiddle"> Fertilizers &nbsp;
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/heal-powder.png" width="16" height="16" align="absmiddle"> Organic Mulch
+      </td>
+      <td>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/3.png" width="22" height="22" align="absmiddle"> Venusaur
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/45.png" width="22" height="22" align="absmiddle"> Vileplume
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/182.png" width="22" height="22" align="absmiddle"> Bellossom
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/251.png" width="22" height="22" align="absmiddle"> Celebi
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/254.png" width="22" height="22" align="absmiddle"> Sceptile
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/407.png" width="22" height="22" align="absmiddle"> Roserade
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/470.png" width="22" height="22" align="absmiddle"> Leafeon
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/492.png" width="22" height="22" align="absmiddle"> Shaymin
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/549.png" width="22" height="22" align="absmiddle"> Lilligant
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/709.png" width="22" height="22" align="absmiddle"> Trevenant
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/724.png" width="22" height="22" align="absmiddle"> Decidueye
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/763.png" width="22" height="22" align="absmiddle"> Tsareena
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/908.png" width="22" height="22" align="absmiddle"> Meowscarada
+      </td>
+    </tr>
+    <tr>
+      <td><b>Collector</b><br><code>finder_bal</code></td>
+      <td>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/ultra-ball.png" width="16" height="16" align="absmiddle"> Ultra Ball &nbsp;
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/heavy-ball.png" width="16" height="16" align="absmiddle"> Heavy Ball &nbsp;
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/moon-ball.png" width="16" height="16" align="absmiddle"> Moon Ball &nbsp;
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/love-ball.png" width="16" height="16" align="absmiddle"> Love Ball &nbsp;
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/cherish-ball.png" width="16" height="16" align="absmiddle"> Cherish Ball &nbsp;
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/master-ball.png" width="16" height="16" align="absmiddle"> Master Ball
+      </td>
+      <td>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/190.png" width="22" height="22" align="absmiddle"> Aipom
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/263.png" width="22" height="22" align="absmiddle"> Zigzagoon
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/264.png" width="22" height="22" align="absmiddle"> Linoone
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/417.png" width="22" height="22" align="absmiddle"> Pachirisu
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/424.png" width="22" height="22" align="absmiddle"> Ambipom
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/573.png" width="22" height="22" align="absmiddle"> Cinccino
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/587.png" width="22" height="22" align="absmiddle"> Emolga
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/702.png" width="22" height="22" align="absmiddle"> Dedenne
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/819.png" width="22" height="22" align="absmiddle"> Skwovet
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/820.png" width="22" height="22" align="absmiddle"> Greedent
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/877.png" width="22" height="22" align="absmiddle"> Morpeko
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/921.png" width="22" height="22" align="absmiddle"> Pawmi
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/923.png" width="22" height="22" align="absmiddle"> Pawmot
+      </td>
+    </tr>
+    <tr>
+      <td><b>Scholar</b><br><code>finder_exp</code></td>
+      <td>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/rare-candy.png" width="16" height="16" align="absmiddle"> Exp Candies (XS–XL) &nbsp;
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/exp-share.png" width="16" height="16" align="absmiddle"> Rare Candy
+      </td>
+      <td>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/97.png" width="22" height="22" align="absmiddle"> Hypno
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/150.png" width="22" height="22" align="absmiddle"> Mewtwo
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/164.png" width="22" height="22" align="absmiddle"> Noctowl
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/199.png" width="22" height="22" align="absmiddle"> Slowking
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/376.png" width="22" height="22" align="absmiddle"> Metagross
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/480.png" width="22" height="22" align="absmiddle"> Uxie
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/481.png" width="22" height="22" align="absmiddle"> Mesprit
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/482.png" width="22" height="22" align="absmiddle"> Azelf
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/765.png" width="22" height="22" align="absmiddle"> Oranguru
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/826.png" width="22" height="22" align="absmiddle"> Orbeetle
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/954.png" width="22" height="22" align="absmiddle"> Rabsca
+      </td>
+    </tr>
+    <tr>
+      <td><b>Chef / Forager</b><br><code>finder_food</code></td>
+      <td>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/lava-cookie.png" width="16" height="16" align="absmiddle"> Lava Cookies &nbsp;
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/casteliacone.png" width="16" height="16" align="absmiddle"> Casteliacones &nbsp;
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/sweet-heart.png" width="16" height="16" align="absmiddle"> Pastries &nbsp;
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/sitrus-berry.png" width="16" height="16" align="absmiddle"> Rare Berries
+      </td>
+      <td>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/122.png" width="22" height="22" align="absmiddle"> Mr. Mime
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/143.png" width="22" height="22" align="absmiddle"> Snorlax
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/235.png" width="22" height="22" align="absmiddle"> Smeargle
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/439.png" width="22" height="22" align="absmiddle"> Mime Jr.
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/446.png" width="22" height="22" align="absmiddle"> Munchlax
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/685.png" width="22" height="22" align="absmiddle"> Slurpuff
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/845.png" width="22" height="22" align="absmiddle"> Cramorant
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/869.png" width="22" height="22" align="absmiddle"> Alcremie
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/926.png" width="22" height="22" align="absmiddle"> Fidough
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/927.png" width="22" height="22" align="absmiddle"> Dachsbun
+      </td>
+    </tr>
+    <tr>
+      <td><b>Trainer</b><br><code>finder_stat</code></td>
+      <td>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/hp-up.png" width="16" height="16" align="absmiddle"> HP Up &nbsp;
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/protein.png" width="16" height="16" align="absmiddle"> Protein &nbsp;
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/iron.png" width="16" height="16" align="absmiddle"> Iron &nbsp;
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/carbos.png" width="16" height="16" align="absmiddle"> Carbos &nbsp;
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/calcium.png" width="16" height="16" align="absmiddle"> Calcium &nbsp;
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/zinc.png" width="16" height="16" align="absmiddle"> Zinc &nbsp;
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/power-bracer.png" width="16" height="16" align="absmiddle"> Power Items
+      </td>
+      <td>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/66.png" width="22" height="22" align="absmiddle"> Machop
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/67.png" width="22" height="22" align="absmiddle"> Machoke
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/68.png" width="22" height="22" align="absmiddle"> Machamp
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/106.png" width="22" height="22" align="absmiddle"> Hitmonlee
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/107.png" width="22" height="22" align="absmiddle"> Hitmonchan
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/237.png" width="22" height="22" align="absmiddle"> Hitmontop
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/296.png" width="22" height="22" align="absmiddle"> Makuhita
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/297.png" width="22" height="22" align="absmiddle"> Hariyama
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/538.png" width="22" height="22" align="absmiddle"> Throh
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/539.png" width="22" height="22" align="absmiddle"> Sawk
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/740.png" width="22" height="22" align="absmiddle"> Crabominable
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/892.png" width="22" height="22" align="absmiddle"> Urshifu
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/979.png" width="22" height="22" align="absmiddle"> Annihilape
+      </td>
+    </tr>
+    <tr>
+      <td><b>Armorer</b><br><code>finder_held</code></td>
+      <td>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/choice-band.png" width="16" height="16" align="absmiddle"> Choice Band &nbsp;
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/choice-specs.png" width="16" height="16" align="absmiddle"> Choice Specs &nbsp;
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/choice-scarf.png" width="16" height="16" align="absmiddle"> Choice Scarf &nbsp;
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/life-orb.png" width="16" height="16" align="absmiddle"> Life Orb &nbsp;
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/focus-sash.png" width="16" height="16" align="absmiddle"> Focus Sash &nbsp;
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/leftovers.png" width="16" height="16" align="absmiddle"> Leftovers &nbsp;
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/assault-vest.png" width="16" height="16" align="absmiddle"> Assault Vest &nbsp;
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/rocky-helmet.png" width="16" height="16" align="absmiddle"> Rocky Helmet
+      </td>
+      <td>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/227.png" width="22" height="22" align="absmiddle"> Skarmory
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/448.png" width="22" height="22" align="absmiddle"> Lucario
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/475.png" width="22" height="22" align="absmiddle"> Gallade
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/589.png" width="22" height="22" align="absmiddle"> Escavalier
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/625.png" width="22" height="22" align="absmiddle"> Bisharp
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/679.png" width="22" height="22" align="absmiddle"> Honedge
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/681.png" width="22" height="22" align="absmiddle"> Aegislash
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/823.png" width="22" height="22" align="absmiddle"> Corviknight
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/865.png" width="22" height="22" align="absmiddle"> Sirfetch'd
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/936.png" width="22" height="22" align="absmiddle"> Armarouge
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/937.png" width="22" height="22" align="absmiddle"> Ceruledge
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/983.png" width="22" height="22" align="absmiddle"> Kingambit
+      </td>
+    </tr>
+    <tr>
+      <td><b>Prospector</b><br><code>finder_treasure</code></td>
+      <td>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/relic-gold.png" width="16" height="16" align="absmiddle"> Relic Gold &nbsp;
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/relic-silver.png" width="16" height="16" align="absmiddle"> Relic Silver &nbsp;
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/relic-vase.png" width="16" height="16" align="absmiddle"> Ancient Sherds &nbsp;
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/nugget.png" width="16" height="16" align="absmiddle"> Gold Ingots &nbsp;
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/comet-shard.png" width="16" height="16" align="absmiddle"> Netherite Scrap
+      </td>
+      <td>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/198.png" width="22" height="22" align="absmiddle"> Murkrow
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/215.png" width="22" height="22" align="absmiddle"> Sneasel
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/302.png" width="22" height="22" align="absmiddle"> Sableye
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/430.png" width="22" height="22" align="absmiddle"> Honchkrow
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/461.png" width="22" height="22" align="absmiddle"> Weavile
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/563.png" width="22" height="22" align="absmiddle"> Cofagrigus
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/827.png" width="22" height="22" align="absmiddle"> Nickit
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/828.png" width="22" height="22" align="absmiddle"> Thievul
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/867.png" width="22" height="22" align="absmiddle"> Runerigus
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/999.png" width="22" height="22" align="absmiddle"> Gimmighoul
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1000.png" width="22" height="22" align="absmiddle"> Gholdengo
+      </td>
+    </tr>
+    <tr>
+      <td><b>Smith</b><br><code>finder_smith</code></td>
+      <td>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/metal-coat.png" width="16" height="16" align="absmiddle"> Metal Coat &nbsp;
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/protector.png" width="16" height="16" align="absmiddle"> Armor Trims &nbsp;
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/dragon-scale.png" width="16" height="16" align="absmiddle"> Smithing Templates &nbsp;
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/iron.png" width="16" height="16" align="absmiddle"> Heavy Cores
+      </td>
+      <td>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/205.png" width="22" height="22" align="absmiddle"> Forretress
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/485.png" width="22" height="22" align="absmiddle"> Heatran
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/601.png" width="22" height="22" align="absmiddle"> Klinklang
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/809.png" width="22" height="22" align="absmiddle"> Melmetal
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/838.png" width="22" height="22" align="absmiddle"> Carkol
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/957.png" width="22" height="22" align="absmiddle"> Tinkatink
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/958.png" width="22" height="22" align="absmiddle"> Tinkatuff
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/959.png" width="22" height="22" align="absmiddle"> Tinkaton
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/966.png" width="22" height="22" align="absmiddle"> Revavroom
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/968.png" width="22" height="22" align="absmiddle"> Orthworm
+      </td>
+    </tr>
+  </tbody>
+</table>
 
 ---
 
-### 5. Gathering, Mining, Fishing, Archaeology & Team Auras
-* **Harvester (`cobblebase:harvester`)**: 250+ Grass & Bug species gather crops, apricorns, berries, and mints.<br>
-  *Species: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/3.png" width="22" height="22" align="center"> Venusaur, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/154.png" width="22" height="22" align="center"> Meganium, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/254.png" width="22" height="22" align="center"> Sceptile, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/389.png" width="22" height="22" align="center"> Torterra, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/497.png" width="22" height="22" align="center"> Serperior, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/652.png" width="22" height="22" align="center"> Chesnaught, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/812.png" width="22" height="22" align="center"> Rillaboom, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/212.png" width="22" height="22" align="center"> Scizor, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/251.png" width="22" height="22" align="center"> Celebi.*
-* **Mining (`cobblebase:mining`)**: 200+ Rock, Ground & Steel species dig for regional ores scaled by proficiency.<br>
-  *Species: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/530.png" width="22" height="22" align="center"> Excadrill, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/208.png" width="22" height="22" align="center"> Steelix, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/526.png" width="22" height="22" align="center"> Gigalith, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/306.png" width="22" height="22" align="center"> Aggron, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/248.png" width="22" height="22" align="center"> Tyranitar, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/464.png" width="22" height="22" align="center"> Rhyperior, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1003.png" width="22" height="22" align="center"> Ting-Lu.*
-* **Fishing (`cobblebase:fishing`)**: 180+ Water species catch fish, treasures, and marine loot.<br>
-  *Species: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/130.png" width="22" height="22" align="center"> Gyarados, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/9.png" width="22" height="22" align="center"> Blastoise, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/382.png" width="22" height="22" align="center"> Kyogre, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/230.png" width="22" height="22" align="center"> Kingdra, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/746.png" width="22" height="22" align="center"> Wishiwashi, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/977.png" width="22" height="22" align="center"> Dondozo, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/321.png" width="22" height="22" align="center"> Wailord.*
-* **Archeologist (`cobblebase:archeologist`)**: 120+ Fossil & Ancient species excavate relics, fossils, and sherds.<br>
-  *Species: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/34.png" width="22" height="22" align="center"> Nidoking, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/31.png" width="22" height="22" align="center"> Nidoqueen, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/344.png" width="22" height="22" align="center"> Claydol, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/561.png" width="22" height="22" align="center"> Sigilyph, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/142.png" width="22" height="22" align="center"> Aerodactyl, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/697.png" width="22" height="22" align="center"> Tyrantrum, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/411.png" width="22" height="22" align="center"> Bastiodon.*
-* **Healer (`cobblebase:healer`)**: Passively restores party HP and revives fainted team members.<br>
-  *Species: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/242.png" width="22" height="22" align="center"> Blissey, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/113.png" width="22" height="22" align="center"> Chansey, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/531.png" width="22" height="22" align="center"> Audino, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/716.png" width="22" height="22" align="center"> Xerneas, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/468.png" width="22" height="22" align="center"> Togekiss.*
-* **Mentor (`cobblebase:mentor`)**: Channels continuous passive XP to all pastured Pokémon.<br>
-  *Species: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/150.png" width="22" height="22" align="center"> Mewtwo, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/65.png" width="22" height="22" align="center"> Alakazam, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/381.png" width="22" height="22" align="center"> Latios, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/481.png" width="22" height="22" align="center"> Mesprit, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/898.png" width="22" height="22" align="center"> Calyrex.*
-* **Guard (`cobblebase:guard`)**: Patrols base borders and repels wild aggressive spawns for XP and loot.<br>
-  *Species: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/475.png" width="22" height="22" align="center"> Gallade, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/727.png" width="22" height="22" align="center"> Incineroar, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/212.png" width="22" height="22" align="center"> Scizor, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/448.png" width="22" height="22" align="center"> Lucario, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/892.png" width="22" height="22" align="center"> Urshifu.*
-* **Global Team Auras**:
-  * **Speed II**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/291.png" width="22" height="22" align="center"> Ninjask, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/894.png" width="22" height="22" align="center"> Regieleki, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/135.png" width="22" height="22" align="center"> Jolteon, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/386.png" width="22" height="22" align="center"> Deoxys-Speed, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/101.png" width="22" height="22" align="center"> Electrode.
-  * **Strength I**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/68.png" width="22" height="22" align="center"> Machamp, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/798.png" width="22" height="22" align="center"> Kartana, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/384.png" width="22" height="22" align="center"> Rayquaza, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/612.png" width="22" height="22" align="center"> Haxorus, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/289.png" width="22" height="22" align="center"> Slaking.
-  * **Resistance I**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/377.png" width="22" height="22" align="center"> Regirock, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/379.png" width="22" height="22" align="center"> Registeel, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/208.png" width="22" height="22" align="center"> Steelix, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/411.png" width="22" height="22" align="center"> Bastiodon, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/213.png" width="22" height="22" align="center"> Shuckle, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1003.png" width="22" height="22" align="center"> Ting-Lu.
-  * **Shiny Luck (1.4x–3.0x Multiplier)**: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/493.png" width="22" height="22" align="center"> Arceus, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/385.png" width="22" height="22" align="center"> Jirachi, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/151.png" width="22" height="22" align="center"> Mew, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/251.png" width="22" height="22" align="center"> Celebi, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/494.png" width="22" height="22" align="center"> Victini, <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/490.png" width="22" height="22" align="center"> Manaphy.
+### 5. Field Operations, Support Roles & Passive Team Auras
+
+<table width="100%">
+  <thead>
+    <tr>
+      <th width="24%" align="left">Field / Support Task</th>
+      <th width="32%" align="left">Mechanics & Item Drops</th>
+      <th width="44%" align="left">Representative Species Gallery</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><b>Harvester</b><br><code>cobblebase:harvester</code></td>
+      <td><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/miracle-seed.png" width="18" height="18" align="absmiddle"> 250+ Grass & Bug species harvest mature crops, apricorns, berries, and mints.</td>
+      <td>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/3.png" width="22" height="22" align="absmiddle"> Venusaur
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/154.png" width="22" height="22" align="absmiddle"> Meganium
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/251.png" width="22" height="22" align="absmiddle"> Celebi
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/254.png" width="22" height="22" align="absmiddle"> Sceptile
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/389.png" width="22" height="22" align="absmiddle"> Torterra
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/497.png" width="22" height="22" align="absmiddle"> Serperior
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/652.png" width="22" height="22" align="absmiddle"> Chesnaught
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/812.png" width="22" height="22" align="absmiddle"> Rillaboom
+      </td>
+    </tr>
+    <tr>
+      <td><b>Mining</b><br><code>cobblebase:mining</code></td>
+      <td><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/hard-stone.png" width="18" height="18" align="absmiddle"> 200+ Rock, Ground & Steel species dig for regional ores scaled by proficiency.</td>
+      <td>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/208.png" width="22" height="22" align="absmiddle"> Steelix
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/248.png" width="22" height="22" align="absmiddle"> Tyranitar
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/306.png" width="22" height="22" align="absmiddle"> Aggron
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/464.png" width="22" height="22" align="absmiddle"> Rhyperior
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/526.png" width="22" height="22" align="absmiddle"> Gigalith
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/530.png" width="22" height="22" align="absmiddle"> Excadrill
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1003.png" width="22" height="22" align="absmiddle"> Ting-Lu
+      </td>
+    </tr>
+    <tr>
+      <td><b>Fishing & Diving</b><br><code>cobblebase:fishing</code></td>
+      <td><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/super-rod.png" width="18" height="18" align="absmiddle"> 180+ Water species catch fish, marine treasures, and submerged artifacts.</td>
+      <td>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/9.png" width="22" height="22" align="absmiddle"> Blastoise
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/130.png" width="22" height="22" align="absmiddle"> Gyarados
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/230.png" width="22" height="22" align="absmiddle"> Kingdra
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/321.png" width="22" height="22" align="absmiddle"> Wailord
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/382.png" width="22" height="22" align="absmiddle"> Kyogre
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/746.png" width="22" height="22" align="absmiddle"> Wishiwashi
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/977.png" width="22" height="22" align="absmiddle"> Dondozo
+      </td>
+    </tr>
+    <tr>
+      <td><b>Archeologist</b><br><code>cobblebase:archeologist</code></td>
+      <td><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/helix-fossil.png" width="18" height="18" align="absmiddle"> 120+ Fossil & Ancient species excavate relics, fossils, and sherds.</td>
+      <td>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/31.png" width="22" height="22" align="absmiddle"> Nidoqueen
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/34.png" width="22" height="22" align="absmiddle"> Nidoking
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/142.png" width="22" height="22" align="absmiddle"> Aerodactyl
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/344.png" width="22" height="22" align="absmiddle"> Claydol
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/411.png" width="22" height="22" align="absmiddle"> Bastiodon
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/561.png" width="22" height="22" align="absmiddle"> Sigilyph
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/697.png" width="22" height="22" align="absmiddle"> Tyrantrum
+      </td>
+    </tr>
+    <tr>
+      <td><b>Healer</b><br><code>cobblebase:healer</code></td>
+      <td><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/full-restore.png" width="18" height="18" align="absmiddle"> Passively restores party HP and revives fainted team members over time.</td>
+      <td>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/113.png" width="22" height="22" align="absmiddle"> Chansey
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/242.png" width="22" height="22" align="absmiddle"> Blissey
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/468.png" width="22" height="22" align="absmiddle"> Togekiss
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/531.png" width="22" height="22" align="absmiddle"> Audino
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/716.png" width="22" height="22" align="absmiddle"> Xerneas
+      </td>
+    </tr>
+    <tr>
+      <td><b>Mentor</b><br><code>cobblebase:mentor</code></td>
+      <td><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/exp-share.png" width="18" height="18" align="absmiddle"> Channels continuous passive XP to all pastured Pokémon.</td>
+      <td>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/65.png" width="22" height="22" align="absmiddle"> Alakazam
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/150.png" width="22" height="22" align="absmiddle"> Mewtwo
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/381.png" width="22" height="22" align="absmiddle"> Latios
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/481.png" width="22" height="22" align="absmiddle"> Mesprit
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/898.png" width="22" height="22" align="absmiddle"> Calyrex
+      </td>
+    </tr>
+    <tr>
+      <td><b>Guard</b><br><code>cobblebase:guard</code></td>
+      <td><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/muscle-band.png" width="18" height="18" align="absmiddle"> Patrols base borders and repels wild aggressive spawns for combat XP and loot.</td>
+      <td>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/212.png" width="22" height="22" align="absmiddle"> Scizor
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/448.png" width="22" height="22" align="absmiddle"> Lucario
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/475.png" width="22" height="22" align="absmiddle"> Gallade
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/727.png" width="22" height="22" align="absmiddle"> Incineroar
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/892.png" width="22" height="22" align="absmiddle"> Urshifu
+      </td>
+    </tr>
+    <tr>
+      <td><b>Global Team Auras</b></td>
+      <td>
+        • <b>Speed II</b>: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/carbos.png" width="16" height="16" align="absmiddle"><br>
+        • <b>Strength I</b>: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/protein.png" width="16" height="16" align="absmiddle"><br>
+        • <b>Resistance I</b>: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/iron.png" width="16" height="16" align="absmiddle"><br>
+        • <b>Shiny Luck (1.4–3x)</b>: <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/shiny-charm.png" width="16" height="16" align="absmiddle">
+      </td>
+      <td>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/101.png" width="20" height="20" align="absmiddle"> Electrode
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/135.png" width="20" height="20" align="absmiddle"> Jolteon
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/291.png" width="20" height="20" align="absmiddle"> Ninjask
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/894.png" width="20" height="20" align="absmiddle"> Regieleki<br>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/68.png" width="20" height="20" align="absmiddle"> Machamp
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/289.png" width="20" height="20" align="absmiddle"> Slaking
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/384.png" width="20" height="20" align="absmiddle"> Rayquaza
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/798.png" width="20" height="20" align="absmiddle"> Kartana<br>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/213.png" width="20" height="20" align="absmiddle"> Shuckle
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/377.png" width="20" height="20" align="absmiddle"> Regirock
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/379.png" width="20" height="20" align="absmiddle"> Registeel<br>
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/151.png" width="20" height="20" align="absmiddle"> Mew
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/385.png" width="20" height="20" align="absmiddle"> Jirachi
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/493.png" width="20" height="20" align="absmiddle"> Arceus
+      </td>
+    </tr>
+  </tbody>
+</table>
 
 ---
 
 <a id="proficiency-scaling-system"></a>
-## <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/stardust.png" width="24" height="24" align="center"> Proficiency Scaling System (1–5 Stars)
+## <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/stardust.png" width="24" height="24" align="absmiddle"> Proficiency Scaling System (1–5 Stars)
 
 Production cooldowns scale dynamically with a Pokémon's skill proficiency rating:
 
 $$\text{Effective Cooldown Ticks} = \text{Base Cooldown Seconds} \times 20 \times \frac{6 - \text{Proficiency}}{3}$$
 
-| Proficiency Rating | Rank Level | Cooldown Multiplier | Production Efficiency & Output |
-| :---: | :--- | :---: | :--- |
-| <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/star-piece.png" width="16" height="16"> | **Novice (1 Star)** | `1.67x` | Takes 67% longer than base (`5/3`). Entry-level generation speed. |
-| <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/star-piece.png" width="16" height="16"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/star-piece.png" width="16" height="16"> | **Apprentice (2 Stars)** | `1.33x` | Takes 33% longer than base (`4/3`). Moderate generation speed. |
-| <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/star-piece.png" width="16" height="16"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/star-piece.png" width="16" height="16"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/star-piece.png" width="16" height="16"> | **Skilled (3 Stars)** | `1.00x` | **Standard Baseline** (`3/3`). Configured default speed. |
-| <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/star-piece.png" width="16" height="16"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/star-piece.png" width="16" height="16"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/star-piece.png" width="16" height="16"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/star-piece.png" width="16" height="16"> | **Expert (4 Stars)** | `0.67x` | **33% Faster** (`2/3`). Unlocks elevated rare drop tables. |
-| <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/star-piece.png" width="16" height="16"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/star-piece.png" width="16" height="16"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/star-piece.png" width="16" height="16"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/star-piece.png" width="16" height="16"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/star-piece.png" width="16" height="16"> | **Master (5 Stars)** | `0.33x` | **3x Faster Speed** (`1/3`). Maximum rare yields & jackpot chances. |
+<table width="100%">
+  <thead>
+    <tr>
+      <th width="25%" align="center">Proficiency Rating</th>
+      <th width="20%" align="left">Rank Level</th>
+      <th width="15%" align="center">Multiplier</th>
+      <th width="40%" align="left">Production Efficiency & Output</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td align="center"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/star-piece.png" width="16" height="16" align="absmiddle"></td>
+      <td><b>Novice (1 Star)</b></td>
+      <td align="center"><code>1.67x</code></td>
+      <td>Takes 67% longer than base (<code>5/3</code>). Entry-level speed.</td>
+    </tr>
+    <tr>
+      <td align="center"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/star-piece.png" width="16" height="16" align="absmiddle"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/star-piece.png" width="16" height="16" align="absmiddle"></td>
+      <td><b>Apprentice (2 Stars)</b></td>
+      <td align="center"><code>1.33x</code></td>
+      <td>Takes 33% longer than base (<code>4/3</code>). Moderate speed.</td>
+    </tr>
+    <tr>
+      <td align="center"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/star-piece.png" width="16" height="16" align="absmiddle"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/star-piece.png" width="16" height="16" align="absmiddle"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/star-piece.png" width="16" height="16" align="absmiddle"></td>
+      <td><b>Skilled (3 Stars)</b></td>
+      <td align="center"><code>1.00x</code></td>
+      <td><b>Standard Baseline</b> (<code>3/3</code>). Default configured speed.</td>
+    </tr>
+    <tr>
+      <td align="center"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/star-piece.png" width="16" height="16" align="absmiddle"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/star-piece.png" width="16" height="16" align="absmiddle"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/star-piece.png" width="16" height="16" align="absmiddle"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/star-piece.png" width="16" height="16" align="absmiddle"></td>
+      <td><b>Expert (4 Stars)</b></td>
+      <td align="center"><code>0.67x</code></td>
+      <td><b>33% Faster</b> (<code>2/3</code>). Unlocks elevated rare drop tables.</td>
+    </tr>
+    <tr>
+      <td align="center"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/star-piece.png" width="16" height="16" align="absmiddle"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/star-piece.png" width="16" height="16" align="absmiddle"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/star-piece.png" width="16" height="16" align="absmiddle"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/star-piece.png" width="16" height="16" align="absmiddle"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/star-piece.png" width="16" height="16" align="absmiddle"></td>
+      <td><b>Master (5 Stars)</b></td>
+      <td align="center"><code>0.33x</code></td>
+      <td><b>3x Faster Speed</b> (<code>1/3</code>). Maximum rare yields & jackpot chances.</td>
+    </tr>
+  </tbody>
+</table>
 
 ---
 
 <a id="controls--automation-setup"></a>
-## <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/super-rod.png" width="24" height="24" align="center"> Controls & Automation Setup
+## <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/super-rod.png" width="24" height="24" align="absmiddle"> Controls & Automation Setup
 
-| Step | Action | Description |
-| :---: | :--- | :--- |
-| **1** | **Place Pasture Block** | Craft and place the Virtual Pasture block anywhere in your base. |
-| **2** | **Tether Pokémon** | **Right-Click** the block to open the pasture menu and tether your Pokémon team. |
-| **3** | **Select 3D Visual Mode** | Click the **Visual Mode** button in the GUI to cycle modes: `Cyber Wireframe` -> `Sci-Fi Hologram` -> `Ethereal Ghost` -> `Disabled`. |
-| **4** | **Assign Base Jobs** | Click **Cobblebase** in the GUI to choose specific jobs, or leave unassigned for automatic highest-proficiency execution. |
-| **5** | **Connect Hopper Automation** | Place a vanilla or modded **hopper directly underneath** the pasture block to extract all generated items into chests. |
-| **6** | **Open 27-Slot Internal Storage** | **Shift + Right Click** the pasture block at any time to open the internal container. |
-| **7** | **Interactive Draggable HUD** | Click the **`[⚙]`** button to drag and reposition the Pasture Stats overlay and control buttons on your screen. |
+<table width="100%">
+  <thead>
+    <tr>
+      <th width="10%" align="center">Step</th>
+      <th width="25%" align="left">Action</th>
+      <th width="65%" align="left">Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td align="center"><b>1</b></td>
+      <td><b>Place Pasture Block</b></td>
+      <td>Craft and place the Virtual Pasture block anywhere in your base.</td>
+    </tr>
+    <tr>
+      <td align="center"><b>2</b></td>
+      <td><b>Tether Pokémon</b></td>
+      <td><b>Right-Click</b> the block to open the pasture menu and tether your Pokémon team.</td>
+    </tr>
+    <tr>
+      <td align="center"><b>3</b></td>
+      <td><b>Select 3D Visual Mode</b></td>
+      <td>Click the <b>Visual Mode</b> button in the GUI to cycle modes: <code>Cyber Wireframe</code> -> <code>Sci-Fi Hologram</code> -> <code>Ethereal Ghost</code> -> <code>Disabled</code>.</td>
+    </tr>
+    <tr>
+      <td align="center"><b>4</b></td>
+      <td><b>Assign Base Jobs</b></td>
+      <td>Click <b>Cobblebase</b> in the GUI to choose specific jobs, or leave unassigned for automatic highest-proficiency execution.</td>
+    </tr>
+    <tr>
+      <td align="center"><b>5</b></td>
+      <td><b>Connect Hopper Automation</b></td>
+      <td>Place a vanilla or modded <b>hopper directly underneath</b> the pasture block to extract all generated items into chests.</td>
+    </tr>
+    <tr>
+      <td align="center"><b>6</b></td>
+      <td><b>Open 27-Slot Internal Storage</b></td>
+      <td><b>Shift + Right Click</b> the pasture block at any time to open the internal container.</td>
+    </tr>
+    <tr>
+      <td align="center"><b>7</b></td>
+      <td><b>Interactive Draggable HUD</b></td>
+      <td>Click the <b><code>[⚙]</code></b> button to drag and reposition the Pasture Stats overlay and control buttons on your screen.</td>
+    </tr>
+  </tbody>
+</table>
 
 ---
 
 <a id="configuration-reference"></a>
-## <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/machine-part.png" width="24" height="24" align="center"> Configuration Reference
+## <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/machine-part.png" width="24" height="24" align="absmiddle"> Configuration Reference
 
 ### 1. General Loot & Ticking (`config/PastureLoot.json`)
 ```json
@@ -302,32 +1112,91 @@ $$\text{Effective Cooldown Ticks} = \text{Base Cooldown Seconds} \times 20 \time
 ---
 
 <a id="compatibility-matrix"></a>
-## <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png" width="24" height="24" align="center"> Compatibility Matrix
+## <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png" width="24" height="24" align="absmiddle"> Compatibility Matrix
 
-| Dependency / Mod | Required Version | Loader Platform | Role / Function |
-| :--- | :--- | :--- | :--- |
-| **Minecraft** | `1.21.1` | Fabric / NeoForge | Base Game Engine |
-| **Cobblemon** | `>=1.7.3` | Fabric / NeoForge | Core Pokémon Framework |
-| **Architectury API** | `>=13.0.8` | Fabric / NeoForge | Cross-Loader Runtime Abstraction |
-| **Fabric API** | `>=0.116.12` | Fabric | Required for Fabric Loader |
-| **NeoForge** | `>=21.1.234` | NeoForge | Required for NeoForge Loader |
-| **[Cobblebase](https://modrinth.com/mod/cobblebase)** | `>=2.0.0` | Supported Addon | 42+ Virtual Palworld jobs, auras & activity log |
-| **[Cobbreeding](https://modrinth.com/mod/cobbreeding)** | `>=2.2.1` | Supported Addon | Virtual egg breeding, timers & Mirror Herb moves |
-| **[Cobbleworkers](https://modrinth.com/mod/cobbleworkers)** | `>=2.0.4` | Supported Addon | Automated worker tasks (Pickup, Fishing, Diving, Archaeology) |
-| **[Cloth Config API](https://modrinth.com/mod/cloth-config)** | `>=15.0.140` | Supported Addon | In-game configuration screen helper |
-| **[Iris / Sodium](https://modrinth.com/mod/iris)** | `>=1.7.0` | Supported Addon | Shader and high-performance rendering engines |
+<table width="100%">
+  <thead>
+    <tr>
+      <th width="20%" align="left">Dependency / Mod</th>
+      <th width="15%" align="left">Required Version</th>
+      <th width="20%" align="left">Loader Platform</th>
+      <th width="45%" align="left">Role / Function</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><b>Minecraft</b></td>
+      <td><code>1.21.1</code></td>
+      <td>Fabric / NeoForge</td>
+      <td>Base Game Engine</td>
+    </tr>
+    <tr>
+      <td><b>Cobblemon</b></td>
+      <td><code>>=1.7.3</code></td>
+      <td>Fabric / NeoForge</td>
+      <td>Core Pokémon Framework</td>
+    </tr>
+    <tr>
+      <td><b>Architectury API</b></td>
+      <td><code>>=13.0.8</code></td>
+      <td>Fabric / NeoForge</td>
+      <td>Cross-Loader Runtime Abstraction</td>
+    </tr>
+    <tr>
+      <td><b>Fabric API</b></td>
+      <td><code>>=0.116.12</code></td>
+      <td>Fabric</td>
+      <td>Required for Fabric Loader</td>
+    </tr>
+    <tr>
+      <td><b>NeoForge</b></td>
+      <td><code>>=21.1.234</code></td>
+      <td>NeoForge</td>
+      <td>Required for NeoForge Loader</td>
+    </tr>
+    <tr>
+      <td><b><a href="https://modrinth.com/mod/cobblebase">Cobblebase</a></b></td>
+      <td><code>>=2.0.0</code></td>
+      <td>Supported Addon</td>
+      <td>42+ Virtual Palworld jobs, auras & activity log</td>
+    </tr>
+    <tr>
+      <td><b><a href="https://modrinth.com/mod/cobbreeding">Cobbreeding</a></b></td>
+      <td><code>>=2.2.1</code></td>
+      <td>Supported Addon</td>
+      <td>Virtual egg breeding, timers & Mirror Herb moves</td>
+    </tr>
+    <tr>
+      <td><b><a href="https://modrinth.com/mod/cobbleworkers">Cobbleworkers</a></b></td>
+      <td><code>>=2.0.4</code></td>
+      <td>Supported Addon</td>
+      <td>Automated worker tasks (Pickup, Fishing, Diving, Archaeology)</td>
+    </tr>
+    <tr>
+      <td><b><a href="https://modrinth.com/mod/cloth-config">Cloth Config API</a></b></td>
+      <td><code>>=15.0.140</code></td>
+      <td>Supported Addon</td>
+      <td>In-game configuration screen helper</td>
+    </tr>
+    <tr>
+      <td><b><a href="https://modrinth.com/mod/iris">Iris / Sodium</a></b></td>
+      <td><code>>=1.7.0</code></td>
+      <td>Supported Addon</td>
+      <td>Shader and high-performance rendering engines</td>
+    </tr>
+  </tbody>
+</table>
 
 ---
 
 <a id="credits--attributions"></a>
-## <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/exp-share.png" width="24" height="24" align="center"> Credits & Attributions
+## <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/exp-share.png" width="24" height="24" align="absmiddle"> Credits & Attributions
 
 * **[LunazStudios](https://github.com/LunazStudios)** — Original creator of **[Cobblemon Virtual Loot](https://github.com/LunazStudios/VirtualLoot)**.
 * **[notlown](https://github.com/notlown)** — Creator of **[Cobblebase](https://github.com/notlown/cobblebase)**.
 * **[The Cobblemon Team](https://cobblemon.com/)** — Creators of Cobblemon and the pasture framework.
 * **[ludichat](https://github.com/ludichat)** — Creator of **[Cobbreeding](https://modrinth.com/mod/cobbreeding)**.
 * **[Accieo](https://github.com/Accieo)** — Creator of **[Cobbleworkers](https://modrinth.com/mod/cobbleworkers)**.
-* **[The SVCMC Team](https://github.com/the-svcmc-team)** — Creators of **[svc-holograms](https://github.com/the-svcmc-team/svc-holograms)** for the holographic shader pipeline.
 * **gxenzy & Contributors** — Extended edition compatibility bridge, 3D visual projection engine, zero-push physics, draggable HUD editor, and automated release workflows.
 
 *Licensed under the [MIT License](LICENSE.txt) with portions adapted under [MPL-2.0](https://mozilla.org/MPL/2.0/).*
