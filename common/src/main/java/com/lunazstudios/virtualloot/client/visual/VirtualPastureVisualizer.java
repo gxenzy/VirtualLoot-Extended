@@ -9,6 +9,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.MoverType;
+import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.*;
@@ -71,7 +72,7 @@ public class VirtualPastureVisualizer {
                 visualEntity.setInvulnerable(true);
                 visualEntity.setSilent(true);
                 
-                // Only Ghost (mode 3) has noPhysics / floating. Mode 1 and 2 walk normally on the ground.
+                // Only Ghost (mode 3) has noPhysics / floating
                 visualEntity.noPhysics = (mode == 3);
                 visualEntity.setOnGround(mode != 3);
 
@@ -85,14 +86,21 @@ public class VirtualPastureVisualizer {
                 visualEntity.setCustomName(Component.literal(pkmn.getDisplayName(false).getString() + " Lv. " + pkmn.getLevel()));
                 visualEntity.setCustomNameVisible(true);
 
-                // Spread Pokémon around pasture radius so they don't stack on each other
+                // Spread Pokémon around pasture radius
                 double baseRadius = 3.5;
                 double angle = (2.0 * Math.PI / Math.max(1, pokemonList.size())) * i + (id.hashCode() % 100) * 0.005;
                 double dist = baseRadius + (i % 3) * 1.5;
                 double spawnX = pos.getX() + 0.5 + Math.cos(angle) * dist;
                 double spawnZ = pos.getZ() + 0.5 + Math.sin(angle) * dist;
-                // Mode 1 and 2 spawn directly on the ground. Mode 3 (Ghost) floats slightly above.
-                double spawnY = pos.getY() + 1.0 + (mode == 3 ? 0.6 : 0.0);
+
+                // Find terrain height so walking Pokémon spawn directly on the ground
+                int blockX = (int) Math.floor(spawnX);
+                int blockZ = (int) Math.floor(spawnZ);
+                int topY = world.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, blockX, blockZ);
+                double spawnY = (topY > 0) ? topY : pos.getY();
+                if (mode == 3) {
+                    spawnY += 0.8; // Ghost hovers above terrain
+                }
 
                 visualEntity.setPos(spawnX, spawnY, spawnZ);
                 visualEntity.xo = spawnX;
@@ -172,12 +180,12 @@ public class VirtualPastureVisualizer {
 
         // ONLY Ghost (mode 3) has subtle spirit particles
         if (mode == 3) {
-            if (rand.nextFloat() < 0.2f) {
+            if (rand.nextFloat() < 0.15f) {
                 world.addParticle(ParticleTypes.SOUL_FIRE_FLAME, ex + (rand.nextDouble() - 0.5) * 0.5, ey + (rand.nextDouble() - 0.5) * 0.5, ez + (rand.nextDouble() - 0.5) * 0.5, 0, 0.02, 0);
             }
         }
 
-        // Roaming behavior within a wide 8-block pasture boundary
+        // Roaming behavior within pasture radius
         if (holder.roamCooldown-- <= 0) {
             holder.roamCooldown = 100 + rand.nextInt(120);
 
@@ -208,10 +216,22 @@ public class VirtualPastureVisualizer {
             double speed = (mode == 3) ? 0.03 : 0.045;
             double vx = Math.cos(angle) * speed;
             double vz = Math.sin(angle) * speed;
-            // Mode 1 and 2 walk on the ground (vy = 0). Mode 3 (Ghost) floats up and down gently.
-            double vy = (mode == 3) ? Math.sin(entity.tickCount * 0.1) * 0.015 : 0.0;
-            
-            entity.move(MoverType.SELF, new Vec3(vx, vy, vz));
+            entity.move(MoverType.SELF, new Vec3(vx, 0.0, vz));
+        }
+
+        // Terrain snap / Height calculation
+        int blockX = (int) Math.floor(entity.getX());
+        int blockZ = (int) Math.floor(entity.getZ());
+        int topY = world.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, blockX, blockZ);
+        double groundY = (topY > 0) ? topY : pasturePos.getY();
+
+        if (mode == 3) {
+            // Mode 3 (Ghost): Smooth hovering and bouncing in the air above terrain
+            double hoverY = groundY + 0.75 + 0.2 * Math.sin(entity.tickCount * 0.08);
+            entity.setPos(entity.getX(), hoverY, entity.getZ());
+        } else {
+            // Mode 1 (Wireframe) and Mode 2 (Hologram): Walk directly on solid ground
+            entity.setPos(entity.getX(), groundY, entity.getZ());
         }
     }
 
