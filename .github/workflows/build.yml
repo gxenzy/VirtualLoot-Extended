@@ -2,22 +2,8 @@ name: Build & Release Virtual Loot (Extended Edition)
 
 on:
   push:
-    branches: [ main, master ]
-    tags: [ 'v*' ]
-    paths-ignore:
-      - '**.md'
-      - 'docs/**'
-      - 'LICENSE*'
-      - '.gitignore'
-      - '.gitattributes'
-  pull_request:
-    branches: [ main, master ]
-    paths-ignore:
-      - '**.md'
-      - 'docs/**'
-      - 'LICENSE*'
-      - '.gitignore'
-      - '.gitattributes'
+    tags:
+      - 'v*'
   workflow_dispatch:
     inputs:
       version_type:
