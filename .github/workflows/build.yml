@@ -98,113 +98,178 @@ jobs:
           echo "" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
 
-      - name: Generate Comprehensive Release Notes Body
+      - name: Generate Dynamic Release Notes Body
         run: |
-          cat << 'EOF' > release_body.md
-          # Virtual Loot: Extended [${{ env.MC_VERSION }}] v${{ env.MOD_VERSION }} - ${{ env.VERSION_SUBTITLE }}
+          # 1. Parse versions dynamically from gradle.properties
+          MOD_VER=$(grep "mod_version=" gradle.properties | cut -d'=' -f2 | tr -d '\r')
+          MC_VER=$(grep "minecraft_version=" gradle.properties | cut -d'=' -f2 | tr -d '\r')
+          COBBLEMON_VER=$(grep "cobblemon_version=" gradle.properties | cut -d'=' -f2 | tr -d '\r')
+          ARCH_VER=$(grep "architectury_api_version=" gradle.properties | cut -d'=' -f2 | tr -d '\r')
+          FABRIC_VER=$(grep "fabric_api_version=" gradle.properties | cut -d'=' -f2 | tr -d '\r')
+          NEO_VER=$(grep "neoforge_version=" gradle.properties | cut -d'=' -f2 | tr -d '\r')
+          BREEDING_VER=$(grep "cobbreeding_version=" gradle.properties | cut -d'=' -f2 | tr -d '\r')
+          WORKERS_VER=$(grep "cobbleworkers_version=" gradle.properties | cut -d'=' -f2 | tr -d '\r')
+          REPO_URL="https://github.com/${{ github.repository }}"
 
-          > **Version Type:** **${{ env.VERSION_TYPE }}** (${{ env.VERSION_TYPE == 'Release' && 'Stable Production' || 'Experimental / Testing' }})  
-          > **Target Minecraft:** `1.21.1`  
-          > **Environment:** **Client & Server: Required on both** (Works on Singleplayer & Dedicated Servers)  
-          > **Supported Loaders:** Fabric, NeoForge  
+          # 2. Determine git range for dynamic changelog
+          PREV_TAG=$(git tag --sort=-creatordate | grep -v "^${RELEASE_TAG}$" | head -n 1)
+          if [ -n "$PREV_TAG" ]; then
+            RANGE="${PREV_TAG}..HEAD"
+            RANGE_TITLE="Changes since ${PREV_TAG}"
+            COMPARE_LINK="[Full Changelog & Diff](${REPO_URL}/compare/${PREV_TAG}...${RELEASE_TAG})"
+          else
+            RANGE="HEAD"
+            RANGE_TITLE="Complete Version History"
+            COMPARE_LINK="[Initial Release Tree](${REPO_URL}/tree/${RELEASE_TAG})"
+          fi
+
+          # 3. Categorize commits dynamically
+          FEAT_LOG=""
+          FIX_LOG=""
+          VISUAL_LOG=""
+          PERF_LOG=""
+          DOCS_LOG=""
+          CHORE_LOG=""
+          OTHER_LOG=""
+
+          while IFS='|' read -r hash author title; do
+            [ -z "$hash" ] && continue
+            LINE="* ${title} ([${hash}](${REPO_URL}/commit/${hash})) - @${author}"
+            case "${title,,}" in
+              *feat\(visual*|*fix\(visual*|*feat*visual*|*fix*visual*|*shader*|*wireframe*|*hologram*|*ghost*)
+                VISUAL_LOG="${VISUAL_LOG}"$'\n'"${LINE}"
+                ;;
+              *feat*|*feature*)
+                FEAT_LOG="${FEAT_LOG}"$'\n'"${LINE}"
+                ;;
+              *fix*|*crash*|*compat*|*safety*)
+                FIX_LOG="${FIX_LOG}"$'\n'"${LINE}"
+                ;;
+              *perf*|*optimi*|*deadlock*|*freeze*)
+                PERF_LOG="${PERF_LOG}"$'\n'"${LINE}"
+                ;;
+              *doc*|*readme*|*audit*|*changelog*)
+                DOCS_LOG="${DOCS_LOG}"$'\n'"${LINE}"
+                ;;
+              *chore*|*ci*|*build*|*gradle*|*config*)
+                CHORE_LOG="${CHORE_LOG}"$'\n'"${LINE}"
+                ;;
+              *)
+                OTHER_LOG="${OTHER_LOG}"$'\n'"${LINE}"
+                ;;
+            esac
+          done < <(git log ${RANGE} --pretty=format:"%h|%an|%s")
+
+          # 4. Generate dynamic file checksum table
+          JAR_TABLE="| Filename | File Size | SHA-256 Checksum |"$'\n'"| :--- | :---: | :--- |"
+          for jar in release_jars/*.jar; do
+            if [ -f "$jar" ]; then
+              FNAME=$(basename "$jar")
+              FSIZE=$(ls -lh "$jar" | awk '{print $5}')
+              FSHA=$(sha256sum "$jar" | awk '{print $1}')
+              JAR_TABLE="${JAR_TABLE}"$'\n'"| \`${FNAME}\` | ${FSIZE} | \`${FSHA}\` |"
+            fi
+          done
+
+          # 5. Assemble dynamic release_body.md
+          cat << EOF > release_body.md
+          # Virtual Loot: Extended [${MC_VER}] ${RELEASE_TAG} - ${{ env.VERSION_SUBTITLE }}
+
+          > **Release Status:** **${{ env.VERSION_TYPE }}** (${{ env.VERSION_TYPE == 'Release' && 'Production Build' || 'Testing Build' }})  
+          > **Target Minecraft:** \`${MC_VER}\`  
+          > **Required On:** **Client & Server**  
+          > **Supported Platforms:** Fabric, NeoForge  
 
           ---
 
-          ## Metadata & Environment Information
-          * **Mod Name:** Virtual Loot: Extended (`virtualloot`)
-          * **Mod Loaders:** Fabric (>=0.19.3), NeoForge (>=21.1.234)
-          * **Minecraft Version:** 1.21.1
-          * **Cobblemon Version:** 1.7.3+ (also compatible with 1.7.0+)
-          * **Java Runtime:** Java 21 (JDK 21+)
-          * **Environment Compatibility:**
-            * **Client & Server (Required on Both):** Adds custom Virtual Pasture blocks, models, textures, GUI buttons, network sync packets, and server-side virtual ticking logic.
-            * **Singleplayer:** Fully supported out-of-the-box.
-            * **Dedicated Multiplayer Server:** Fully supported. Install the `.jar` on both the server and player clients.
+          ## Production Release Artifacts
+          ${JAR_TABLE}
 
           ---
 
-          ## Dependencies & Compatibility Matrix
+          ## Automated Version Changelog (${RANGE_TITLE})
+          ${COMPARE_LINK}
+          EOF
 
-          ### Required Dependencies
-          | Dependency | Required Version | Loader | Notes |
+          if [ -n "$FEAT_LOG" ]; then
+            cat << EOF >> release_body.md
+
+          ### New Features & Subsystems
+          ${FEAT_LOG}
+          EOF
+          fi
+
+          if [ -n "$VISUAL_LOG" ]; then
+            cat << EOF >> release_body.md
+
+          ### 3D Projection Engine & Visuals
+          ${VISUAL_LOG}
+          EOF
+          fi
+
+          if [ -n "$FIX_LOG" ]; then
+            cat << EOF >> release_body.md
+
+          ### Bug Fixes & Crash Shields
+          ${FIX_LOG}
+          EOF
+          fi
+
+          if [ -n "$PERF_LOG" ]; then
+            cat << EOF >> release_body.md
+
+          ### Performance & Memory Optimizations
+          ${PERF_LOG}
+          EOF
+          fi
+
+          if [ -n "$DOCS_LOG" ]; then
+            cat << EOF >> release_body.md
+
+          ### Documentation & Configuration
+          ${DOCS_LOG}
+          EOF
+          fi
+
+          if [ -n "$CHORE_LOG" ]; then
+            cat << EOF >> release_body.md
+
+          ### Build & CI/CD Pipelines
+          ${CHORE_LOG}
+          EOF
+          fi
+
+          if [ -n "$OTHER_LOG" ]; then
+            cat << EOF >> release_body.md
+
+          ### Additional Updates
+          ${OTHER_LOG}
+          EOF
+          fi
+
+          cat << EOF >> release_body.md
+
+          ---
+
+          ## Verified Compatibility Matrix
+          | Dependency / Mod | Configured Target Version | Loader | Notes |
           | :--- | :--- | :--- | :--- |
-          | **Minecraft** | `1.21.1` | Both | Base Game |
-          | **Cobblemon** | `>=1.7.3` | Both | Core Pokémon Framework |
-          | **Architectury API** | `>=13.0.8` | Both | Cross-loader runtime abstraction |
-          | **Fabric API** | `>=0.116.12` | Fabric | Required for Fabric Loader |
-          | **NeoForge** | `>=21.1.234` | NeoForge | Required for NeoForge Loader |
-
-          ### Supported Integrations & Related Addons
-          | Mod | Recommended Version | Role / Feature | Notes |
-          | :--- | :--- | :--- | :--- |
-          | **Cobblebase** | `>=2.0.0` | Palworld-style Virtual Base Jobs | Executes Producer, Mining, Harvester, Finder, Auras & Buffs virtually |
-          | **Cobbreeding** | `>=2.2.1` | Virtual Egg Breeding & Ticking | Generates eggs directly into pasture storage with PC GUI crash protection |
-          | **Cobbleworkers** | `>=2.0.4` | Automated Worker Jobs | Pickup, Fishing, Diving, Archaeology virtual jobs |
-          | **Cloth Config API** | `>=15.0.140` | Config screen helper | Required by Cobblebase / VirtualLoot config |
-          | **Xaero's Minimap** | `>=24.7.0` | Minimap Base Waypoints | Integrates with Cobblebase base tracking |
-          | **Iris / Sodium** | `>=1.7.0` | Shader & Performance Engines | Fully compatible with 3D visual projection shaders |
+          | **Minecraft** | \`${MC_VER}\` | Fabric / NeoForge | Base game engine |
+          | **Cobblemon** | \`${COBBLEMON_VER}\` | Fabric / NeoForge | Core Pokémon framework |
+          | **Architectury API** | \`${ARCH_VER}\` | Fabric / NeoForge | Cross-loader abstraction |
+          | **Fabric API** | \`${FABRIC_VER}\` | Fabric | Fabric event and registry bus |
+          | **NeoForge** | \`${NEO_VER}\` | NeoForge | NeoForge mod platform |
+          | **Cobblebase** | \`>=2.0.0\` | Fabric / NeoForge | 42+ Virtual Palworld jobs & team auras |
+          | **Cobbreeding** | \`${BREEDING_VER}\` | Fabric / NeoForge | Virtual egg incubation & Mirror Herb moves |
+          | **Cobbleworkers** | \`${WORKERS_VER}\` | Fabric / NeoForge | Field tasks (Pickup, Fishing, Diving, Archaeology) |
 
           ---
 
-          ## Key Features & Improvements
-
-          ### 1. Server Performance & Virtual Automation
-          * **Zero Server Entity Lag:** Manage up to 16+ Pokémon per pasture block with **0 physical entities spawned**, eliminating server TPS drops, pathfinding spikes, and world entity clutter.
-          * **27-Slot Internal Storage:** All generated produce, mined ores, crops, and drops are collected inside the block. Access anytime with **Shift + Right Click**.
-          * **Hopper Automation:** Place vanilla or modded hoppers directly beneath the Virtual Pasture block to automatically drain all collected items into chests, barrels, or sorting systems.
-          * **Relaxing / Idle Drops:** Pokémon set to Relax / Idle automatically generate their standard Cobblemon species defeat drop tables.
-
-          ### 2. Client-Side 3D Visual Projection Engine
-          * **Mode 1 (Cyber Wireframe):** Electric cyan 3D vector wireframe outlining all polygon edges (Quads, Triangles, Lines) with transparent interiors at high framerates (60-80+ FPS). Full support for dynamic geometry including Charizard tail flames and wing membranes.
-          * **Mode 2 (Sci-Fi Hologram):** Glowing electric cyan holographic energy projection with real-time animated horizontal laser scanlines and fullbright emissive lighting without dark shadows.
-          * **Mode 3 (Ethereal Ghost):** Natural Pokémon textures with 40% Spectator translucency, subtle soul flame mist, and hovering elevation.
-          * **Mode 0 (Disabled):** Disables visual entities for maximum client performance.
-          * **Zero-Push Physics:** Players can walk freely through visual Pokémon without being bumped or physically pushed.
-          * **Terrain Alignment:** Clamps grounded visual models firmly to Minecraft's native terrain heightmaps and distributes spawns across non-overlapping radial angle slots.
-          * **Spawn Effects:** High-density rising particle beam pillar, teleport audio cues, and smooth scale-in materialization vortex.
-
-          ### 3. Cobblebase 2.0+ Full Palworld Jobs Bridge
-          * **42+ Unique Jobs:** Virtual execution for Producer, 12 specialized Finder subtypes (Alchemist, Pharmacist, Architect, Excavator, Botanist, Collector, Scholar, Chef, Trainer, Armorer, Prospector, Smith), Mining, Harvester, Guard, Support Healers/Mentors, and Team Auras.
-          * **Proficiency Cooldown Scaling:** Action cooldowns scale dynamically based on Pokémon skill proficiency rating (1 to 5 stars).
-          * **Activity Log Sync:** Production history is logged directly to Cobblebase's in-game activity history GUI.
-          * **Passive Team Buffs:** Passively ticks party aura buffs (Speed, Strength, Resistance, Healing, Shiny Charm) without requiring physical world mobs.
-
-          ### 4. Cobbreeding & Cobbleworkers Integration
-          * **Virtual Egg Breeding:** Ticks breeding timers, rolls IVs and shinies, and transfers Mirror Herb egg moves directly into pasture inventory.
-          * **PC GUI Crash Protection:** Built-in safety shield prevents unhandled property query crashes when opening storage menus near vanilla blocks.
-          * **Cobbleworkers Tasks:** Automated Pickup, Fishing, Diving, and Archaeology virtual job processing.
-
-          ### 5. Interactive Draggable HUD Editor
-          * Click the in-game `[⚙]` button to drag and reposition pasture overlays and control buttons anywhere on your screen.
-          * Restored mouse clicking and dragging functionality to Pokémon selection list scrollbars.
-
-          ---
-
-          ## Version Changelog
-
-          ### 3D Visual Projection Engine
-          * **3 Projection Modes:** Added **Cyber Wireframe** (cyan vector lattice with transparent faces), **Sci-Fi Hologram** (animated horizontal laser scanlines and fullbright emissive glow), and **Ethereal Ghost** (40% Spectator translucency with soul flame mist).
-          * **Zero-Push Collision:** Injected collision bypass to allow players to walk freely through visual models without physical obstruction or bumping.
-          * **Terrain Elevation Snapping:** Clamped grounded visual entities to Minecraft's native `MOTION_BLOCKING` heightmaps.
-          * **Spawn Effects & Animations:** Added 32-particle rising beam pillars, teleport sound cues, and smooth scale-in materialization vortex curves.
-          * **Nametag Polish:** Delegated nameplate rendering to Cobblemon's native display formatting to eliminate duplicate level labels.
-
-          ### Cobblebase 2.0+ & Palworld Job System
-          * **42+ Virtual Base Jobs:** Background execution for Producer items (Wool, Silk, Milk, Eggs, Honey, Gems, Slime, Fuel, etc.), 12 Finder subtypes, Harvester, Mining, Fishing, Archaeology, and Combat Guards.
-          * **Proficiency Cooldown Scaling:** Dynamic cooldown multiplier formula scaling from 1 to 5 stars (`1.67x` down to `0.33x`).
-          * **Cobblebase Activity Log Sync:** Job completions are recorded directly in Cobblebase's in-game activity history.
-          * **Team Aura Buffs:** Passively ticks party buffs (Speed II, Strength I, Resistance I, Healing, Shiny Charm luck multipliers).
-
-          ### Storage, Breeding & Mod Compatibility
-          * **27-Slot Internal Storage:** All generated resources, crops, ores, and eggs collect inside the block. Access anytime via **Shift + Right Click**.
-          * **Automated Hopper Routing:** Pulls items automatically into chests or sorting networks via hoppers placed underneath.
-          * **Cobbreeding Virtual Egg Bridge:** Virtual egg breeding timers, IV rolls, shiny chances, and Mirror Herb egg move transfers.
-          * **PC GUI Crash Shield:** Intercepts property queries to safely prevent `IllegalArgumentException` crashes when opening PC storage near vanilla blocks.
-          * **Cobbleworkers Tasks:** Automated Pickup, Fishing, Diving, and Archaeology virtual job processing.
-
-          ### User Interface & Controls
-          * **Interactive Draggable HUD:** In-game `[⚙]` button to drag and reposition the Pasture Stats overlay and control buttons to custom screen positions.
-          * **Scrollbar Fix:** Restored mouse clicking and dragging functionality in pasture Pokémon selection scroll lists.
+          ## Core System Summary
+          * **Zero Server Lag**: Virtualizes Pokémon jobs inside pasture blocks with 0 physical entities spawned.
+          * **3D Visual Projections**: Client-side Cyber Wireframe, Sci-Fi Hologram, and Ethereal Ghost modes with zero player push collision and native heightmap snapping.
+          * **27-Slot Storage**: Built-in container collecting all crops, mined minerals, items, and eggs with automated hopper extraction.
+          * **Draggable HUD**: In-game \`[⚙]\` editor to reposition overlay coordinates.
 
           ---
 
